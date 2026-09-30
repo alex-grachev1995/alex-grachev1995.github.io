@@ -1,0 +1,1153 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Gap</title>
+<style>
+:root{
+  --ink:#2f3a52; --muted:#6b7794; --navy:#1d2d50;
+  --gold:#e8930c; --terra:#d1495b; --blue:#2e6f9e;
+  --card:#ffffff; --line:rgba(29,45,80,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);
+  min-height:100vh;padding:14px;overflow-x:hidden;transition:color .8s}
+/* ---------- act backgrounds (two fixed layers, JS crossfades) ---------- */
+#bg1,#bg2{position:fixed;inset:0;z-index:-3;transition:opacity 1.4s ease;pointer-events:none}
+#waves{position:fixed;left:0;bottom:0;width:100%;height:44vh;z-index:-2;
+  pointer-events:none;overflow:hidden}
+#waves .slide{position:absolute;bottom:0;left:0;height:100%;animation:drift linear infinite}
+#waves .w2 .slide{animation-duration:26s;opacity:.7}
+#waves .w1 .slide{animation-duration:17s}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-1600px)}}
+body.act-a1 #waves path.f1{fill:rgba(126,156,196,.20)} body.act-a1 #waves path.f2{fill:rgba(126,156,196,.12)}
+body.act-a2 #waves path.f1{fill:rgba(238,155,42,.26)}  body.act-a2 #waves path.f2{fill:rgba(238,155,42,.14)}
+body.act-a3 #waves path.f1{fill:rgba(84,172,135,.22)}  body.act-a3 #waves path.f2{fill:rgba(84,172,135,.12)}
+body.act-a4 #waves path.f1{fill:rgba(146,120,196,.22)} body.act-a4 #waves path.f2{fill:rgba(146,120,196,.12)}
+#waves path{transition:fill 1.4s ease}
+
+#wrap{max-width:1240px;margin:0 auto;position:relative;z-index:1}
+h1{font-size:1.5em;text-align:center;color:var(--navy);letter-spacing:.6px}
+.sub{text-align:center;color:var(--muted);font-size:.86em;margin:4px 0 10px}
+#boot{text-align:center;font-size:.70em;padding:4px;border-radius:6px;margin-bottom:9px;
+  background:rgba(214,84,66,.12);color:#a33b2a;transition:all .4s}
+#boot.ok{background:rgba(84,172,135,.14);color:#2e7d5b}
+#err{display:none;background:#fbe4df;border:2px solid #d65442;border-radius:9px;
+  padding:10px;margin-bottom:10px;font-family:monospace;font-size:.78em;line-height:1.5;color:#7c2418}
+
+.sec{display:none}
+.sec.on{display:block;animation:fadein .5s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px;margin-bottom:10px;box-shadow:0 6px 24px rgba(29,45,80,.08)}
+.lab{font-size:.66em;letter-spacing:1.4px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.note{font-size:.90em;color:var(--ink);line-height:1.62}
+.note b{color:var(--navy)}
+.btn{border:none;border-radius:11px;padding:11px 20px;font-size:.93em;font-weight:800;
+  cursor:pointer;color:#fff;background:var(--navy);margin:4px 4px 0 0;
+  box-shadow:0 3px 10px rgba(29,45,80,.18);transition:all .15s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn.g{background:#eef1f7;color:var(--navy);border:1px solid var(--line);box-shadow:none}
+.btn.w{width:100%}
+.btn.sm{padding:8px 14px;font-size:.84em}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;filter:none}
+
+.two{display:grid;grid-template-columns:1fr 322px;gap:12px;align-items:start}
+@media(max-width:1020px){.two{grid-template-columns:1fr}}
+#cvbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;
+  box-shadow:0 6px 24px rgba(29,45,80,.08)}
+canvas{display:block;width:100%;height:auto}
+
+.rd{font-family:'Consolas','SF Mono',monospace;background:#f4f6fb;
+  border:1px solid var(--line);border-radius:11px;padding:10px 12px;font-size:.82em;margin-bottom:10px}
+.rd div{display:flex;justify-content:space-between;padding:2.5px 0;gap:8px}
+.rd b{color:var(--navy)}
+.rd b.bad{color:#c0392b}
+.rd b.good{color:#1e8e5a}
+.rd .hd{display:block;color:var(--muted);font-weight:800;font-size:.95em;letter-spacing:.6px;
+  border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:4px}
+
+.iv{background:#fbfcfe;border:1.5px solid var(--line);border-radius:12px;
+  padding:9px 11px;margin-bottom:7px;transition:all .15s;position:relative}
+.iv .nm{font-size:.87em;font-weight:800;color:var(--navy)}
+.iv .ef{font-size:.75em;color:var(--muted);margin-top:2px;line-height:1.45}
+.iv .ef b{color:var(--ink)}
+.iv .st{font-size:.74em;font-weight:700;margin-top:3px}
+.iv .st.wait{color:#b07800}
+.iv .st.live{color:#1e8e5a}
+.iv .st.off{color:var(--muted)}
+.iv.lock{opacity:.42}
+.iv.ready{cursor:pointer;border-color:rgba(232,147,12,.65);background:#fff8ec}
+.iv.ready:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,147,12,.25)}
+.iv.ready::after{content:'▶ tap to deploy';position:absolute;top:9px;right:10px;
+  font-size:.66em;font-weight:800;color:#b07800;letter-spacing:.4px}
+.iv.done{border-color:rgba(30,142,90,.5);background:#f2fbf6}
+.ramp{height:5px;background:rgba(29,45,80,.10);border-radius:99px;margin-top:5px;overflow:hidden}
+.ramp div{height:100%;background:linear-gradient(90deg,#54ac87,#1e8e5a);width:0;transition:width .3s}
+.iv .num{display:inline-flex;width:19px;height:19px;border-radius:50%;color:#fff;font-size:.72em;
+  font-weight:800;align-items:center;justify-content:center;margin-right:6px;vertical-align:-4px}
+.num.d{background:var(--blue)} .num.b{background:var(--terra)}
+
+#hint{font-size:.76em;font-weight:700;text-align:center;border-radius:9px;padding:6px 8px;
+  margin-top:8px;line-height:1.4}
+#hint.stop{background:#fff3dc;color:#8a5a00;border:1px solid rgba(232,147,12,.4)}
+#hint.go{background:#eef4fb;color:var(--blue);border:1px solid rgba(46,111,158,.25)}
+#hint.done{background:#eefaf2;color:#1e8e5a;border:1px solid rgba(30,142,90,.3)}
+
+.card{background:#fff;border:1px solid var(--line);border-left:5px solid #4a69bd;border-radius:11px;
+  padding:10px 12px;font-size:.85em;line-height:1.55;margin-bottom:7px;
+  box-shadow:0 2px 8px rgba(29,45,80,.06);animation:fadein .35s ease}
+.card.warn{border-left-color:#e9a13b}.card.bad{border-left-color:#d65442}
+.card.good{border-left-color:#3aae74}.card.info{border-left-color:#4a69bd}
+.card.pause{border-left-color:#8a5a00;background:#fffaf0}
+.card h4{font-size:.92em;margin-bottom:3px;color:var(--navy)}
+.card b{color:var(--navy)}
+#cards{max-height:265px;overflow-y:auto;display:flex;flex-direction:column;padding-right:3px}
+
+.vd{border-radius:12px;padding:12px;font-size:.88em;line-height:1.6;margin-top:9px}
+.vd.ok{background:#eefaf2;border:1.5px solid rgba(30,142,90,.45)}
+.vd.no{background:#fdeee9;border:1.5px solid rgba(214,84,66,.45)}
+.vd.info{background:#fff6e6;border:1.5px solid rgba(232,147,12,.45)}
+.vd b{color:var(--navy)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px;font-size:.76em;color:var(--muted)}
+.legend span i{display:inline-block;width:15px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.legend span u{display:inline-block;width:14px;height:11px;border-radius:3px;margin-right:5px;
+  vertical-align:middle;text-decoration:none}
+.big{font-size:1.1em;font-weight:800;color:var(--navy);text-align:center;margin:9px 0;line-height:1.5}
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;
+  animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.42}}
+.shake{animation:shk .45s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+</style>
+</head>
+<body class="act-a1">
+<div id="bg1"></div><div id="bg2"></div>
+<div id="waves">
+  <div class="w1"><div class="slide"><svg width="3200" height="440" viewBox="0 0 3200 440" preserveAspectRatio="none"><g class="g1"><path class="f1" d=""/></g></svg></div></div>
+  <div class="w2"><div class="slide"><svg width="3200" height="440" viewBox="0 0 3200 440" preserveAspectRatio="none"><g class="g2"><path class="f2" d=""/></g></svg></div></div>
+</div>
+
+<div id="wrap">
+  <div id="boot">script did not run</div>
+  <div id="err"></div>
+  <h1>THE GAP</h1>
+  <div class="sub">The population explosion is not a line. It is the space between two lines.</div>
+
+  <!-- INTRO -->
+  <div class="sec on" id="s0">
+    <div class="panel">
+      <div class="note" style="margin-bottom:10px">
+        Everybody draws the population explosion as <b>one rising curve</b>. That curve is real,
+        and it explains nothing at all.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        Population is the difference between two other numbers: <b>how many people are born</b> each
+        year, and <b>how many die</b>. Nothing else. If those two numbers match, population is flat —
+        no matter how enormous they both are.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        So the explosion is not a curve. It is <b>the gap between two curves</b>, and everyone alive
+        today is standing in it.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        Four acts. In the first you watch a world with no medicine. In the second you will cause the
+        population explosion yourself, by doing something unambiguously good. In the third you have
+        to close the gap you opened. In the fourth you discover why that takes so long.
+      </div>
+      <div class="note" style="margin-bottom:12px;color:var(--muted);font-size:.84em">
+        How it works: the years run in short bursts, then the world <b>pauses for a decision</b> —
+        about five times per century. While it is paused you may launch <b>one</b> thing. Watch what
+        it actually does to the curves before you launch the next one.
+      </div>
+      <button class="btn w" id="b0">Act 1 — the world before medicine →</button>
+    </div>
+  </div>
+
+  <!-- ACT INTRO -->
+  <div class="sec" id="s1">
+    <div class="panel">
+      <div class="lab" id="aiL">ACT</div>
+      <div class="big" id="aiT"></div>
+      <div class="note" id="aiB" style="margin-bottom:10px"></div>
+      <div class="note" id="aiG" style="margin-bottom:10px"></div>
+      <button class="btn w" id="b1">Begin →</button>
+    </div>
+  </div>
+
+  <!-- SIM -->
+  <div class="sec" id="s2">
+    <div class="panel" style="padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+        <div><div class="lab" id="pl">ACT</div>
+          <div style="font-size:1.04em;font-weight:800;color:var(--navy)" id="pn"></div></div>
+        <div class="note" style="max-width:640px;font-size:.82em;color:var(--muted)" id="pg"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div>
+        <div id="cvbox"><canvas id="cv"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--terra)"></i>births per 1,000 people</span>
+          <span><i style="background:var(--blue)"></i>deaths per 1,000 people</span>
+          <span><u style="background:rgba(232,147,12,.38)"></u>THE GAP — population rising</span>
+          <span><u style="background:rgba(96,116,190,.30)"></u>gap inverted — population falling</span>
+        </div>
+        <div class="panel" style="padding:11px 13px;margin-top:10px">
+          <div class="lab">WHAT IS HAPPENING <span style="letter-spacing:0;text-transform:none;font-weight:600">· newest at the bottom</span></div>
+          <div id="cards"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel" style="padding:12px">
+          <div class="rd" id="rd"></div>
+          <div class="lab">INTERVENTIONS</div>
+          <div id="ivs"></div>
+          <button class="btn w" id="bRun">▶ Run the years</button>
+          <button class="btn g w sm" id="bRes">↻ Restart this act</button>
+          <div id="hint"></div>
+          <div id="verd"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="sec" id="s3">
+    <div class="panel">
+      <div class="lab">THE FOUR THINGS YOU JUST DISCOVERED</div>
+      <div class="big">Deaths fell first. Births fell later. Everyone alive is standing in the gap.</div>
+      <div class="note" style="margin-bottom:10px">
+        <b>1. A huge population is not the same as a growing one.</b> In Act 1 roughly forty people
+        per thousand were born every year and roughly thirty-seven died. Both numbers were enormous.
+        Population barely moved for a century, because what matters is only ever <b>the difference</b>.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        <b>2. You caused the explosion by doing the right thing.</b> Clean water, vaccines,
+        antibiotics, fertiliser. Nobody on Earth would undo any of them. The death curve fell and the
+        birth curve did not follow for a whole generation, because it takes that long for families to
+        notice that children now survive. <b>That delay is the population explosion.</b> It is not a
+        story about people having more babies. Nobody had more babies. Fewer of them died.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        <b>3. The fastest way to reduce births is to stop children dying.</b> This is the part that
+        sounds backwards and is not. If four of your six children will die, you have six. If you are
+        confident all of them will live, you have two. Contraception alone moved your birth curve
+        slowly; <b>child survival plus girls' education moved it far faster</b>, because it changed
+        what parents actually wanted. Saving children's lives is not what causes population growth.
+        It is what ends it.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        <b>4. You cannot stop instantly.</b> In Act 4 you set fertility to exactly two children per
+        couple and population kept climbing for decades anyway — because the extra babies from
+        twenty-five years earlier were grown up and having babies of their own. A train with the brakes
+        full on still travels a long way. <b>You stop accelerating long before you stop moving.</b>
+      </div>
+      <div class="note" style="color:var(--muted);font-size:.83em">
+        This is a teaching model, not a forecast. The rates are tuned so the shape is right and the
+        numbers land in roughly the correct place — the real world had wars, famines, a flu pandemic
+        and enormous regional differences, none of which are in here.
+      </div>
+      <button class="btn w" id="bAgain">↻ Run the whole thing again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.onerror=function(m,s,l,c){
+  var e=document.getElementById("err");
+  if(e){e.style.display="block";
+    e.innerHTML="<b>SCRIPT ERROR</b><br>"+m+"<br>line "+l+" col "+c;}
+  return false;
+};
+</script>
+
+<script>
+(function(){
+"use strict";
+
+function fail(w,e){
+  var b=document.getElementById("err");
+  if(b){b.style.display="block";
+    b.innerHTML="<b>BROKE IN: "+w+"</b><br>"+(e&&e.message?e.message:e);}
+}
+function go(w,fn){return function(ev){try{fn(ev);}catch(e){fail(w,e);}};}
+function $(i){return document.getElementById(i);}
+function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+
+/* ================= AUDIO ================= */
+var AC=null;
+function tone(f,d,du,ty,v){
+  try{
+    if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type=ty;o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+    g.gain.setValueAtTime(v,AC.currentTime+d);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+du);
+    o.start(AC.currentTime+d);o.stop(AC.currentTime+d+du+.04);
+  }catch(e){}
+}
+function sTick(){tone(560,0,.03,"square",.018);}
+function sDeploy(){tone(420,0,.09,"triangle",.09);tone(630,.07,.16,"triangle",.08);}
+function sPause(){tone(300,0,.14,"sine",.07);tone(240,.12,.2,"sine",.06);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.12);}
+function sBad(){tone(150,0,.27,"sawtooth",.10);tone(104,.1,.3,"square",.09);}
+function sAlert(){tone(520,0,.12,"sine",.07);tone(660,.1,.16,"sine",.06);}
+/* the gap is audible: pitch rises with the gap */
+function sGap(g){
+  if(g<=0.4)return;
+  var f=200+g*22;
+  tone(f,0,.08,"sine",Math.min(.06,.014+g*.003));
+}
+function conf(n){
+  var c=["#e8930c","#3aae74","#4a69bd","#e9a13b","#2e6f9e"],i,d;
+  for(i=0;i<n;i++){
+    d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.7)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4200);})(d);
+  }
+}
+
+/* ================= BACKGROUND ================= */
+var BGS={
+  a1:"linear-gradient(180deg,#f5f8fc 0%,#eef2f8 55%,#e7edf6 100%)",
+  a2:"linear-gradient(180deg,#fffaf1 0%,#fdeeda 55%,#fbdfba 100%)",
+  a3:"linear-gradient(180deg,#f3fbf6 0%,#e9f6ee 55%,#ddefe4 100%)",
+  a4:"linear-gradient(180deg,#f8f5fd 0%,#f0eaf9 55%,#e4dbf3 100%)"
+};
+var bgFlip=false;
+function setActBg(k){
+  var showEl=bgFlip?$("bg1"):$("bg2"),hideEl=bgFlip?$("bg2"):$("bg1");
+  showEl.style.background=BGS[k];showEl.style.opacity="1";hideEl.style.opacity="0";
+  bgFlip=!bgFlip;
+}
+function wavePath(w,h,amp,base,periods){
+  var d="M0,"+h+" L0,"+base,step=w/(periods*24),x,y,i;
+  for(i=1;i<=periods*24;i++){
+    x=i*step;y=base-amp*Math.sin(i/24*2*Math.PI);
+    d+=" L"+x.toFixed(1)+","+y.toFixed(1);
+  }
+  d+=" L"+w+","+h+" Z";return d;
+}
+function buildWaves(){
+  var w=1600,h=440;
+  $("waves").querySelector("path.f1").setAttribute("d",wavePath(w,h,46,250,3));
+  $("waves").querySelector("path.f2").setAttribute("d",wavePath(w,h,30,300,4));
+}
+/* per-act wave rise factor: how much the waves swell with population */
+var WAVE_RISE={a1:.12,a2:1,a3:.35,a4:.3};
+function setRise(p){
+  var rf=WAVE_RISE[act]!==undefined?WAVE_RISE[act]:.5;
+  var rise=clamp((p-1)/9,0,1)*rf;
+  var g1=$("waves").querySelector(".g1"),g2=$("waves").querySelector(".g2");
+  var sy1=(.6+rise*.9).toFixed(3),sy2=(.75+rise*.6).toFixed(3);
+  g1.setAttribute("transform","translate(0 440) scale(1 "+sy1+") translate(0 -440) translate(0 "+(-rise*90).toFixed(1)+")");
+  g2.setAttribute("transform","translate(0 440) scale(1 "+sy2+") translate(0 -440) translate(0 "+(-rise*55).toFixed(1)+")");
+}
+
+/* ================= MODEL CONSTANTS ================= */
+var B0=41.0;      /* births per 1000 in 1800 */
+var D0=36.6;      /* deaths per 1000 in 1800 */
+var DFLOOR=9.0;   /* lowest achievable death rate */
+var POP0=1.0;     /* billions, 1800 */
+var MOM=0.15;     /* momentum echo coefficient (normal play) */
+var MOMON=0.55;   /* momentum echo coefficient (Act 4: replacement fertility) */
+var GENLAG=50;    /* years between "kids survive now" and "parents adjust" */
+var ENDO=0.42;    /* strength of the endogenous fertility response */
+var EFF0=0.05;    /* fraction of birth-cut power that works before parents WANT fewer children */
+var BFLOOR=8.5;   /* births per 1000 will not fall below this */
+
+/* interventions.  kind: "d" lowers deaths, "b" lowers births */
+var IVS=[
+ {k:"san",n:"Clean water &amp; sewers",kind:"d",amt:8.0,lag:25,
+  d:"Deaths &minus;8 per 1,000. Takes about <b>25 years</b> to reach every village on Earth."},
+ {k:"vac",n:"Vaccination",kind:"d",amt:7.0,lag:20,
+  d:"Deaths &minus;7 per 1,000. Hits children hardest, which matters later. Full effect in <b>20 years</b>."},
+ {k:"abx",n:"Antibiotics",kind:"d",amt:6.0,lag:12,
+  d:"Deaths &minus;6 per 1,000. The fastest-acting thing on the list: <b>12 years</b>."},
+ {k:"fer",n:"Synthetic fertiliser",kind:"d",amt:6.2,lag:30,
+  d:"Deaths &minus;6 per 1,000, by ending routine famine. Slow to spread: <b>30 years</b>."},
+ {k:"edu",n:"Girls' education",kind:"b",amt:6.5,lag:22,
+  d:"Births &minus;6.5 per 1,000 &mdash; but it takes <b>22 years</b>, because you are waiting for the girls to grow up."},
+ {k:"urb",n:"Urbanisation",kind:"b",amt:4.0,lag:16,
+  d:"Births &minus;4 per 1,000. On a farm a child is a worker; in a city a child is a cost. <b>16 years</b>."},
+ {k:"pen",n:"Pensions &amp; old-age support",kind:"b",amt:3.0,lag:18,
+  d:"Births &minus;3 per 1,000. If the state will look after you, you need fewer children to. <b>18 years</b>."},
+ {k:"con",n:"Contraception access",kind:"b",amt:5.0,lag:5,
+  d:"Births &minus;5 per 1,000, and fast (<b>5 years</b>). But it only does its full job once parents <i>want</i> fewer children."}
+];
+function iv(k){var i;for(i=0;i<IVS.length;i++)if(IVS[i].k===k)return IVS[i];return null;}
+var SHORT={san:"Clean water",vac:"Vaccination",abx:"Antibiotics",fer:"Fertiliser",
+           edu:"Girls' education",urb:"Urbanisation",pen:"Pensions",con:"Contraception"};
+
+/* ================= ACTS ================= */
+var ACTS={
+ a1:{n:"Act 1 &mdash; The World Before Medicine",
+  t:"Two enormous numbers, almost exactly equal",
+  b:"It is 1800. About forty-one babies are born per thousand people every year, and about thirty-seven "+
+    "people die. Roughly a third of children never reach their fifth birthday. Nothing on the "+
+    "intervention list has been invented yet — you can only watch.",
+  g:"Run the century. It will pause five times. Each time, look at both charts and say out loud what "+
+    "you notice. Then continue.",
+  y0:1800,y1:1900,unlock:[],speed:95,pauseEvery:20},
+ a2:{n:"Act 2 &mdash; You Cause the Explosion",
+  t:"Four things nobody would ever undo",
+  b:"Now it is 1900 and the twentieth century is about to hand you clean water, vaccines, "+
+    "antibiotics and synthetic fertiliser. Every one of them saves enormous numbers of lives. "+
+    "There is no argument against any of them.",
+  g:"The century pauses about five times. You may launch <b>one</b> intervention per pause. Watch what "+
+    "each one does to the curves before you launch the next.",
+  y0:1900,y1:2000,unlock:["san","vac","abx","fer"],speed:85,pauseEvery:20},
+ a3:{n:"Act 3 &mdash; Close It",
+  t:"Same century, full toolkit",
+  b:"Back to 1900, and this time you have everything — including the four interventions that "+
+    "lower <i>births</i>. Read the lag on each one before you spend it.",
+  g:"GOAL: bring the two curves back together before 2100, and keep the population peak under "+
+    "11 billion. The order you launch things in matters more than you think.",
+  y0:1900,y1:2100,unlock:["san","vac","abx","fer","edu","urb","pen","con"],speed:75,pauseEvery:20},
+ a4:{n:"Act 4 &mdash; The Brakes",
+  t:"Exactly two children per couple, starting now",
+  b:"This is your world at 2020, carried over from Act 3 and then handed the one thing no country "+
+    "has ever actually achieved: from this year on, every couple on Earth has exactly two children. "+
+    "Replacement. Perfectly balanced.",
+  g:"Press the button. Predict out loud what the population chart does, then run and find out.",
+  y0:2020,y1:2100,unlock:[],speed:115,pauseEvery:20}
+};
+
+/* ================= STATE ================= */
+var act="a1",A=null,yr=0,pop=POP0,running=false,timer=null,
+    dep={},hist=[],peakPop=0,peakGap=0,peakGapYear=0,
+    fired={},done={a1:false,a2:false,a3:false,a4:false},
+    momOn=false,a3pop=null,a3dep=null,
+    canDeploy=false,cpCount=0;
+
+/* ================= RATE MODEL ================= */
+function ramp(d,y){
+  if(!d)return 0;
+  if(y<=d.y)return 0;
+  if(d.lag<=0)return 1;
+  var f=(y-d.y)/d.lag;
+  return f>1?1:f;
+}
+function deathAt(y){
+  var k,d,r=D0,o;
+  for(k in dep){
+    if(!dep.hasOwnProperty(k))continue;
+    d=dep[k];o=iv(k);
+    if(o.kind!=="d")continue;
+    r-=o.amt*ramp(d,y);
+  }
+  if(r<DFLOOR)r=DFLOOR;
+  return r;
+}
+/* how far child mortality has fallen by year y, 0 to 1 */
+function mortAt(y){
+  var r=D0,k,d,o;
+  for(k in dep){
+    if(!dep.hasOwnProperty(k))continue;
+    d=dep[k];o=iv(k);
+    if(o.kind!=="d")continue;
+    r-=o.amt*ramp(d,y);
+  }
+  if(r<DFLOOR)r=DFLOOR;
+  var p=(D0-r)/(D0-DFLOOR);
+  return p<0?0:(p>1?1:p);
+}
+function mortProgress(y){return mortAt(y);}
+function birthAt(y){
+  var k,d,cut=0,o,eff,r,base;
+  /* endogenous response: a full generation after child survival improves, families choose fewer
+     children on their own. nobody deploys this — it just happens. */
+  base=B0*(1-ENDO*mortAt(y-GENLAG));
+  eff=EFF0+(1-EFF0)*mortProgress(y);
+  for(k in dep){
+    if(!dep.hasOwnProperty(k))continue;
+    d=dep[k];o=iv(k);
+    if(o.kind!=="b")continue;
+    cut+=o.amt*ramp(d,y);
+  }
+  if(momOn){
+    /* Act 4: desired fertility forced to replacement — but the echo of the big
+       generations keeps arriving for decades. That echo IS population momentum. */
+    r=deathAt(y)+MOMON*gapBack(25);
+  }else{
+    r=base-cut*eff+MOM*gapBack(25);
+  }
+  if(r<BFLOOR)r=BFLOOR;
+  return r;
+}
+function gapBack(n){
+  var i=hist.length-n;
+  if(i<0)return 0;
+  var g=hist[i].b-hist[i].d;
+  return g>0?g:0;
+}
+
+/* ================= CARDS (oldest top, newest bottom) ================= */
+function card(cls,title,body,key){
+  if(key){if(fired[key])return false;fired[key]=true;}
+  var d=document.createElement("div");
+  d.className="card "+cls;
+  d.innerHTML="<h4>"+title+"</h4>"+body;
+  var box=$("cards");
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+  return true;
+}
+
+/* ================= CANVAS SETUP ================= */
+var cv=$("cv"),ctx=cv.getContext("2d"),CW=0,CH=560;
+function sizeCanvas(){
+  var dpr=window.devicePixelRatio||1;
+  var w=cv.clientWidth||800;
+  cv.width=Math.round(w*dpr);cv.height=Math.round(CH*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  CW=w;
+}
+window.addEventListener("resize",go("resize",function(){sizeCanvas();draw();}));
+
+var L=56,R=14,YRT=14,YRB=284,PYT=366,PYB=538,STRIP=326,CH=560;
+function X(y){return L+(y-1800)/300*(CW-L-R);}
+function niceStep(raw){
+  var p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),n=raw/p;
+  if(n<1.5)return p; if(n<3.5)return 2*p; if(n<7.5)return 5*p; return 10*p;
+}
+function smoothLine(pts,f){
+  /* midpoint quadratic smoothing through transformed points */
+  var i;
+  ctx.moveTo(pts[0].x,pts[0].y);
+  for(i=1;i<pts.length-1;i++){
+    ctx.quadraticCurveTo(pts[i].x,pts[i].y,(pts[i].x+pts[i+1].x)/2,(pts[i].y+pts[i+1].y)/2);
+  }
+  if(pts.length>1){i=pts.length-1;ctx.lineTo(pts[i].x,pts[i].y);}
+}
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+function draw(){
+  if(!CW)sizeCanvas();
+  var W=CW,i,pt,px,py,lo,hi,st,yy,gp,d,o;
+  ctx.clearRect(0,0,W,CH);
+  ctx.font="11px 'Segoe UI',sans-serif";
+
+  /* ---- rates adaptive scale ---- */
+  lo=0;hi=46;
+  if(hist.length){
+    lo=1e9;hi=-1e9;
+    for(i=0;i<hist.length;i++){pt=hist[i];
+      if(pt.b<lo)lo=pt.b;if(pt.d<lo)lo=pt.d;
+      if(pt.b>hi)hi=pt.b;if(pt.d>hi)hi=pt.d;}
+    lo=Math.max(0,Math.floor(lo-3));hi=Math.ceil(hi+3);
+  }
+  st=niceStep((hi-lo)/5);lo=Math.floor(lo/st)*st;hi=Math.ceil(hi/st)*st;
+  var YS=function(r){return YRB-(r-lo)/(hi-lo)*(YRB-YRT);};
+
+  /* ---- rates grid ---- */
+  ctx.textAlign="right";ctx.textBaseline="middle";
+  for(i=Math.ceil(lo/st)*st;i<=hi;i+=st){
+    yy=YS(i);
+    ctx.strokeStyle="rgba(29,45,80,.08)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();
+    ctx.fillStyle="#8b96b0";ctx.fillText(String(Math.round(i)),L-7,yy);
+  }
+  ctx.textAlign="center";ctx.textBaseline="alphabetic";
+  for(i=1800;i<=2100;i+=50){
+    px=X(i);
+    ctx.strokeStyle="rgba(29,45,80,.06)";
+    ctx.beginPath();ctx.moveTo(px,YRT);ctx.lineTo(px,YRB);ctx.stroke();
+    ctx.fillStyle="#8b96b0";
+    if(i%100===0)ctx.fillText(String(i),px,YRB+14);
+  }
+  ctx.save();ctx.translate(15,(YRT+YRB)/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign="center";ctx.fillStyle="#8b96b0";ctx.font="bold 10px 'Segoe UI',sans-serif";
+  ctx.fillText("PER 1,000 PEOPLE PER YEAR",0,0);ctx.restore();
+  ctx.font="11px 'Segoe UI',sans-serif";
+
+  /* clip everything data-driven to the rates plot box */
+  ctx.save();ctx.beginPath();ctx.rect(L,YRT,W-L-R,YRB-YRT);ctx.clip();
+
+  /* ---- THE GAP as one smooth filled area ---- */
+  if(hist.length>1){
+    var bpts=[],dpts=[];
+    for(i=0;i<hist.length;i++){pt=hist[i];px=X(pt.y);
+      bpts.push({x:px,y:YS(pt.b)});dpts.push({x:px,y:YS(pt.d)});}
+    pt=hist[hist.length-1];gp=pt.b-pt.d;
+    ctx.beginPath();
+    ctx.moveTo(bpts[0].x,bpts[0].y);
+    for(i=1;i<bpts.length-1;i++)
+      ctx.quadraticCurveTo(bpts[i].x,bpts[i].y,(bpts[i].x+bpts[i+1].x)/2,(bpts[i].y+bpts[i+1].y)/2);
+    ctx.lineTo(bpts[bpts.length-1].x,bpts[bpts.length-1].y);
+    for(i=dpts.length-1;i>0;i--)
+      ctx.quadraticCurveTo(dpts[i].x,dpts[i].y,(dpts[i].x+dpts[i-1].x)/2,(dpts[i].y+dpts[i-1].y)/2);
+    ctx.closePath();
+    ctx.fillStyle=gp>0?"rgba(232,147,12,.32)":"rgba(96,116,190,.26)";
+    ctx.fill();
+    /* smooth curves on top */
+    ctx.lineJoin="round";ctx.lineCap="round";ctx.lineWidth=3;
+    ctx.strokeStyle="#2e6f9e";ctx.beginPath();smoothLine(dpts);ctx.stroke();
+    ctx.strokeStyle="#d1495b";ctx.beginPath();smoothLine(bpts);ctx.stroke();
+    /* heads */
+    pt=hist[hist.length-1];px=X(pt.y);
+    ctx.setLineDash([4,4]);ctx.strokeStyle="rgba(29,45,80,.25)";ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(px,YRT);ctx.lineTo(px,YRB);ctx.stroke();ctx.setLineDash([]);
+    ctx.lineWidth=2;ctx.strokeStyle="#fff";
+    ctx.fillStyle="#2e6f9e";ctx.beginPath();ctx.arc(px,YS(pt.d),4.6,0,6.3);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#d1495b";ctx.beginPath();ctx.arc(px,YS(pt.b),4.6,0,6.3);ctx.fill();ctx.stroke();
+  }
+  ctx.restore();
+
+  /* ---- events strip ---- */
+  ctx.textAlign="left";ctx.textBaseline="middle";
+  var slot=0,k;
+  for(k in dep){
+    if(!dep.hasOwnProperty(k))continue;
+    d=dep[k];o=iv(k);
+    px=X(d.y);
+    ctx.strokeStyle=o.kind==="d"?"rgba(46,111,158,.30)":"rgba(209,73,91,.30)";
+    ctx.lineWidth=1.2;ctx.setLineDash([2,3]);
+    ctx.beginPath();ctx.moveTo(px,YRT);ctx.lineTo(px,YRB);ctx.stroke();ctx.setLineDash([]);
+    var row=slot%2,cy=STRIP+row*14;
+    ctx.fillStyle=o.kind==="d"?"#2e6f9e":"#d1495b";
+    ctx.beginPath();ctx.arc(px,cy,7,0,6.3);ctx.fill();
+    ctx.fillStyle="#fff";ctx.font="bold 9px 'Segoe UI',sans-serif";ctx.textAlign="center";
+    ctx.fillText(String(d.n),px,cy+0.5);
+    ctx.fillStyle=o.kind==="d"?"#2e6f9e":"#d1495b";ctx.font="9.5px 'Segoe UI',sans-serif";
+    ctx.fillText(SHORT[k]||o.n.replace("&amp;","&"),px,cy+(row?-13:13));
+    ctx.textAlign="left";
+    slot++;
+  }
+
+  /* ---- population chart ---- */
+  var mx=niceStep(Math.max(2.5,peakPop*1.25));
+  var pst=mx<=5?1:mx<=12?2:5;
+  ctx.textAlign="right";ctx.textBaseline="middle";
+  for(i=0;i<=mx+0.001;i+=pst){
+    yy=PYB-(i/mx)*(PYB-PYT);
+    ctx.strokeStyle="rgba(29,45,80,.08)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();
+    ctx.fillStyle="#8b96b0";ctx.font="10px 'Segoe UI',sans-serif";
+    ctx.fillText(i+"bn",L-7,yy);
+  }
+  ctx.textAlign="center";ctx.textBaseline="alphabetic";
+  for(i=1800;i<=2100;i+=100){
+    px=X(i);
+    ctx.strokeStyle="rgba(29,45,80,.05)";
+    ctx.beginPath();ctx.moveTo(px,PYT);ctx.lineTo(px,PYB);ctx.stroke();
+    ctx.fillStyle="#8b96b0";ctx.font="10px 'Segoe UI',sans-serif";
+    ctx.fillText(String(i),px,PYB+15);
+  }
+  ctx.fillStyle="#8b96b0";ctx.font="bold 10px 'Segoe UI',sans-serif";ctx.textAlign="left";
+  ctx.fillText("POPULATION (BILLIONS)",L,PYT-6);
+  /* goal line in act 3 */
+  if(act==="a3"){
+    yy=PYB-(11/mx)*(PYB-PYT);
+    if(yy>PYT){
+      ctx.setLineDash([6,4]);ctx.strokeStyle="rgba(209,73,91,.55)";ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle="#d1495b";ctx.font="bold 10px 'Segoe UI',sans-serif";
+      ctx.fillText("goal: peak under 11 bn",X(2045),yy-6);
+    }
+  }
+  /* population area */
+  ctx.save();ctx.beginPath();ctx.rect(L,PYT,W-L-R,PYB-PYT);ctx.clip();
+  if(hist.length>1){
+    var ppts=[];
+    for(i=0;i<hist.length;i++)ppts.push({x:X(hist[i].y),y:PYB-(Math.min(hist[i].p,mx)/mx)*(PYB-PYT)});
+    var grad=ctx.createLinearGradient(0,PYT,0,PYB);
+    grad.addColorStop(0,"rgba(232,147,12,.55)");grad.addColorStop(1,"rgba(232,147,12,.08)");
+    ctx.beginPath();
+    ctx.moveTo(ppts[0].x,PYB);
+    for(i=0;i<ppts.length;i++)ctx.lineTo(ppts[i].x,ppts[i].y);
+    ctx.lineTo(ppts[ppts.length-1].x,PYB);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+    ctx.lineJoin="round";ctx.lineWidth=2.6;ctx.strokeStyle="#b9770e";
+    ctx.beginPath();smoothLine(ppts);ctx.stroke();
+    pt=hist[hist.length-1];px=X(pt.y);py=PYB-(Math.min(pt.p,mx)/mx)*(PYB-PYT);
+    ctx.setLineDash([4,4]);ctx.strokeStyle="rgba(29,45,80,.22)";ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(px,PYT);ctx.lineTo(px,PYB);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#b9770e";ctx.beginPath();ctx.arc(px,py,5,0,6.3);ctx.fill();
+    ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.stroke();
+    /* value chip */
+    var lab=(pt.p<10?pt.p.toFixed(2):pt.p.toFixed(1))+" bn";
+    ctx.font="bold 12px 'Segoe UI',sans-serif";
+    var tw=ctx.measureText(lab).width+12;
+    var cxp=clamp(px-tw/2,L,W-R-tw),cyp=py-26<PYT?py+10:py-26;
+    ctx.fillStyle="#1d2d50";rr(cxp,cyp,tw,18,6);ctx.fill();
+    ctx.fillStyle="#f7d794";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(lab,cxp+tw/2,cyp+9.5);ctx.textBaseline="alphabetic";
+  }
+  ctx.restore();
+
+  /* ---- year chip + gap chip ---- */
+  ctx.textAlign="left";ctx.textBaseline="alphabetic";
+  ctx.font="bold 17px 'Segoe UI',sans-serif";
+  var yw=ctx.measureText(String(yr)).width+14;
+  ctx.fillStyle="rgba(29,45,80,.85)";rr(L+4,YRT+4,yw,24,7);ctx.fill();
+  ctx.fillStyle="#f7d794";ctx.fillText(String(yr),L+11,YRT+21);
+  if(hist.length>1){
+    pt=hist[hist.length-1];gp=pt.b-pt.d;
+    var gl="gap "+(gp>0?"+":"")+gp.toFixed(1)+" per 1,000";
+    ctx.font="bold 12px 'Segoe UI',sans-serif";ctx.textAlign="right";
+    ctx.fillStyle=gp>0?"#b9770e":"#6074be";
+    ctx.fillText(gl,W-R,YRT+16);
+  }
+  setRise(pop);
+}
+
+/* ================= READOUTS ================= */
+function fmtPop(p){return (p<10?p.toFixed(2):p.toFixed(1))+" bn";}
+function readouts(){
+  var b,d,gp,gr,dbl,h="";
+  b=hist.length?hist[hist.length-1].b:B0;
+  d=hist.length?hist[hist.length-1].d:D0;
+  gp=b-d;gr=gp/10;
+  dbl=(gr>0.02)?(70/gr):0;
+  h+='<span class="hd">YEAR '+yr+'</span>';
+  h+='<div><span>births / 1,000</span><b>'+b.toFixed(1)+'</b></div>';
+  h+='<div><span>deaths / 1,000</span><b>'+d.toFixed(1)+'</b></div>';
+  h+='<div><span>THE GAP</span><b class="'+(gp>12?"bad":(gp<=0.3?"good":""))+'">'+
+     (gp>0?"+":"")+gp.toFixed(1)+'</b></div>';
+  h+='<div><span>growth rate</span><b class="'+(gr>1.5?"bad":(gr<=0.15?"good":""))+'">'+
+     gr.toFixed(2)+' %</b></div>';
+  h+='<div><span>doubling time</span><b>'+(dbl>0?(dbl<400?Math.round(dbl)+" yrs":"&gt; 400 yrs"):"never")+'</b></div>';
+  h+='<div><span>population</span><b>'+fmtPop(pop)+'</b></div>';
+  h+='<div><span>peak so far</span><b>'+fmtPop(peakPop)+'</b></div>';
+  if(peakGap>0)
+    h+='<div><span>widest gap</span><b>'+peakGap.toFixed(1)+' in '+peakGapYear+'</b></div>';
+  $("rd").innerHTML=h;
+}
+
+/* ================= INTERVENTION LIST ================= */
+function buildIvs(){
+  var h="",i,o,d,unl,pct;
+  if(act==="a4"){
+    if(momOn){
+      $("ivs").innerHTML='<div class="iv done"><div class="nm">Replacement fertility</div>'+
+        '<div class="st live">locked in from '+yr+' — every couple, exactly two children</div></div>';
+    }else{
+      $("ivs").innerHTML='<div class="note" style="font-size:.83em;margin-bottom:8px">'+
+        'No interventions this act. One button instead.</div>'+
+        '<button class="btn w sm" id="bMom" '+(running?"disabled":"")+'>Set fertility to exactly replacement</button>';
+      $("bMom").onclick=go("momentum",function(){
+        if(momOn||running)return;
+        momOn=true;sDeploy();
+        card("good","Replacement fertility, worldwide, from "+yr,
+          "Every couple on Earth now has exactly two children. <b>Now predict the population chart "+
+          "before you run the years.</b>","mom");
+        buildIvs();updateHint();
+      });
+    }
+    return;
+  }
+  for(i=0;i<IVS.length;i++){
+    o=IVS[i];
+    unl=(A.unlock.indexOf(o.k)>-1);
+    d=dep[o.k];
+    if(d){
+      pct=Math.round(ramp(d,yr)*100);
+      h+='<div class="iv done"><div class="nm"><span class="num '+(o.kind==="d"?"d":"b")+'">'+d.n+
+         '</span>'+o.n+'</div>'+
+         '<div class="st live">deployed '+d.y+' &middot; '+pct+'% in effect</div>'+
+         '<div class="ramp"><div style="width:'+pct+'%"></div></div></div>';
+    }else if(unl){
+      var ready=canDeploy&&!running;
+      h+='<div class="iv'+(ready?" ready":"")+'" data-k="'+o.k+'"><div class="nm">'+o.n+'</div>'+
+         '<div class="ef">'+o.d+'</div>'+
+         (ready?"":'<div class="st off">'+(running?"pause the years to deploy":"launch one per pause")+'</div>')+
+         '</div>';
+    }else{
+      h+='<div class="iv lock"><div class="nm">'+o.n+'</div>'+
+         '<div class="ef">not available in this act</div></div>';
+    }
+  }
+  $("ivs").innerHTML=h;
+  var es=$("ivs").getElementsByClassName("iv"),j;
+  for(j=0;j<es.length;j++)(function(el){
+    if(el.className.indexOf("ready")===-1)return;
+    el.onclick=go("deploy",function(){
+      var k=el.getAttribute("data-k");
+      if(!k||dep[k]||running||!canDeploy)return;
+      dep[k]={y:yr,lag:iv(k).lag,n:Object.keys(dep).length+1};
+      canDeploy=false;
+      sDeploy();
+      card("info","Deployed: "+iv(k).n+" ("+yr+")",
+        "It starts working now &mdash; full effect in <b>"+iv(k).lag+" years</b>. "+
+        "Watch the curves. Run the years, and the world will pause again soon.");
+      buildIvs();draw();readouts();updateHint();
+    });
+  })(es[j]);
+}
+
+/* ================= HINT CHIP ================= */
+function updateHint(){
+  var h=$("hint");
+  if(yr>=A.y1){h.className="";h.id="hint";h.className="done";h.textContent="century complete — read the result";return;}
+  if(running){h.className="go";h.textContent="▶ the years are running… watch the curves";return;}
+  if(act==="a4"){
+    h.className="stop";
+    h.textContent=momOn?"⏸ paused — press Continue to run the years":"⏸ paused — press the button first, then run";
+    return;
+  }
+  var left=A.unlock.filter(function(k){return !dep[k];}).length;
+  h.className="stop";
+  h.textContent=canDeploy
+    ?("⏸ PAUSED — you may launch ONE intervention"+(left?" ("+left+" left to use)":"")+", then Continue")
+    :"⏸ paused — Continue to run the years";
+}
+
+/* ================= CHECKPOINTS ================= */
+var A1_OBS=[
+ "Another twenty years. About forty-one born per thousand, about thirty-seven died. Look at the "+
+   "population chart — is it flat or climbing? By how much?",
+ "Still the same rhythm: enormous numbers on both sides, and a tiny difference between them. "+
+   "Thousands of people are born every single day — and almost the same number die.",
+ "Nothing has changed because nothing <i>can</i> change. No medicine exists yet. Ask yourself: "+
+   "what would have to change to make the population chart bend?",
+ "One century in: about a third of all children still die before age five. The population chart has "+
+   "crept up only a little. The gap between the curves is small — so growth is slow."
+];
+function checkpoint(){
+  cpCount++;
+  running=false;canDeploy=true;
+  if(timer)clearTimeout(timer);
+  $("bRun").innerHTML="&#9654; Continue";
+  sPause();
+  if(act==="a1"){
+    card("pause","⏸ "+yr+" — the world pauses",
+      A1_OBS[Math.min(cpCount-1,A1_OBS.length-1)],"cp_a1_"+cpCount);
+  }else if(act==="a4"){
+    if(cpCount===1)
+      card("pause","⏸ "+yr,
+        "The years are running. Keep your eyes on the <b>population chart</b> — it is still going up. "+
+        "Say out loud <i>why</i> before you read on.","cp_a4_"+cpCount);
+    else if(hist.length&&hist[hist.length-1].b-hist[hist.length-1].d>0.3)
+      card("pause","⏸ "+yr+" — still climbing?",
+        "Every couple on Earth has had exactly two children since 2020 — and the population is "+
+        "<b>still rising</b>. Find the reason on the birth curve.","cp_a4_"+cpCount);
+    else
+      card("pause","⏸ "+yr,
+        "Look at the population chart now — the bend is finally coming. Roughly how many years after "+
+        "the button did it take?","cp_a4_"+cpCount);
+  }else{
+    var left=A.unlock.filter(function(k){return !dep[k];}).length;
+    var st=hist.length?hist[hist.length-1]:null;
+    var status="";
+    if(st)status="<br>Right now: gap <b>"+(st.b-st.d>0?"+":"")+(st.b-st.d).toFixed(1)+
+      "</b> per 1,000 · population <b>"+fmtPop(pop)+"</b> · peak so far <b>"+fmtPop(peakPop)+"</b>.";
+    card("pause","⏸ "+yr+" — decision point #"+cpCount,
+      (left>0
+        ?"You may launch <b>one</b> intervention now ("+left+" still unused"+(act==="a2"?" — you will want all four":"")+
+          "), or save it for a later pause."
+        :"All interventions are already out in the world. Watch them work.")+status,
+      "cp_"+act+"_"+cpCount);
+  }
+  buildIvs();updateHint();
+}
+
+/* ================= EFFECT NARRATION ================= */
+function watchEffects(){
+  var k,d,o,pct;
+  for(k in dep){
+    if(!dep.hasOwnProperty(k))continue;
+    d=dep[k];o=iv(k);
+    if(d.y<A.y0)continue;  /* skip inherited history in Act 4 */
+    pct=ramp(d,yr);
+    if(pct>0.2&&pct<0.99)
+      card("info","The "+(o.kind==="d"?"death":"birth")+" curve is bending",
+        "That is the <b>"+o.n.replace("&amp;","&")+"</b> you launched in "+d.y+" — "+Math.round(pct*100)+
+        "% of its effect so far. It will keep biting for about "+Math.max(0,o.lag-(yr-d.y))+
+        " more years.","fx_"+k);
+    else if(pct>=0.99)
+      card("good","Full effect: "+o.n.replace("&amp;","&"),
+        "Everything this intervention can do, it is now doing.","fx_"+k);
+  }
+}
+
+/* ================= STEP ================= */
+function step(){
+  var b,d,gp;
+  yr++;
+  d=deathAt(yr);
+  b=birthAt(yr);
+  gp=b-d;
+  pop=pop*(1+gp/1000);
+  if(pop<0.05)pop=0.05;
+  hist.push({y:yr,b:b,d:d,p:pop});
+  if(pop>peakPop)peakPop=pop;
+  if(gp>peakGap){peakGap=gp;peakGapYear=yr;}
+  if(yr%5===0)sGap(gp);
+  checkMilestones(b,d,gp);
+}
+function checkMilestones(b,d,gp){
+  if(act==="a2"){
+    if(gp>=10)
+      card("bad","The gap is tearing open",
+        "In "+yr+" the gap passed <b>+10 per 1,000</b>. Look at what is actually happening: the blue "+
+        "death line is diving, and the red birth line has barely moved. You did not make anybody have "+
+        "more children. You stopped their children dying, and the birth line is taking a generation "+
+        "to notice.","a2open");
+    if(peakGap>15&&gp<peakGap-2&&yr>peakGapYear+12&&yr>1960)
+      card("warn","That was the peak — and look at the birth curve now",
+        "The widest the gap ever got was <b>"+peakGap.toFixed(1)+" per 1,000 around "+peakGapYear+
+        "</b> — roughly "+(peakGap/10).toFixed(1)+"% growth a year, doubling the whole human race in "+
+        "about "+Math.round(70/(peakGap/10))+" years. It is narrowing now, by itself, because the birth "+
+        "curve is <i>finally</i> bending down. Remember this moment. In the real world the peak was "+
+        "<b>1963</b>, and almost nobody knows that.","a2peak");
+  }
+  if(act==="a3"){
+    if(gp<=0.3&&yr>1960)
+      card("good","The curves have rejoined",
+        "In <b>"+yr+"</b> births and deaths are level again. The gap is closed. Notice that the "+
+        "population does not fall back — everyone the gap added is still here, and will be for a "+
+        "lifetime. <b>You cannot un-add people.</b> Keep running to the end.","a3close");
+    if(pop>11)
+      card("bad","Past 11 billion",
+        "The population target is gone. Worth asking which intervention you left too late.","a3over");
+  }
+  if(act==="a4"&&momOn){
+    if(yr>=2026&&gp>0.4)
+      card("bad","Replacement fertility — and still climbing",
+        "Every couple is having exactly two children, and the population is <b>still rising</b>. "+
+        "Look at the birth curve: it is sitting <i>above</i> the death curve even though desired "+
+        "fertility is exactly two. Why? Because the extra babies born twenty-five years ago are "+
+        "adults now, and there are a very large number of them. <b>Lots of parents having two each "+
+        "still makes more people than a few parents having two each.</b>","a4mom");
+    if(gp<=0.9&&yr>2070)
+      card("good","And now it finally bends",
+        "About <b>"+(yr-2020)+" years</b> after fertility hit replacement, the population line is only "+
+        "just flattening out. That delay has a name: <b>population momentum</b>. A train with the brakes "+
+        "fully on still travels a long way.","a4stop");
+  }
+}
+
+/* ================= LOOP ================= */
+function loop(){
+  if(!running)return;
+  step();
+  draw();readouts();
+  if(yr%A.pauseEvery===0&&yr<A.y1){watchEffects();checkpoint();draw();readouts();return;}
+  if(yr%7===0)buildIvs();
+  if(yr>=A.y1){
+    running=false;watchEffects();
+    $("bRun").innerHTML="&#9654; Run the years";
+    buildIvs();updateHint();
+    verdict();draw();readouts();
+    return;
+  }
+  timer=setTimeout(function(){try{loop();}catch(e){fail("loop",e);}},A.speed);
+}
+
+/* ================= VERDICT ================= */
+function verdict(){
+  var h,cls,b,d,gp,nd=0,k;
+  b=hist[hist.length-1].b;d=hist[hist.length-1].d;gp=b-d;
+  for(k in dep){if(!dep.hasOwnProperty(k))continue;
+    if(iv(k).kind==="d")nd++;}
+
+  if(act==="a1"){
+    cls="info";
+    h="<b>1800 to 1900, no medicine at all.</b> Population went from "+POP0.toFixed(2)+
+      " billion to <b>"+pop.toFixed(2)+" billion</b>.<br><br>"+
+      "And yet roughly <b>forty-one people per thousand</b> were being born every single year, and "+
+      "almost as many were dying. Those are colossal numbers. The population barely moved, because "+
+      "<b>the only thing that has ever mattered is the difference between them</b>.<br><br>"+
+      "This is what people call a <i>high-pressure equilibrium</i>: enormous birth rate, enormous "+
+      "death rate, and about a third of children dead before the age of five. Stable, and horrifying.";
+    done.a1=true;sWin();conf(50);
+    nextBtn(h,cls,"a2","Act 2 — now you break it &rarr;");
+    return;
+  }
+
+  if(act==="a2"){
+    cls=(nd>=3)?"bad":"no";
+    h="<b>1900 to 2000.</b> Your world reached <b>"+pop.toFixed(2)+
+      " billion</b>. The real world reached only <b>6.1 billion</b> in 2000. Yours is "+
+      (pop>7?"<b>higher</b> — why?":"about the same — well done.")+"<br><br>";
+    if(nd<3){
+      h+="You only launched "+nd+" of the four. Restart the act and launch all of them &mdash; the "+
+         "whole point is that <b>every single one of these is a good thing</b> and you would not "+
+         "remove any of them.";
+      cls="no";sBad();
+    }else{
+      h+="Now look at what you actually did. Clean water, vaccines, antibiotics, fertiliser. Nobody "+
+         "in history has ever argued for undoing any of those. <b>You did not touch the birth rate "+
+         "once.</b><br><br>"+
+         "And the population exploded anyway &mdash; because the death line dove and the birth line "+
+         "took a generation to notice. <b>That delay is the population explosion.</b> It is not a "+
+         "story about people breeding. It is a story about children surviving and nobody having "+
+         "updated their plans yet.<br><br>"+
+         "So why did the REAL world grow more slowly than yours? Somehow, real families started "+
+         "choosing fewer children. What made them do that? That is the whole of Act 3: <b>how do "+
+         "you close the gap?</b>";
+      done.a2=true;sWin();
+    }
+    nextBtn(h,cls,nd>=3?"a3":null,nd>=3?"Act 3 — close the gap &rarr;":null);
+    return;
+  }
+
+  if(act==="a3"){
+    var closed=(gp<=0.6),under=(peakPop<=11);
+    cls=(closed&&under)?"ok":"no";
+    h="<b>Result at 2100.</b> Gap: <b>"+(gp>0?"+":"")+gp.toFixed(1)+" per thousand</b>. "+
+      "Peak population: <b>"+peakPop.toFixed(2)+" billion</b> (the real world will peak somewhere "+
+      "around 10–11 billion, says the UN).<br><br>";
+    if(closed&&under){
+      h+="That is the demographic transition, and you drove it. <b>Both targets met.</b><br><br>";
+      done.a3=true;sWin();conf(100);
+    }else if(closed&&!under){
+      h+="You closed the gap, but the peak ran past 11 billion &mdash; which means the birth "+
+         "interventions came too late relative to the death ones. <b>Worth one more go:</b> try "+
+         "deploying girls' education <i>early</i>, even though it takes 22 years, precisely "+
+         "because it takes 22 years.<br><br>";
+      sBad();
+    }else{
+      h+="The curves have not rejoined. <b>Check which of your birth interventions you were relying "+
+         "on.</b> If it was mostly contraception, look again at its description &mdash; it is fast, "+
+         "but it only delivers its full effect once parents already <i>want</i> smaller families, and "+
+         "what makes them want that is confidence that their children will live.<br><br>";
+      sBad();
+    }
+    h+="<b>The thing worth taking away:</b> the interventions that lowered <i>deaths</i> also "+
+       "made the birth interventions work better. Child survival is not the opposite of population "+
+       "control. <b>It is the mechanism of population control.</b>";
+    nextBtn(h,cls,done.a3?"a4":null,done.a3?"Act 4 — slam the brakes &rarr;":null);
+    return;
+  }
+
+  /* a4 */
+  cls=momOn?"ok":"no";
+  if(!momOn){
+    h="You never pressed the button. Restart the act and press it &mdash; that is the entire "+
+      "experiment.";
+    sBad();
+    nextBtn(h,cls,null,null);
+    return;
+  }
+  h="<b>From 2020 to 2100 with every couple having exactly two children.</b> Population at 2020 was "+
+    Number(hist[0].p).toFixed(2)+"; at 2100 it is <b>"+pop.toFixed(2)+" billion</b>, having peaked at <b>"+
+    peakPop.toFixed(2)+" billion</b>.<br><br>"+
+    "Perfect replacement fertility, and the population still grew for decades. <b>That is population "+
+    "momentum</b>, and it comes entirely from age structure: a world full of twenty-five-year-olds "+
+    "will keep producing babies for a generation even if each of them has only two.<br><br>"+
+    "Which is the honest answer to \u201Cwhy don\u2019t we just stop?\u201D <b>We already did the "+
+    "hard part. The moving is what\u2019s left.</b>";
+  done.a4=true;sWin();conf(110);
+  nextBtn(h,cls,"end","See the four conclusions &rarr;");
+}
+function nextBtn(h,cls,nx,label){
+  var v='<div class="vd '+cls+'">'+h+'</div>';
+  if(nx)v+='<button class="btn w" id="bNx">'+label+'</button>';
+  $("verd").innerHTML=v;
+  if(nx)$("bNx").onclick=go("next act",function(){
+    if(nx==="end"){show("s3");return;}
+    loadAct(nx);
+  });
+}
+
+/* ================= NAV ================= */
+function show(id){
+  var a=document.getElementsByClassName("sec"),i;
+  for(i=0;i<a.length;i++)a[i].className="sec";
+  $(id).className="sec on";
+  window.scrollTo(0,0);
+}
+function loadAct(k){
+  act=k;A=ACTS[k];
+  document.body.className="act-"+k;
+  setActBg(k);
+  $("aiL").innerHTML=A.n;
+  $("aiT").innerHTML=A.t;
+  $("aiB").innerHTML=A.b;
+  $("aiG").innerHTML="<b>"+A.g+"</b>";
+  show("s1");
+}
+function startAct(){
+  var i;
+  yr=A.y0;running=false;momOn=false;canDeploy=true;cpCount=0;
+  if(timer)clearTimeout(timer);
+  fired={};
+  $("cards").innerHTML="";
+  $("verd").innerHTML="";
+  $("bRun").innerHTML="&#9654; Run the years";
+
+  if(act==="a1"){
+    dep={};pop=POP0;peakPop=POP0;
+  }else if(act==="a2"||act==="a3"){
+    dep={};pop=1.62;peakPop=1.62;
+  }else{
+    /* Act 4 always starts from the REAL world in 2020: medicine fully spread,
+       education partially, population 7.84 billion, gap still positive. */
+    dep={san:{y:1905,lag:25,n:1},vac:{y:1920,lag:20,n:2},abx:{y:1945,lag:12,n:3},
+         fer:{y:1930,lag:30,n:4},edu:{y:1990,lag:22,n:5}};
+    pop=7.84;peakPop=pop;
+  }
+  peakGap=0;peakGapYear=0;
+  hist=[{y:yr,b:birthAt(yr),d:deathAt(yr),p:pop}];
+  /* register the starting gap, so Act 4's big 2020 gap shows up in the readout */
+  peakGap=hist[0].b-hist[0].d;if(peakGap<0)peakGap=0;peakGapYear=yr;
+  /* seed a plausible prior gap so momentum has something to echo */
+  if(act!=="a1"){
+    for(i=25;i>=1;i--)hist.unshift({y:yr-i,b:hist[0].b,d:hist[0].d,p:pop/(1+(hist[0].b-hist[0].d)/1000)});
+    hist=hist.slice(hist.length-26);
+  }
+  $("pl").innerHTML=A.n;
+  $("pn").innerHTML=A.t;
+  $("pg").innerHTML=A.g;
+  show("s2");
+  sizeCanvas();
+  buildIvs();draw();readouts();updateHint();
+  if(act==="a1")
+    card("info","1800",
+      "Nothing exists yet — you can only watch. Press <b>Run the years</b>. The world will pause "+
+      "about five times this century; each time, say out loud what you see on both charts.");
+  if(act==="a3")
+    card("info","1900, with everything",
+      "Read the <b>lag</b> on each intervention before you spend it. Girls' education takes "+
+      "twenty-two years to work — which is an argument for launching it <i>early</i>, not late.");
+}
+
+/* ================= INIT ================= */
+function init(){
+  buildWaves();
+  setActBg("a1");
+  $("b0").onclick=go("intro",function(){loadAct("a1");});
+  $("b1").onclick=go("begin",startAct);
+  $("bRes").onclick=go("restart",startAct);
+  $("bAgain").onclick=go("again",function(){
+    done={a1:false,a2:false,a3:false,a4:false};a3pop=null;a3dep=null;
+    document.body.className="act-a1";setActBg("a1");
+    show("s0");
+  });
+  $("bRun").onclick=go("run",function(){
+    if(running){
+      running=false;if(timer)clearTimeout(timer);
+      canDeploy=true;
+      $("bRun").innerHTML="&#9654; Continue";
+      buildIvs();updateHint();
+      return;
+    }
+    if(yr>=A.y1)return;
+    canDeploy=false;
+    running=true;$("bRun").innerHTML="&#10074;&#10074; Pause";
+    buildIvs();updateHint();
+    loop();
+  });
+  var bt=$("boot");
+  bt.className="ok";
+  bt.textContent="script OK · 4 acts · "+IVS.length+" interventions · 5 decision pauses per century · model live";
+}
+try{
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",function(){try{init();}catch(e){fail("init",e);}});
+  else init();
+}catch(e){fail("init",e);}
+})();
+</script>
+</body></html>

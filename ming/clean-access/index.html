@@ -1,0 +1,587 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clean Access</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#16283d;color:#eaf2ff;min-height:100vh;padding:14px}
+#wrap{max-width:1120px;margin:0 auto}
+h1{font-size:1.45em;text-align:center;color:#f7d794}
+.sub{text-align:center;color:#a8bdd8;font-size:.85em;margin:4px 0 10px}
+#boot{text-align:center;font-size:.74em;padding:5px;border-radius:6px;margin-bottom:9px;background:#5a1c1c;color:#ffc9c0}
+#boot.ok{background:#1e4a3a;color:#a8ecbb}
+#err{display:none;background:#7a1f1f;border:2px solid #ff8a72;border-radius:9px;padding:10px;margin-bottom:10px;font-family:monospace;font-size:.79em;line-height:1.5}
+.sec{display:none}.sec.on{display:block}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px;margin-bottom:10px}
+.lab{font-size:.69em;letter-spacing:1.2px;color:#8fa8c6;font-weight:800;margin-bottom:6px}
+.note{font-size:.86em;color:#d0e0f2;line-height:1.6}
+.note b{color:#f7d794}
+.kw{color:#f7d794;font-weight:800}
+.btn{border:none;border-radius:9px;padding:10px 18px;font-size:.9em;font-weight:800;cursor:pointer;color:#18293d;background:#f7d794;margin:3px 3px 0 0}
+.btn:hover{filter:brightness(1.08)}
+.btn.w{width:100%}
+.btn.g{background:rgba(255,255,255,.13);color:#eaf2ff;border:1px solid rgba(255,255,255,.3)}
+.btn:disabled{opacity:.32;cursor:not-allowed;filter:none}
+.two{display:grid;grid-template-columns:1fr 306px;gap:12px;align-items:start}
+@media(max-width:960px){.two{grid-template-columns:1fr}}
+.mis{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:11px;
+ padding:13px;cursor:pointer;margin-bottom:9px}
+.mis:hover{border-color:#f7d794;background:rgba(247,215,148,.12)}
+.mis .mn{font-size:.68em;letter-spacing:1.2px;color:#8fa8c6;font-weight:800}
+.mis h3{color:#f7d794;font-size:1.05em;margin:2px 0 5px}
+.mis p{font-size:.82em;color:#d0e0f2;line-height:1.5}
+.mis .st{font-size:.75em;color:#8fe0a5;font-weight:700;margin-top:5px}
+.opt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.07);
+ border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:9px 11px;color:#eaf2ff;
+ font-size:.83em;font-weight:700;cursor:pointer;margin-bottom:6px}
+.opt:hover{border-color:#f7d794}
+.opt.on{border-color:#f7d794;background:rgba(247,215,148,.2)}
+.opt.no{opacity:.35;cursor:not-allowed}
+.opt i{display:block;font-style:normal;font-size:.86em;color:#8fa8c6;font-weight:600;margin-top:2px}
+.chk{display:flex;gap:9px;align-items:flex-start;background:rgba(255,255,255,.06);
+ border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:9px 11px;margin-bottom:6px;cursor:pointer}
+.chk:hover{border-color:#f7d794}
+.chk.on{border-color:#8fe0a5;background:rgba(143,224,165,.14)}
+.bx{width:17px;height:17px;border-radius:4px;border:2px solid #8fa8c6;flex:0 0 auto;margin-top:1px;
+ text-align:center;line-height:14px;font-size:12px;font-weight:800;color:#18293d}
+.chk.on .bx{background:#8fe0a5;border-color:#8fe0a5}
+.chk div{font-size:.82em;font-weight:700}
+.chk i{display:block;font-style:normal;font-size:.85em;color:#8fa8c6;font-weight:600;margin-top:2px}
+.rd{font-family:'Consolas','Courier New',monospace;background:rgba(0,0,0,.3);border-radius:9px;
+ padding:10px;font-size:.85em;margin-bottom:9px}
+.rd div{display:flex;justify-content:space-between;padding:2px 0;gap:8px}
+.rd b{color:#f7d794}.rd b.bad{color:#ff9c8a}.rd b.good{color:#8fe0a5}
+input[type=range]{width:100%;height:28px;accent-color:#f7d794}
+#ice{background:#0d1a2b;border-radius:10px;display:block;width:100%;height:auto}
+.card{background:rgba(0,0,0,.28);border-left:4px solid #4a69bd;border-radius:9px;padding:11px 13px;
+ font-size:.86em;line-height:1.6;margin-bottom:8px}
+.card.good{border-left-color:#8fe0a5}.card.bad{border-left-color:#ff9c8a}.card.warn{border-left-color:#f7d794}
+.card h4{font-size:.98em;margin-bottom:4px;color:#ffe3a8}
+.card b{color:#f7d794}
+.big{font-size:1.5em;font-weight:900;color:#f7d794;text-align:center;padding:8px 0}
+.qz{background:rgba(255,255,255,.06);border-radius:9px;padding:11px;margin-bottom:8px}
+.qz p{font-size:.86em;font-weight:700;margin-bottom:7px;line-height:1.5}
+.qo{display:block;width:100%;text-align:left;background:rgba(255,255,255,.07);
+ border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px;color:#eaf2ff;
+ font-size:.82em;cursor:pointer;margin-bottom:5px}
+.qo:hover{border-color:#f7d794}
+.qo.ok{border-color:#8fe0a5;background:rgba(143,224,165,.2)}
+.qo.bad{border-color:#ff9c8a;background:rgba(255,156,138,.16)}
+.fb{font-size:.82em;line-height:1.55;color:#d0e0f2;margin-top:6px;display:none}
+.fb.on{display:block}
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.4}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="boot">script did not run</div>
+  <div id="err"></div>
+  <h1>🧪 CLEAN ACCESS</h1>
+  <div class="sub">There is liquid water under the ice. Getting to it is the easy part.</div>
+
+  <div class="sec on" id="s0">
+    <div class="panel">
+      <div class="note" style="margin-bottom:11px">
+        Radar has found more than <b>four hundred lakes</b> underneath the Antarctic ice sheet, kept
+        liquid by the planet's own heat, the pressure of the ice above, and the fact that four
+        kilometres of ice is very good insulation. Some have been sealed off from the sky for
+        <b>millions of years</b>.<br><br>
+        You want to know whether anything is <b>alive</b> down there. Radar cannot tell you that.
+        For that you have to make a hole \u2014 and the moment you make a hole, you have a problem
+        that has nothing to do with drilling.
+      </div>
+      <div id="misBox"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="s1">
+    <div class="panel">
+      <div class="lab" id="mLab">MISSION</div>
+      <div style="font-size:1.1em;font-weight:800;color:#f7d794" id="mName"></div>
+      <div class="note" style="margin-top:5px" id="mBrief"></div>
+    </div>
+    <div class="two">
+      <div>
+        <div class="panel">
+          <div class="lab">1 · HOW WILL YOU MAKE THE HOLE?</div>
+          <div id="drills"></div>
+        </div>
+        <div class="panel">
+          <div class="lab">2 · HOW CLEAN WILL YOUR EQUIPMENT BE?</div>
+          <div id="sters"></div>
+        </div>
+        <div class="panel">
+          <div class="lab">3 · WHAT ELSE WILL YOU BRING BACK?</div>
+          <div class="note" style="font-size:.8em;color:#8fa8c6;margin-bottom:7px">
+            Every one of these costs days and money you may want for drilling.
+          </div>
+          <div id="ctrls"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="lab">MISSION BUDGET</div>
+          <div class="rd" id="rdP"></div>
+          <div class="lab">TARGET DEPTH</div>
+          <canvas id="ice" width="260" height="230"></canvas>
+          <div class="note" style="font-size:.79em;margin-top:6px" id="depthNote"></div>
+          <input type="range" id="sD" min="100" max="21000" step="50" value="500">
+          <button class="btn w" id="bDrill" style="margin-top:9px">🔧 DRILL</button>
+          <button class="btn g w" id="bBack">← different mission</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="s2">
+    <div class="panel">
+      <div class="lab">RESULT</div>
+      <div style="font-size:1.15em;font-weight:800;color:#f7d794" id="rTitle"></div>
+      <div class="big" id="rBig"></div>
+      <div class="note" id="rSub"></div>
+    </div>
+    <div class="panel" id="askBox">
+      <div class="lab">ONE QUESTION BEFORE YOU PUBLISH</div>
+      <div class="note" style="font-size:1em;color:#ffe3a8;margin-bottom:10px" id="askQ"></div>
+      <button class="btn" id="bAsk1"></button>
+      <button class="btn g" id="bAsk2"></button>
+    </div>
+    <div class="panel" id="verdBox" style="display:none">
+      <div class="lab">THE DEBRIEF</div>
+      <div id="cards"></div>
+      <button class="btn" id="bAgain">↻ Plan it again</button>
+      <button class="btn g" id="bMenu">All missions</button>
+      <button class="btn g" id="bEuropa" style="display:none">🌌 Now do it on Europa →</button>
+    </div>
+  </div>
+
+  <div class="sec" id="s3">
+    <div class="panel">
+      <div class="lab">THE SAME PROBLEM, 630 MILLION KILOMETRES AWAY</div>
+      <div class="note">
+        Jupiter's moon <b>Europa</b> is a ball of ice with an ocean underneath \u2014 probably deeper
+        than every ocean on Earth put together, kept liquid by tidal squeezing rather than sunlight.
+        No light gets in. If anything lives there, it eats <b>rock chemistry</b>, not sunshine.<br><br>
+        It is the same problem you just solved: <b>liquid water, a thick lid, and no way to look
+        without touching.</b> With three differences that change everything.
+      </div>
+      <div class="card warn" style="margin-top:11px">
+        <h4>1 · The lid is a hundred times thicker</h4>
+        Antarctic ice tops out around four kilometres. Europa's shell is estimated at
+        <b>fifteen to twenty-five kilometres</b>, and nobody knows for certain.
+      </div>
+      <div class="card warn">
+        <h4>2 · You get one attempt, and no one can inspect the equipment again</h4>
+        On the ice sheet you can pull the drill back up, swab it, and check. Once a probe leaves
+        Earth, every sterilisation decision you made is <b>permanent and unverifiable</b>.
+      </div>
+      <div class="card warn">
+        <h4>3 · It is not just bad science. It is illegal.</h4>
+        <b>Planetary protection</b> rules under the Outer Space Treaty legally restrict how many
+        living organisms a spacecraft may carry to a place that might host life. This is why
+        NASA deliberately flew the Galileo spacecraft <b>into Jupiter</b> in 2003 \u2014 to make
+        certain it could never crash into Europa and contaminate it.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lab">THREE QUESTIONS — TALK THESE THROUGH</div>
+      <div id="euQ"></div>
+    </div>
+    <div class="panel">
+      <div class="note" style="color:#ffe3a8">
+        <b>The thing worth taking away:</b> the hardest part of looking for life somewhere new is not
+        getting there. It is being able to <b>prove that what you found is not you.</b> Every
+        subglacial lake we drill on Earth is a rehearsal for a hole in the ice of another world \u2014
+        and the rehearsals are where we find out which mistakes are unrecoverable.
+      </div>
+      <button class="btn w" id="bDone" style="margin-top:11px">Back to missions</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.onerror=function(m,s,l,c){
+  var e=document.getElementById("err");
+  if(e){e.style.display="block";e.innerHTML="<b>SCRIPT ERROR</b><br>"+m+"<br>line "+l+" col "+c;}
+  return false;
+};
+</script>
+<script>
+(function(){
+"use strict";
+function fail(w,e){
+  var b=document.getElementById("err");
+  if(b){b.style.display="block";b.innerHTML="<b>BROKE IN: "+w+"</b><br>"+(e&&e.message?e.message:e);}
+}
+function run(w,fn){return function(ev){try{fn(ev);}catch(e){fail(w,e);}};}
+function $(i){return document.getElementById(i);}
+
+var AC=null;
+function tone(f,d,du,ty,v){
+  try{
+    if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type=ty;o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+    g.gain.setValueAtTime(v,AC.currentTime+d);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+du);
+    o.start(AC.currentTime+d);o.stop(AC.currentTime+d+du+.04);
+  }catch(e){}
+}
+function sTick(){tone(540,0,.04,"square",.03);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.13);}
+function sBad(){tone(150,0,.28,"sawtooth",.11);}
+function sDrill(){var i;for(i=0;i<7;i++)tone(90+i*11,i*.09,.11,"sawtooth",.05);}
+function conf(n){
+  var c=["#f7d794","#8fe0a5","#82ccdd","#e8b95f"],i,d;
+  for(i=0;i<n;i++){
+    d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4000);})(d);
+  }
+}
+function comma(n){
+  var s=String(Math.round(n)),o="",i,c=0;
+  for(i=s.length-1;i>=0;i--){o=s.charAt(i)+o;c++;if(c%3===0&&i>0)o=" "+o;}
+  return o;
+}
+
+/* ---------------- data ---------------- */
+var DRILL=[
+ {k:"hot",n:"Hot-water drill",max:1200,cost:30,days:10,cont:0.35,
+  d:"Melt the hole with a jet of hot water. Fast and leaves nothing behind but water \u2014 but the water itself has to come from somewhere, and it only reaches about 1.2 km."},
+ {k:"ker",n:"Mechanical drill, kerosene-filled hole",max:4200,cost:55,days:32,cont:1.00,
+  d:"The proven way to reach great depth. The hole is filled with kerosene to stop it collapsing under pressure \u2014 which means you are pouring an organic solvent down your own sample route."},
+ {k:"prb",n:"Sealed melt probe",max:25000,cost:120,days:45,cont:0.10,
+  d:"A heated probe melts downward and the ice refreezes above it, sealing the hole behind it. Extremely clean and extremely slow, and you do not get it back."}
+];
+var STER=[
+ {k:"none",n:"Nothing much",mult:1.00,cost:0,days:0,
+  d:"Wipe it down. Ship it. There is a season to catch."},
+ {k:"uv",n:"UV light and alcohol wipe",mult:0.55,cost:12,days:3,
+  d:"Standard field hygiene. Kills a lot of what is on the surface of the equipment."},
+ {k:"per",n:"Peroxide, UV, and 0.2 micron filtration",mult:0.25,cost:28,days:6,
+  d:"Everything that touches the water is chemically treated, and every litre of drill water is filtered fine enough to catch bacteria."},
+ {k:"cln",n:"Full clean-room build and heat bake-out",mult:0.06,cost:65,days:14,
+  d:"The whole drill is assembled in a clean room and baked. This is what planetary missions do, and it costs you half your season."}
+];
+var CTRL=[
+ {k:"fluid",n:"Blanks of your own drill fluid",cost:6,days:2,
+  d:"Bottle the water or kerosene you are pumping down, before it goes down, and count what is living in it."},
+ {k:"snow",n:"Blanks of the surface snow",cost:5,days:1,
+  d:"Sample the snow around the rig, so you know what the wind is delivering."},
+ {k:"cass",n:"A sealed cassette that never opens",cost:5,days:1,
+  d:"Carry a sample bottle through the entire trip and never expose it. If it comes back with cells in it, your handling is the source."}
+];
+var MIS=[
+ {k:"whil",n:"Lake Whillans, West Antarctica",ice:800,budget:112,season:52,truth:130000,
+  brief:"A shallow subglacial lake under 800 metres of ice, in a fast-moving ice stream. Water flows through it, so it is not sealed forever \u2014 but nobody has ever sampled it. Reachable, if you are careful.",
+  real:"This is a real mission. In January 2013 the WISSARD team reached Lake Whillans with a purpose-built clean hot-water drill and found roughly <b>130,000 cells per millilitre</b> \u2014 a living ecosystem with no sunlight, running on chemistry from the rock. It is the cleanest subglacial sample anyone has taken."},
+ {k:"vost",n:"Lake Vostok, East Antarctica",ice:3770,budget:168,season:66,truth:2400,
+  brief:"The big one: a lake the size of Lake Ontario under nearly four kilometres of ice, possibly sealed for millions of years. There is a catch \u2014 a borehole already exists here, drilled over decades, and it is full of kerosene.",
+  real:"Also real, and genuinely contested. Soviet and Russian teams drilled at Vostok from the 1970s onward using a kerosene-filled hole. When samples were finally analysed, the results were argued over for years \u2014 because with that much drilling fluid in the system, almost nobody could agree which organisms came from the lake and which came from the drill."},
+ {k:"eur",n:"Europa",ice:20000,budget:420,season:400,truth:-1,
+  brief:"Jupiter's moon. Twenty kilometres of ice over an ocean that may be deeper than all of Earth's put together. One attempt. No way to inspect your equipment ever again \u2014 and planetary-protection law is not optional.",
+  real:"Nobody has done this. Every choice you just made is being argued about right now by people planning missions for the 2030s and beyond."}
+];
+
+var mis=MIS[0],dr=DRILL[0],st=STER[0],ctl={},depth=500,cleared={};
+
+/* ---------------- planning UI ---------------- */
+function costs(){
+  var c=dr.cost+st.cost,d=dr.days+st.days,k;
+  for(k in ctl)if(ctl.hasOwnProperty(k)&&ctl[k]){
+    var i;for(i=0;i<CTRL.length;i++)if(CTRL[i].k===k){c+=CTRL[i].cost;d+=CTRL[i].days;}
+  }
+  return {cost:c,days:d};
+}
+function contamCells(){
+  return dr.cont*st.mult*62000;
+}
+function hasFluid(){return !!ctl.fluid;}
+function drawIce(){
+  var cv=$("ice"),g=cv.getContext("2d"),W=cv.width,H=cv.height,top=26,bot=H-30,
+      frac=Math.min(1,depth/mis.ice),y=top+(bot-top)*frac;
+  g.fillStyle="#0d1a2b";g.fillRect(0,0,W,H);
+  g.fillStyle="rgba(150,200,255,.16)";g.fillRect(0,top,W,bot-top);
+  g.fillStyle="rgba(90,180,220,.45)";g.fillRect(0,bot,W,H-bot);
+  g.fillStyle="#8fa8c6";g.font="10px Segoe UI, sans-serif";g.textAlign="left";
+  g.fillText("surface",4,18);
+  g.fillText("LAKE  "+comma(mis.ice)+" m",4,bot+16);
+  g.strokeStyle="rgba(255,255,255,.25)";g.setLineDash([3,3]);
+  g.beginPath();g.moveTo(0,bot);g.lineTo(W,bot);g.stroke();g.setLineDash([]);
+  /* drill string */
+  g.strokeStyle=depth>dr.max?"#ff9c8a":"#f7d794";g.lineWidth=4;
+  g.beginPath();g.moveTo(W/2,top);g.lineTo(W/2,Math.min(y,bot));g.stroke();
+  g.fillStyle=depth>dr.max?"#ff9c8a":"#f7d794";
+  g.beginPath();g.arc(W/2,Math.min(y,bot),6,0,6.3);g.fill();
+  /* reach limit */
+  if(dr.max<mis.ice){
+    var ly=top+(bot-top)*Math.min(1,dr.max/mis.ice);
+    g.strokeStyle="rgba(255,156,138,.75)";g.lineWidth=2;g.setLineDash([5,4]);
+    g.beginPath();g.moveTo(0,ly);g.lineTo(W,ly);g.stroke();g.setLineDash([]);
+    g.fillStyle="#ff9c8a";g.textAlign="right";
+    g.fillText("this drill stops here",W-4,ly-4);
+  }
+  g.fillStyle="#eaf2ff";g.font="bold 11px Segoe UI, sans-serif";g.textAlign="center";
+  g.fillText(comma(depth)+" m",W/2,top-8);
+}
+function refreshP(){
+  var c=costs(),over=c.cost>mis.budget,late=c.days>mis.season,shallow=depth<mis.ice,
+      unreach=depth>dr.max,legal=(mis.k==="eur"&&st.k!=="cln");
+  $("rdP").innerHTML=
+   '<div><span>money spent</span><b class="'+(over?"bad":"good")+'">'+c.cost+' / '+mis.budget+'</b></div>'+
+   '<div><span>days used</span><b class="'+(late?"bad":"good")+'">'+c.days+' / '+mis.season+'</b></div>'+
+   '<div><span>lake is at</span><b>'+comma(mis.ice)+' m</b></div>'+
+   '<div><span>controls chosen</span><b class="'+(hasFluid()?"good":"bad")+'">'+
+     (ctl.fluid?"fluid ":"")+(ctl.snow?"snow ":"")+(ctl.cass?"sealed ":"")+
+     (!ctl.fluid&&!ctl.snow&&!ctl.cass?"none":"")+'</b></div>';
+  $("depthNote").innerHTML= unreach
+    ? "<b style='color:#ff9c8a'>Your drill cannot physically reach that depth.</b>"
+    : shallow ? "You will stop <b>"+comma(mis.ice-depth)+" m short of the water.</b>"
+    : "Deep enough to reach the lake.";
+  $("bDrill").disabled=(over||late||unreach||shallow||legal);
+  $("bDrill").innerHTML= legal ? "&#9878; Planetary protection: REFUSED"
+    : over ? "over budget" : late ? "the season ended" : unreach ? "drill cannot reach"
+    : shallow ? "you have not reached the water" : "&#128295; DRILL";
+  drawIce();
+}
+function buildPlan(){
+  var h="",i,b,j;
+  h="";
+  for(i=0;i<DRILL.length;i++){
+    var bad=DRILL[i].max<mis.ice;
+    h+='<button class="opt'+(DRILL[i].k===dr.k?" on":"")+'" data-k="'+DRILL[i].k+'">'+
+       DRILL[i].n+' <i>'+DRILL[i].d+'<br>cost '+DRILL[i].cost+' \u00B7 '+DRILL[i].days+' days \u00B7 reaches '+
+       comma(DRILL[i].max)+' m'+(bad?' \u00B7 <b style="color:#ff9c8a">too shallow for this lake</b>':'')+'</i></button>';
+  }
+  $("drills").innerHTML=h;
+  b=$("drills").getElementsByClassName("opt");
+  for(j=0;j<b.length;j++)(function(el){
+    el.onclick=run("drill",function(){
+      var k=el.getAttribute("data-k"),m;
+      for(m=0;m<DRILL.length;m++)if(DRILL[m].k===k)dr=DRILL[m];
+      if(depth>dr.max)depth=dr.max;
+      $("sD").value=depth;
+      sTick();buildPlan();refreshP();});
+  })(b[j]);
+
+  h="";
+  for(i=0;i<STER.length;i++)
+    h+='<button class="opt'+(STER[i].k===st.k?" on":"")+'" data-k="'+STER[i].k+'">'+
+       STER[i].n+' <i>'+STER[i].d+'<br>cost '+STER[i].cost+' \u00B7 '+STER[i].days+' days</i></button>';
+  $("sters").innerHTML=h;
+  b=$("sters").getElementsByClassName("opt");
+  for(j=0;j<b.length;j++)(function(el){
+    el.onclick=run("ster",function(){
+      var k=el.getAttribute("data-k"),m;
+      for(m=0;m<STER.length;m++)if(STER[m].k===k)st=STER[m];
+      sTick();buildPlan();refreshP();});
+  })(b[j]);
+
+  h="";
+  for(i=0;i<CTRL.length;i++)
+    h+='<div class="chk'+(ctl[CTRL[i].k]?" on":"")+'" data-k="'+CTRL[i].k+'">'+
+       '<div class="bx">'+(ctl[CTRL[i].k]?"\u2713":"")+'</div><div>'+CTRL[i].n+
+       '<i>'+CTRL[i].d+'<br>cost '+CTRL[i].cost+' \u00B7 '+CTRL[i].days+' days</i></div></div>';
+  $("ctrls").innerHTML=h;
+  b=$("ctrls").getElementsByClassName("chk");
+  for(j=0;j<b.length;j++)(function(el){
+    el.onclick=run("ctrl",function(){
+      var k=el.getAttribute("data-k");
+      ctl[k]=!ctl[k];sTick();buildPlan();refreshP();});
+  })(b[j]);
+}
+function loadMis(m){
+  mis=m;dr=DRILL[0];st=STER[0];ctl={};depth=Math.min(m.ice,DRILL[0].max);
+  $("mLab").textContent=(m.k==="eur"?"MISSION \u00B7 ONE ATTEMPT ONLY":"MISSION");
+  $("mName").textContent=m.n;
+  $("mBrief").textContent=m.brief;
+  $("sD").max=Math.round(m.ice*1.05);
+  $("sD").value=depth;
+  buildPlan();refreshP();show("s1");
+}
+
+/* ---------------- result ---------------- */
+var lastRes=null;
+function doDrill(){
+  var cc=contamCells(),truth=mis.truth,measured,eu;
+  sDrill();
+  if(mis.k==="eur"){
+    eu=(Math.random()<0.5);
+    truth=eu?420:0;
+  }
+  measured=truth+cc;
+  lastRes={truth:truth,cont:cc,meas:measured,fluid:hasFluid(),
+           extras:(ctl.snow?1:0)+(ctl.cass?1:0)};
+  $("rTitle").textContent="You reached the water at "+comma(depth)+" metres.";
+  $("rBig").innerHTML=comma(measured)+" cells per millilitre";
+  $("rSub").innerHTML="That is what came up the pipe. Filtered, stained, and counted under the "+
+    "microscope. There is <b>something living</b> in your sample bottle.";
+  $("askQ").innerHTML="You are about to announce that there is life in a lake sealed under the ice. "+
+    "<b>How do you know those cells are not yours?</b>";
+  $("bAsk1").textContent="I can answer that";
+  $("bAsk2").textContent="\u2026 I cannot answer that";
+  $("verdBox").style.display="none";
+  $("askBox").style.display="block";
+  show("s2");
+}
+function verdict(claimed){
+  var r=lastRes,h="",good=false,net=r.truth,ratio=r.meas>0?r.cont/r.meas:0;
+  $("askBox").style.display="none";
+  if(claimed&&!r.fluid){
+    h+='<div class="card bad"><h4>You cannot, though.</h4>'+
+      'You never bottled your own drill fluid, so you have <b>nothing to compare against</b>. '+
+      'There is no measurement anywhere in your dataset that tells you how many cells went '+
+      '<i>down</i> the hole. The number you just announced is <b>real data and an unusable result</b> '+
+      'at the same time \u2014 which is the worst kind, because it looks like a discovery.</div>';
+  }
+  if(r.fluid){
+    h+='<div class="card good"><h4>Yes \u2014 because you brought blanks.</h4>'+
+      'Your drill-fluid bottles came back with about <b>'+comma(r.cont)+' cells per millilitre</b> in them. '+
+      'Subtract that from the '+comma(r.meas)+' you measured and you are left with roughly '+
+      '<b>'+comma(Math.max(0,net))+'</b> that you can defend as coming from the lake. '+
+      'That subtraction is the entire experiment. Without it you have a photograph of some cells and no '+
+      'idea where they lived.</div>';
+    if(ratio>0.35)
+      h+='<div class="card warn"><h4>But look at the ratio.</h4>'+
+        'About <b>'+Math.round(ratio*100)+'%</b> of everything you counted came from your own equipment. '+
+        'You can subtract it, but a correction that large means your error bars swallow your answer. '+
+        'This is exactly the argument that has followed the Vostok samples around for years.</div>';
+  }else{
+    h+='<div class="card bad"><h4>No blanks, no result.</h4>'+
+      'Your drill and fluid delivered roughly <b>'+comma(r.cont)+' cells per millilitre</b> into that hole. '+
+      'You measured '+comma(r.meas)+'. You cannot separate the two, and neither can anyone reviewing '+
+      'your paper. <b>The controls were not the boring part of the mission. They were the mission.</b></div>';
+  }
+  if(mis.k==="eur"){
+    if(r.truth>0)
+      h+='<div class="card '+(r.fluid&&ratio<0.2?"good":"warn")+'"><h4>And on Europa specifically\u2026</h4>'+
+        'There <b>was</b> something alive down there \u2014 '+comma(r.truth)+' cells per millilitre of '+
+        'something nobody has ever seen. '+(r.fluid&&ratio<0.2
+          ? 'And you can prove it. This is the most important measurement in the history of biology.'
+          : 'And you will never be able to prove it, because you have no way to rule yourself out, '+
+            'and there is no second attempt.')+'</div>';
+    else
+      h+='<div class="card warn"><h4>And on Europa specifically\u2026</h4>'+
+        'This time there was <b>nothing</b> alive in the sample \u2014 the ocean at that spot was sterile. '+
+        'Everything you counted was carried there by you. '+(r.fluid
+          ? 'Because you brought blanks, you can say that clearly, and a clean negative is a real result.'
+          : 'Without blanks you would have announced life on another world. Think about that for a moment.')+
+        '</div>';
+  }
+  h+='<div class="card"><h4>What actually happened here</h4>'+mis.real+'</div>';
+  good=(r.fluid&&ratio<0.2&&(mis.k!=="eur"||true));
+  if(good){cleared[mis.k]=true;sWin();conf(110);}else sBad();
+  $("cards").innerHTML=h;
+  $("bEuropa").style.display=(mis.k!=="eur"&&cleared[mis.k])?"inline-block":"none";
+  $("verdBox").style.display="block";
+  window.scrollTo(0,document.body.scrollHeight);
+}
+
+/* ---------------- Europa questions ---------------- */
+var EUQ=[
+ {q:"You cannot inspect the probe again after launch. So how would you ever know your sterilisation worked?",
+  o:["Test an identical twin probe on Earth, destructively, and assume the flight one matches",
+     "Take a photograph of the clean room before launch",
+     "Ask the engineers to be careful",
+     "You would not \u2014 so do not bother sterilising"],
+  a:0,
+  fb:"Building two and destroying one is genuinely how this is done. It is also an admission: you are not measuring the probe you sent, you are measuring its <b>sibling</b>, and trusting that they were the same. That trust is a permanent, unremovable weakness in the result."},
+ {q:"Your probe melts down through twenty kilometres of ice and finds cells. What is the single most useful thing you could have carried to help prove they are not from Earth?",
+  o:["A camera with a higher resolution",
+     "A sealed control chamber that opens only in the ocean, plus a full inventory of every organism found on the probe before launch",
+     "A radio strong enough to send the data quickly",
+     "A larger sample bottle"],
+  a:1,
+  fb:"This is the fluid-blank idea, taken to its logical end. Missions genuinely catalogue the microbes found in their own clean rooms \u2014 so that if something turns up on Europa, they can check it against a list of <b>known suspects from home</b>."},
+ {q:"Suppose the probe finds nothing at all. Is the mission a failure?",
+  o:["Yes \u2014 no life means no discovery",
+     "Yes \u2014 the money would have been better spent elsewhere",
+     "No \u2014 but only if you can show your equipment was clean enough that you would have detected life had it been there",
+     "No \u2014 a negative result is always as good as a positive one"],
+  a:2,
+  fb:"A negative result is only worth anything if you can demonstrate your method <i>could</i> have found something. \u2018We looked and saw nothing\u2019 and \u2018we looked with an instrument capable of seeing, and saw nothing\u2019 are completely different sentences \u2014 and only the second one is science."}
+];
+function buildEu(){
+  var h="",i;
+  for(i=0;i<EUQ.length;i++){
+    h+='<div class="qz" data-i="'+i+'"><p>'+(i+1)+' &middot; '+EUQ[i].q+'</p>';
+    var j;
+    for(j=0;j<EUQ[i].o.length;j++)
+      h+='<button class="qo" data-i="'+i+'" data-j="'+j+'">'+EUQ[i].o[j]+'</button>';
+    h+='<div class="fb" id="fb'+i+'"></div></div>';
+  }
+  $("euQ").innerHTML=h;
+  var b=$("euQ").getElementsByClassName("qo"),k;
+  for(k=0;k<b.length;k++)(function(el){
+    el.onclick=run("euq",function(){
+      var i=parseInt(el.getAttribute("data-i"),10),j=parseInt(el.getAttribute("data-j"),10),
+          all=$("euQ").getElementsByClassName("qo"),m;
+      for(m=0;m<all.length;m++)
+        if(parseInt(all[m].getAttribute("data-i"),10)===i)all[m].disabled=true;
+      if(j===EUQ[i].a){el.className="qo ok";sWin();conf(30);}
+      else{
+        el.className="qo bad";sBad();
+        for(m=0;m<all.length;m++)
+          if(parseInt(all[m].getAttribute("data-i"),10)===i&&
+             parseInt(all[m].getAttribute("data-j"),10)===EUQ[i].a)all[m].className="qo ok";
+      }
+      $("fb"+i).className="fb on";
+      $("fb"+i).innerHTML="<b>Why:</b> "+EUQ[i].fb;
+    });
+  })(b[k]);
+}
+
+/* ---------------- nav ---------------- */
+function show(id){
+  var s=document.getElementsByClassName("sec"),i;
+  for(i=0;i<s.length;i++)s[i].className="sec";
+  $(id).className="sec on";
+  window.scrollTo(0,0);
+}
+function buildMenu(){
+  var h="",i;
+  for(i=0;i<MIS.length;i++)
+    h+='<div class="mis" data-k="'+MIS[i].k+'"><div class="mn">MISSION '+(i+1)+
+       ' \u00B7 '+comma(MIS[i].ice)+' M OF ICE \u00B7 BUDGET '+MIS[i].budget+' \u00B7 '+
+       (MIS[i].k==="eur"?"ONE ATTEMPT":MIS[i].season+" DAY SEASON")+'</div><h3>'+MIS[i].n+
+       '</h3><p>'+MIS[i].brief+'</p>'+(cleared[MIS[i].k]?'<div class="st">\u2713 defensible result</div>':'')+
+       '</div>';
+  $("misBox").innerHTML=h;
+  var b=$("misBox").getElementsByClassName("mis"),j;
+  for(j=0;j<b.length;j++)(function(el){
+    el.onclick=run("mission",function(){
+      var k=el.getAttribute("data-k"),m;
+      for(m=0;m<MIS.length;m++)if(MIS[m].k===k)loadMis(MIS[m]);
+    });
+  })(b[j]);
+}
+function init(){
+  buildMenu();buildEu();
+  $("sD").oninput=run("depth",function(){depth=parseInt($("sD").value,10);refreshP();});
+  $("bDrill").onclick=run("drill go",doDrill);
+  $("bBack").onclick=run("back",function(){buildMenu();show("s0");});
+  $("bAsk1").onclick=run("ask1",function(){verdict(true);});
+  $("bAsk2").onclick=run("ask2",function(){verdict(false);});
+  $("bAgain").onclick=run("again",function(){loadMis(mis);});
+  $("bMenu").onclick=run("menu",function(){buildMenu();show("s0");});
+  $("bEuropa").onclick=run("europa",function(){show("s3");});
+  $("bDone").onclick=run("done",function(){buildMenu();show("s0");});
+  var bt=$("boot");bt.className="ok";
+  bt.textContent="script OK \u00B7 3 missions loaded";
+}
+try{
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",function(){try{init();}catch(e){fail("init",e);}});
+  else init();
+}catch(e){fail("init",e);}
+})();
+</script>
+
+
+</body></html>

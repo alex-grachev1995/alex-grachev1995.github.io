@@ -1,0 +1,1866 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Dead Lake</title>
+<style>
+:root{
+  --bg:#0b1926;
+  --panel:#142b3c;
+  --line:#365366;
+  --ink:#edf5f6;
+  --muted:#b3c9d3;
+  --gold:#ffd58a;
+  --teal:#77dfcc;
+  --blue:#9cc6ff;
+  --red:#ffac99;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;
+  color:var(--ink);
+  background:
+    radial-gradient(ellipse at 15% 0%,#254652,transparent 48%),
+    var(--bg);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body,button,input{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font-size:inherit}
+button{
+  border:1px solid transparent;
+  border-radius:11px;
+  padding:11px 16px;
+  background:var(--gold);
+  color:#152936;
+  font-weight:800;
+  cursor:pointer;
+}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button:active:not(:disabled){transform:translateY(1px)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary{
+  background:#203c4e;color:var(--ink);border-color:#536f80;
+}
+button.quiet{
+  background:transparent;color:var(--muted);border-color:var(--line);
+}
+button.small{font-size:.78rem;padding:7px 11px}
+button.wide{width:100%}
+button.selected{
+  background:#294e49;color:#b7f3df;border-color:var(--teal);
+}
+:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-1.2px;line-height:1.1}
+h2{font-size:clamp(1.35rem,3vw,1.8rem);line-height:1.2}
+h3{font-size:1rem}
+p+p{margin-top:10px}
+a{color:var(--blue)}
+small,.hint{font-size:.76rem;color:var(--muted)}
+.hint{line-height:1.5}
+.muted{color:var(--muted)}
+.eyebrow{
+  font-size:.68rem;letter-spacing:1.6px;
+  font-weight:850;text-transform:uppercase;color:var(--teal);
+}
+.app{max-width:1370px;margin:auto;padding:22px}
+header{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:52px;height:52px;display:grid;place-items:center;
+  background:#204451;border:1px solid #597987;
+  border-radius:17px;color:var(--teal);font-size:30px;
+}
+.settings{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:23px 0}
+.tab{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  background:#142d3f;color:var(--muted);border-color:var(--line);
+}
+.tab.active{border-color:var(--gold);color:var(--ink);background:#30433f}
+.tab span{
+  width:28px;height:28px;display:grid;place-items:center;
+  border:1px solid currentColor;border-radius:50%;flex-shrink:0;
+}
+.tab b{font-size:.87rem}
+.intro{margin-bottom:16px}
+.intro p{margin-top:7px;max-width:920px;color:var(--muted);font-size:.93rem}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+.panel{
+  background:linear-gradient(145deg,#173144,#102536);
+  border:1px solid var(--line);border-radius:18px;overflow:hidden;
+}
+.scenehead{
+  padding:12px 16px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;
+}
+.scenehead b{font-size:.75rem;letter-spacing:.8px}
+#year{font-size:1rem;color:var(--gold);letter-spacing:0}
+.timebar{height:4px;background:#091c28}
+.timebar span{
+  display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));
+}
+#scene svg{display:block;width:100%;height:auto}
+.scenefoot{padding:8px 15px 11px;font-size:.71rem;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+.stat{
+  position:relative;
+  background:#122a3b;border:1px solid var(--line);
+  border-top:3px solid var(--teal);border-radius:15px;padding:15px;
+}
+.stat.england{border-top-color:var(--gold)}
+.stathead{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.stathead strong{font-size:.86rem}
+.phrow{display:flex;justify-content:space-between;align-items:center;margin-top:9px;gap:10px}
+.ph{font-size:2.1rem;font-weight:850;line-height:1.2}
+.ph small{font-size:.8rem;font-weight:500}
+.count{text-align:right;font-size:1.2rem;font-weight:850}
+.count small{display:block;font-weight:500;font-size:.69rem}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.reading{font-size:.76rem;color:var(--muted);margin-top:10px}
+.reading b{color:var(--ink)}
+.meter{height:7px;background:#081d29;border-radius:10px;overflow:hidden;margin-top:6px}
+.meter span{display:block;height:100%;background:var(--teal)}
+.animalblock{
+  border-top:1px solid #365367;
+  margin-top:21px;padding-top:13px;
+}
+.animals{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
+.animal{text-align:center;min-width:0}
+.animal .art{
+  background:#1d3d4d;border:1px solid #47697c;border-radius:9px;
+  padding:3px;
+}
+.animal svg{display:block;width:100%;height:29px}
+.animal small{
+  display:block;margin-top:4px;font-size:.58rem;line-height:1.3;color:#c1d4dc;
+}
+.animal.absent .art{opacity:.35}
+.animal.absent small{color:#91aab8}
+.animal.changed .art{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.bad{color:var(--red)}
+.good{color:var(--teal)}
+.changedbox{
+  border-color:var(--gold)!important;
+  box-shadow:0 0 0 2px #ffd58a24,0 0 25px #ffd58a12;
+}
+.change-label{
+  display:inline-block;color:var(--gold);font-size:.64rem;
+  font-weight:800;letter-spacing:.5px;margin-left:7px;
+}
+.side{display:grid;gap:12px;position:sticky;top:14px}
+.update{padding:17px;border-top:3px solid var(--gold)}
+.update.fresh{animation:notice .8s ease-out}
+@keyframes notice{
+  0%{box-shadow:0 0 0 5px #ffd58a80}
+  100%{box-shadow:0 0 0 0 #ffd58a00}
+}
+.update h3{font-size:1.12rem;line-height:1.3;margin:7px 0}
+.update p{font-size:.87rem;color:#dce9ed}
+.update ul{font-size:.82rem;color:#dce9ed;padding-left:18px;margin:10px 0 0}
+.update li+li{margin-top:6px}
+.badge{
+  display:inline-block;border:1px solid #b89d64;border-radius:20px;
+  color:var(--gold);padding:2px 8px;font-size:.63rem;font-weight:850;letter-spacing:1px;
+}
+.controls{padding:16px}
+.controls h3{margin-bottom:10px}
+.choice{
+  display:flex;gap:9px;align-items:flex-start;
+  padding:10px;background:#102838;border:1px solid var(--line);
+  border-radius:10px;margin-top:8px;font-size:.85rem;
+}
+.choice:has(input:checked){border-color:var(--gold);background:#293f40}
+.choice input{margin-top:5px;accent-color:var(--gold)}
+.choice small{display:block;margin-top:3px}
+input[type=range]{width:100%;accent-color:var(--gold);margin:12px 0 5px}
+.goal{
+  background:#183b3c;border:1px solid #4d7b70;
+  border-radius:10px;padding:10px;font-size:.8rem;margin-bottom:13px;
+}
+.budget{font-size:1.45rem;color:var(--gold);font-weight:850}
+.decision{padding-top:14px;margin-top:14px;border-top:1px solid var(--line)}
+.decision h3{margin:0;font-size:.9rem}
+.decision p{margin-top:4px}
+.options{display:grid;grid-template-columns:1.55fr 1fr;gap:7px;margin-top:9px}
+.options button{font-size:.76rem;padding:9px 7px}
+.decision-value{font-weight:850;font-size:1rem;color:var(--teal)}
+.statusline{font-size:.72rem;color:var(--muted);margin-top:6px;min-height:1.2em}
+.playback{padding:14px}
+.playback .row{margin-top:9px}
+#playStatus{font-size:.72rem;color:var(--muted);margin-top:9px}
+details{
+  border:1px solid var(--line);border-radius:13px;background:#102737;
+}
+summary{
+  padding:12px 15px;font-size:.8rem;font-weight:750;
+  color:var(--muted);cursor:pointer;
+}
+.detailbody{padding:0 15px 15px;font-size:.82rem;color:var(--muted)}
+.graphdetails{margin-top:12px}
+.graphlegend{display:flex;gap:15px;font-size:.71rem;margin-bottom:5px}
+.graphlegend span:first-child{color:var(--gold)}
+.graphlegend span:last-child{color:var(--teal)}
+#graph svg{display:block;width:100%;height:auto}
+.result{margin-top:15px;padding:21px;border-top:3px solid var(--gold)}
+.result h2{margin:6px 0 9px}
+.result p{font-size:.92rem;color:#dce9ec}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.result-question{
+  border-left:3px solid var(--teal);padding-left:12px;margin-top:14px;
+  font-weight:750;color:var(--teal);
+}
+footer{margin-top:20px}
+footer>p{font-size:.69rem;color:var(--muted);margin:10px 2px}
+.notesgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.notesgrid ul{padding-left:18px}
+.notesgrid li+li{margin-top:8px}
+#tests{white-space:pre-wrap;font-size:.74rem}
+.history{max-width:880px;margin:0 auto}
+.history>h2{margin:6px 0 10px}
+.history>p{color:var(--muted)}
+.history-list{padding:20px;margin-top:20px}
+.history-item{
+  display:grid;grid-template-columns:92px 1fr;gap:15px;padding:16px 0;
+  border-bottom:1px solid var(--line);
+}
+.history-item:first-child{padding-top:0}
+.history-item:last-child{border:0;padding-bottom:0}
+.history-item time{font-size:.91rem;font-weight:850;color:var(--gold)}
+.history-item p{font-size:.88rem;color:#dce9ee}
+.history-item b{color:var(--ink)}
+.history-bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.history-bottom article{padding:18px}
+.history-bottom h3{margin-bottom:7px;color:var(--teal)}
+.history-bottom p{font-size:.85rem;color:#dce9ed}
+.sources{margin-top:15px}
+.sources li+li{margin-top:9px}
+dialog{
+  width:min(540px,calc(100% - 30px));max-height:90vh;overflow:auto;
+  border:1px solid #89c3b3;border-radius:23px;padding:28px;
+  background:linear-gradient(145deg,#224c4c,#12283b);
+  color:var(--ink);box-shadow:0 25px 100px #0009;
+}
+dialog::backdrop{background:#06131bce;backdrop-filter:blur(5px)}
+dialog .modalicon{font-size:2.8rem;color:var(--gold);line-height:1}
+dialog h2{font-size:2rem;margin:10px 0}
+dialog p{color:#d2e5e8;font-size:.92rem}
+.modalstats{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;
+}
+.modalstats div{padding:12px;background:#0b2331;border-radius:11px}
+.modalstats b{font-size:1.5rem;display:block;color:var(--gold)}
+.modalstats small{font-size:.74rem}
+.modalclose{position:absolute;top:10px;right:12px}
+.confetti{
+  position:fixed;top:-20px;width:9px;height:13px;pointer-events:none;
+  animation:fall 2.2s ease-in forwards;z-index:1000;
+}
+@keyframes fall{to{transform:translateY(105vh) rotate(580deg);opacity:0}}
+.rainmoving{animation:rain .7s linear infinite}
+@keyframes rain{to{transform:translate(-4px,11px)}}
+.flow{stroke-dasharray:9 13;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-44}}
+.swimming{animation:swim 3s ease-in-out infinite}
+@keyframes swim{50%{transform:translateY(-3px)}}
+body:not(.running) .rainmoving,body:not(.running) .flow{animation-play-state:paused}
+body.reduced *,body.reduced *::before,body.reduced *::after{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important;
+}
+#error{padding:13px;background:#613333;border-radius:12px;margin-bottom:15px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static;grid-template-columns:1fr 1fr}
+  .update{grid-column:1/-1}
+  .playback{align-self:start}
+}
+@media(max-width:600px){
+  .app{padding:12px}
+  .logo{display:none}
+  .settings{max-width:145px}
+  .settings button{font-size:.67rem;padding:6px 8px}
+  nav{gap:5px;margin:18px 0}
+  .tab{padding:10px 7px;gap:7px;flex-direction:column;align-items:flex-start}
+  .tab b{font-size:.72rem}
+  .side{grid-template-columns:1fr}
+  .update{grid-column:auto}
+  .stat{padding:10px}
+  .stathead{display:block}
+  .stathead small{display:block}
+  .stats{gap:7px}
+  .ph{font-size:1.8rem}
+  .animal small{font-size:.5rem}
+  .animal svg{height:24px}
+  .animals{gap:3px}
+  .notesgrid,.history-bottom{grid-template-columns:1fr}
+  .history-item{grid-template-columns:65px 1fr;gap:10px}
+  .history-list{padding:15px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="error" role="alert" hidden=""></div>
+
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">≈</div>
+      <div>
+        <div class="eyebrow">Acid rain</div>
+        <h1>The Dead Lake</h1>
+      </div>
+    </div>
+    <div class="settings">
+      <button id="soundButton" class="quiet small" aria-pressed="false">Sound: off</button>
+      <button id="motionButton" class="quiet small" aria-pressed="false">Reduce motion</button>
+    </div>
+  </header>
+
+  <nav aria-label="Acts" id="navigation">
+    <button class="tab" data-act="1"><span>1</span><b>The tall chimney</b></button>
+    <button class="tab" data-act="2"><span>2</span><b>Two valleys</b></button>
+    <button class="tab" data-act="3"><span>3</span><b>Save the lake</b></button>
+  </nav>
+
+  <main id="game">
+    <section class="intro">
+      <div class="eyebrow" id="actLabel"></div>
+      <h2 id="actTitle"></h2>
+      <p id="actDescription"></p>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="panel">
+          <div class="scenehead">
+            <b id="sceneTitle"></b>
+            <b id="year"></b>
+          </div>
+          <div class="timebar"><span id="timeProgress"></span></div>
+          <div id="scene"></div>
+          <div class="scenefoot" id="sceneFoot"></div>
+        </section>
+
+        <div class="stats" id="stats"></div>
+
+        <details class="graphdetails" id="graphDetails">
+          <summary>Lake pH over time</summary>
+          <div class="detailbody">
+            <div class="graphlegend" id="graphLegend"></div>
+            <div id="graph"></div>
+            <p class="hint">Model years, not historical measurements. Lower pH means more acidic water.</p>
+          </div>
+        </details>
+      </div>
+
+      <aside class="side">
+        <section class="panel update" id="update" aria-labelledby="updateTitle">
+          <div class="row">
+            <span class="eyebrow" id="updateTag"></span>
+            <span class="badge" id="newBadge">START HERE</span>
+          </div>
+          <h3 id="updateTitle" tabindex="-1"></h3>
+          <div id="updateText" aria-live="polite" aria-atomic="true"></div>
+        </section>
+
+        <section class="panel controls">
+          <div id="control1">
+            <h3>Choose a chimney</h3>
+            <label class="choice">
+              <input type="radio" name="chimney" value="short">
+              <span><b>Keep it short</b><small>More pollution remains near the factory.</small></span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="chimney" value="tall" checked="">
+              <span><b>Build it taller</b><small>Less nearby pollution. Same total emissions.</small></span>
+            </label>
+            <p class="hint" style="margin-top:10px">Choose once, then watch the full run.</p>
+          </div>
+
+          <div id="control2" hidden="">
+            <h3>Equal input to both valleys</h3>
+            <label class="row" for="pollution" style="font-size:.84rem">
+              <span>Acid input</span><b id="pollutionValue">100%</b>
+            </label>
+            <input type="range" id="pollution" min="0" max="150" step="25" value="100">
+            <p class="hint">100% is this model's reference input. Set it before running.</p>
+          </div>
+
+          <div id="control3" hidden="">
+            <div class="goal">
+              Year 50 target: <b>at least 3 of 5 animal groups</b>.
+              Budget: <b>100 credits</b>.
+            </div>
+            <div class="row">
+              <span class="hint">Budget remaining</span>
+              <span class="budget" id="budget"></span>
+            </div>
+
+            <div class="decision" id="limeDecision">
+              <div class="row">
+                <h3>1 · Add limestone?</h3>
+                <span class="decision-value" id="limeValue"></span>
+              </div>
+              <p class="hint">Adds 8 treatment units. Leftovers are kept.</p>
+              <div class="options">
+                <button id="limeYes">Add +8 · 8 credits</button>
+                <button id="limeNo" class="secondary">Not now</button>
+              </div>
+              <div class="statusline" id="limeStatus"></div>
+            </div>
+
+            <div class="decision" id="planDecision">
+              <div class="row">
+                <h3>2 · Push the clean-air plan?</h3>
+                <span class="decision-value" id="planValue"></span>
+              </div>
+              <div class="meter"><span id="planProgress"></span></div>
+              <p class="hint" id="planHint">Build agreement between the countries.</p>
+              <div class="options" id="planOptions">
+                <button id="planYes">Push · 18 credits</button>
+                <button id="planNo" class="secondary">Not now</button>
+              </div>
+              <div class="statusline" id="planStatus"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel playback">
+          <button id="runButton" class="wide">Run 50 years</button>
+          <div class="row">
+            <button id="resetButton" class="quiet small">↺ Restart act</button>
+            <span class="hint" id="checkpointLabel"></span>
+          </div>
+          <p id="playStatus"></p>
+        </section>
+      </aside>
+    </div>
+
+    <section id="result" class="panel result" hidden=""></section>
+  </main>
+
+  <main id="history" class="history" hidden="">
+    <div class="eyebrow">After the simulation</div>
+    <h2 tabindex="-1" id="historyTitle">What actually happened?</h2>
+    <p>The response combined international emissions controls with treatment of damaged waters.</p>
+
+    <section class="panel history-list">
+      <div class="history-item">
+        <time>1960s</time>
+        <p>
+          <b>Researchers connected distant emissions with acid rain.</b>
+          Pollution could travel across borders before reaching forests and lakes.
+          The problem needed more than local air-quality measurements. [1]
+        </p>
+      </div>
+      <div class="history-item">
+        <time>1977</time>
+        <p>
+          <b>Sweden began a state-funded liming trial.</b>
+          Permanent grant funding followed in 1982.
+          Treatment helped counter acidification while pollution controls developed. [2]
+        </p>
+      </div>
+      <div class="history-item">
+        <time>1979–85</time>
+        <p>
+          <b>Countries agreed to cooperate.</b>
+          The Convention on Long-range Transboundary Air Pollution was signed in
+          1979 and entered into force in 1983. A 1985 protocol required participating
+          countries to cut sulfur emissions or cross-border sulfur flows by at least 30%. [1,3]
+        </p>
+      </div>
+      <div class="history-item">
+        <time>Since 1990</time>
+        <p>
+          <b>Emissions fell substantially.</b>
+          Cleaner fuels, emissions controls, and international commitments helped.
+          UNECE reported in 2024 that sulfur dioxide emissions across its region
+          had fallen by 83% since 1990. That is not the same as an 83% recovery of lakes. [4]
+        </p>
+      </div>
+    </section>
+
+    <div class="history-bottom">
+      <article class="panel">
+        <h3>Was the problem solved?</h3>
+        <p>
+          <b>Not completely.</b> Swedish waters have improved, but recovery is slow.
+          Some remain acidified, and treatment continues.
+          Lower emissions do not instantly restore depleted soils or lost populations. [5]
+        </p>
+      </article>
+      <article class="panel">
+        <h3>What did it cost?</h3>
+        <p>
+          In <b>2025</b>, Sweden reported spreading <b>68,435 tonnes of lime</b>
+          at a cost of <b>169 million Swedish kronor</b>. [6]
+        </p>
+        <p>
+          That is one year's liming cost—not the total cost of Europe's pollution
+          controls or decades of recovery. The game's credits are not kronor.
+        </p>
+      </article>
+    </div>
+
+    <details class="sources">
+      <summary>Sources</summary>
+      <div class="detailbody">
+        <ol>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://unece.org/environmental-policy/air/convention-and-its-achievements">
+            UNECE: the Convention and its achievements</a></li>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://www.havochvatten.se/miljopaverkan-och-atgarder/miljopaverkan/forsurning/forsurning-och-kalkning/kalkning-och-andra-motatgarder.html">
+            Swedish Agency for Marine and Water Management: liming and other measures</a></li>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://unece.org/environmental-policy/air/protocols">
+            UNECE: protocols and their dates</a></li>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://unece.org/media/press/397637">
+            UNECE: 45 years of clean-air cooperation, 2024</a></li>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://www.naturvardsverket.se/en/om-miljoarbetet/swedish-environmental-objectives/natural-acidification-only/">
+            Swedish Environmental Protection Agency: Natural Acidification Only</a></li>
+          <li><a target="_blank" rel="noopener noreferrer" href="https://www.havochvatten.se/data-kartor-och-rapporter/rapporter-och-andra-publikationer/publikationer/2026-04-08-anvandning-av-anslag-111-under-2025.html">
+            Swedish Agency for Marine and Water Management: expenditure and measures in 2025</a></li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button id="returnButton">Back to your result</button>
+      <button id="historyRestart" class="secondary">Try another rescue plan</button>
+    </div>
+  </main>
+
+  <footer>
+    <details>
+      <summary>Model notes</summary>
+      <div class="detailbody">
+        <div class="notesgrid">
+          <div>
+            <h3>Science</h3>
+            <ul>
+              <li>
+                Catchment means the land draining into a lake. Limestone-rich
+                catchments often neutralize more acidity than thin-soiled granite
+                catchments. Actual geology varies within both countries.
+              </li>
+              <li>
+                Neutralization removes acidity; it does not store acid for a later
+                release. Accessible neutralizing minerals can be consumed.
+              </li>
+              <li>
+                Low pH can harm organisms directly and mobilize aluminium from
+                soils. The aluminium indicator is a qualitative warning, not a
+                concentration calculation.
+              </li>
+              <li>
+                Tall stacks can redistribute pollution without removing it.
+                Wind, deposition, and atmospheric chemistry influence where it goes.
+              </li>
+              <li>
+                Sound effects are interface cues. A low-pH lake does not literally hiss.
+                “Absent” means lost from this modeled lake, not globally extinct.
+              </li>
+            </ul>
+            <p>
+              <a href="https://www.epa.gov/acidrain/effects-acid-rain" target="_blank" rel="noopener noreferrer">EPA: effects of acid rain</a>
+              ·
+              <a href="https://www.gao.gov/products/gao-11-473" target="_blank" rel="noopener noreferrer">GAO: tall smokestacks and pollution transport</a>
+            </p>
+          </div>
+          <div>
+            <h3>Game rules</h3>
+            <ul>
+              <li>
+                These are representative fictional valleys. Each act starts a new
+                scenario; the years are not historical dates.
+              </li>
+              <li>
+                pH curves, reserve units, costs, and transport amounts are illustrative.
+                This is not a calibrated chemical or ecological prediction model.
+              </li>
+              <li>
+                The icons represent sensitive aquatic insects, freshwater crustaceans,
+                minnows, trout, and perch. Tolerances differ between real species and
+                life stages. The thresholds here are teaching rules.
+              </li>
+              <li>
+                Groups are lost after two unfavorable model years and can return
+                after five favorable years, assuming recolonization is possible.
+                An empty row does not mean the lake has no life.
+              </li>
+              <li>
+                Lake limestone is additive. It is consumed by incoming acid and
+                gradually flushed out. It does not replenish the surrounding soil.
+              </li>
+              <li>
+                Negotiation progress is not an emissions reduction.
+                Once the plan is agreed, implementation takes ten model years to
+                reach a 95% reduction. Controls are then assumed to remain operating.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button id="testButton" class="secondary small">Run model and SVG checks</button>
+        <pre id="tests">Checks have not been run.</pre>
+      </div>
+    </details>
+    <p>Simplified classroom model · no external libraries · sound is optional.</p>
+  </footer>
+</div>
+
+<dialog id="finishDialog" aria-labelledby="modalTitle">
+  <button id="closeDialog" class="quiet small modalclose" aria-label="Close result">✕</button>
+  <div class="modalicon" id="modalIcon" aria-hidden="true">✓</div>
+  <div class="eyebrow">Year 50</div>
+  <h2 id="modalTitle"></h2>
+  <p id="modalText"></p>
+  <div class="modalstats">
+    <div><b id="modalGroups"></b><small>animal groups present</small></div>
+    <div><b id="modalCost"></b><small>credits spent</small></div>
+  </div>
+  <button id="modalHistory" class="wide">What happened in real life? →</button>
+  <button id="modalReview" class="quiet wide" style="margin-top:9px">Review my lake</button>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Helpers ---------- */
+
+const $=id=>document.getElementById(id);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const YEARS=50;
+const PLAN=[0,26,64,100];
+
+const GROUPS=[
+  {name:"Sensitive aquatic insects",short:"Insects",limit:6.0},
+  {name:"Freshwater crustaceans",short:"Crustaceans",limit:5.8},
+  {name:"Minnow-type fish",short:"Minnows",limit:5.5},
+  {name:"Trout-type fish",short:"Trout",limit:5.1},
+  {name:"Perch-type fish",short:"Perch",limit:4.7}
+];
+
+let s;
+let running=false;
+let timer=null;
+let onHistory=false;
+let sound=false;
+let reduced=!!(window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+const sessions={};
+
+function safe(fn){
+  return function(...args){
+    try{return fn(...args);}
+    catch(error){
+      stop();
+      $("error").hidden=false;
+      $("error").textContent="The activity stopped: "+error.message+
+        ". Restart this act to try again.";
+      console.error(error);
+    }
+  };
+}
+
+function focusUpdate(){
+  const box=$("update");
+  const rect=box.getBoundingClientRect();
+  if(rect.top<0 || rect.bottom>window.innerHeight){
+    box.scrollIntoView({block:"nearest",behavior:reduced?"auto":"smooth"});
+  }
+  $("updateTitle").focus({preventScroll:true});
+}
+
+/* ---------- Model ---------- */
+
+function lake(rock){
+  const limestone=rock==="limestone";
+  return {
+    rock,
+    reserve:limestone?300:24,
+    max:limestone?300:24,
+    weathering:limestone?.45:.12,
+    base:limestone?7.2:6.8,
+    pH:limestone?7.2:6.8,
+    lime:0,input:1,
+    alive:[true,true,true,true,true],
+    bad:[0,0,0,0,0],
+    good:[0,0,0,0,0]
+  };
+}
+function count(l){return l.alive.filter(Boolean).length;}
+function sample(l){
+  return {
+    pH:l.pH,reserve:l.reserve,lime:l.lime,input:l.input,
+    alive:l.alive.slice(),n:count(l)
+  };
+}
+function snapshot(state){
+  return {
+    e:state.e?sample(state.e):null,
+    w:sample(state.w),
+    spent:state.spent,stage:state.stage,cut:cut(state)
+  };
+}
+function makeState(act){
+  const state={
+    act,year:0,done:false,
+    choice:"tall",pollution:100,
+    e:act===3?null:lake("limestone"),
+    w:lake("granite"),
+    spent:0,stage:0,agreed:null,
+    decisions:{lime:null,plan:null},
+    histories:[],flags:{},
+    blockEvents:[],healthyYears:0,
+    note:{tag:"",title:"",text:""},
+    noteVersion:0,markE:false,markW:false,markTools:false,
+    changedAnimalsE:[],changedAnimalsW:[],
+    blockStart:null,lastLimeYear:-1,lastPlanYear:-1
+  };
+  if(act===3){
+    state.w.reserve=0;
+    state.w.pH=5.2;
+    state.w.alive=[false,false,false,true,true];
+  }
+  inputs(state);
+  record(state);
+  state.blockStart=snapshot(state);
+  return state;
+}
+function cut(state){
+  if(state.agreed===null)return 0;
+  return .95*clamp((state.year-state.agreed)/10,0,1);
+}
+function inputs(state){
+  if(state.act===1){
+    state.e.input=state.choice==="tall"?.5:1.5;
+    state.w.input=state.choice==="tall"?1:.25;
+  }else if(state.act===2){
+    state.e.input=state.w.input=state.pollution/100;
+  }else state.w.input=1-cut(state);
+}
+function record(state){
+  const row={
+    year:state.year,
+    e:state.e?sample(state.e):null,
+    w:sample(state.w)
+  };
+  const h=state.histories;
+  if(h.length&&h[h.length-1].year===state.year)h[h.length-1]=row;
+  else h.push(row);
+}
+function tickLake(l){
+  const before=l.alive.slice();
+  l.reserve=Math.min(l.max,l.reserve+l.weathering);
+  let acid=l.input*1.6;
+
+  const natural=Math.min(l.reserve,acid);
+  l.reserve-=natural;
+  acid-=natural;
+
+  const treated=Math.min(l.lime,acid);
+  l.lime-=treated;
+  acid-=treated;
+
+  const target=clamp(l.base-2.6*(acid/1.6),4.05,l.base);
+  l.pH+=(target-l.pH)*.38;
+
+  l.lime*=.85;
+  if(l.lime<.000001)l.lime=0;
+
+  GROUPS.forEach((g,i)=>{
+    if(l.alive[i]){
+      l.good[i]=0;
+      l.bad[i]=l.pH<g.limit?l.bad[i]+1:0;
+      if(l.bad[i]>=2){
+        l.alive[i]=false;l.bad[i]=0;
+      }
+    }else{
+      l.bad[i]=0;
+      l.good[i]=l.pH>=g.limit+.15?l.good[i]+1:0;
+      if(l.good[i]>=5){
+        l.alive[i]=true;l.good[i]=0;
+      }
+    }
+  });
+
+  return {
+    lost:before.map((a,i)=>a&&!l.alive[i]?i:-1).filter(i=>i>=0),
+    returned:before.map((a,i)=>!a&&l.alive[i]?i:-1).filter(i=>i>=0)
+  };
+}
+function tick(state){
+  if(state.year>=YEARS)return null;
+  state.year++;
+  inputs(state);
+  const e=state.e?tickLake(state.e):null;
+  const w=tickLake(state.w);
+  if(count(state.w)>=3)state.healthyYears++;
+  record(state);
+  return {e,w};
+}
+function canDecide(state){
+  return state.act===3&&!state.done&&state.year<YEARS&&state.year%5===0;
+}
+function decide(state,kind,yes){
+  if(!canDecide(state)||state.decisions[kind]!==null)return false;
+  if(kind==="lime"){
+    if(yes){
+      if(state.spent+8>100||state.lastLimeYear===state.year)return false;
+      state.spent+=8;
+      state.w.lime+=8;              // ADD, do not replace the remaining dose.
+      state.w.pH=Math.max(state.w.pH,6.6);
+      state.lastLimeYear=state.year;
+    }
+  }else if(kind==="plan"){
+    if(state.stage>=3)return false;
+    if(yes){
+      if(state.spent+18>100||state.lastPlanYear===state.year)return false;
+      state.spent+=18;
+      state.stage++;
+      state.lastPlanYear=state.year;
+      if(state.stage===3)state.agreed=state.year;
+    }
+  }else return false;
+  state.decisions[kind]=yes;
+  record(state);
+  return true;
+}
+function resetDecisions(state){
+  state.decisions={lime:null,plan:state.stage===3?"complete":null};
+}
+function ready(state){
+  return state.act!==3||
+    (state.decisions.lime!==null&&state.decisions.plan!==null);
+}
+
+/* ---------- Procedural audio ---------- */
+
+let ac=null,master=null,rainGain=null,rainSource=null,noiseBuffer=null;
+
+function initAudio(){
+  if(!sound)return;
+  try{
+    if(!ac){
+      ac=new(window.AudioContext||window.webkitAudioContext)();
+      master=ac.createGain();
+      master.gain.value=.65;
+      master.connect(ac.destination);
+
+      noiseBuffer=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);
+      const data=noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+
+      rainSource=ac.createBufferSource();
+      rainSource.buffer=noiseBuffer;rainSource.loop=true;
+      const filter=ac.createBiquadFilter();
+      filter.type="lowpass";filter.frequency.value=1400;
+      rainGain=ac.createGain();rainGain.gain.value=0;
+      rainSource.connect(filter);filter.connect(rainGain);
+      rainGain.connect(master);
+      rainSource.start();
+    }
+    if(ac.state==="suspended")ac.resume().catch(()=>{});
+  }catch(error){
+    sound=false;
+    $("soundButton").textContent="Sound unavailable";
+  }
+}
+function setRain(){
+  if(sound)initAudio();
+  if(!ac||!rainGain)return;
+  const input=s?s.w.input:0;
+  const volume=sound&&running&&!document.hidden
+    ?.025+.025*clamp(input,0,1.5):0;
+  rainGain.gain.cancelScheduledValues(ac.currentTime);
+  rainGain.gain.setTargetAtTime(volume,ac.currentTime,.15);
+}
+function tone(freq,delay,duration,volume=.1,type="sine",end=null){
+  if(!sound)return;
+  initAudio();
+  if(!ac)return;
+  const o=ac.createOscillator(),g=ac.createGain();
+  const time=ac.currentTime+delay;
+  o.type=type;o.frequency.setValueAtTime(freq,time);
+  if(end)o.frequency.exponentialRampToValueAtTime(end,time+duration);
+  o.connect(g);g.connect(master);
+  g.gain.setValueAtTime(.0001,time);
+  g.gain.exponentialRampToValueAtTime(volume,time+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,time+duration);
+  o.start(time);o.stop(time+duration+.03);
+}
+function hiss(){
+  if(!sound)return;
+  initAudio();
+  if(!ac)return;
+  const n=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();
+  n.buffer=noiseBuffer;
+  f.type="bandpass";f.frequency.value=2800;f.Q.value=.7;
+  n.connect(f);f.connect(g);g.connect(master);
+  const t=ac.currentTime;
+  g.gain.setValueAtTime(.0001,t);
+  g.gain.exponentialRampToValueAtTime(.09,t+.05);
+  g.gain.exponentialRampToValueAtTime(.0001,t+.65);
+  n.start(t);n.stop(t+.7);
+}
+function soundEvent(type){
+  if(type==="lost"){
+    tone(270,0,.45,.09,"triangle",110);
+    tone(155,.12,.45,.045,"sine",75);
+  }else if(type==="return"){
+    [523,659,784].forEach((f,i)=>tone(f,i*.10,.27,.075,"triangle"));
+  }else if(type==="win"){
+    [523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.12,.55,.16,"triangle"));
+    [523,659,784].forEach(f=>tone(f,.68,.85,.07,"sine"));
+  }else if(type==="click"){
+    tone(540,0,.09,.04);
+  }else if(type==="checkpoint"){
+    tone(440,0,.15,.045);tone(587,.09,.2,.04);
+  }
+}
+
+/* ---------- Act text ---------- */
+
+const ACTS={
+  1:{
+    label:"ACT 1 · TRANSPORT",
+    title:"The tall chimney",
+    desc:"Choose a chimney for an English factory. Watch what happens nearby and downwind in Sweden.",
+    scene:"ENGLAND → SWEDEN",
+    foot:"Representative valleys. This transport model is not a reconstruction of one historical factory.",
+    start:{
+      tag:"Before the run",
+      title:"One decision",
+      text:"A taller chimney disperses the pollution farther away. It does not reduce the factory's emissions."
+    }
+  },
+  2:{
+    label:"ACT 2 · GEOLOGY",
+    title:"Two valleys",
+    desc:"Now give both lakes the same acid input. Does the difference remain?",
+    scene:"SAME INPUT · DIFFERENT CATCHMENTS",
+    foot:"A controlled comparison: identical acid input, different rocks and neutralizing reserves.",
+    start:{
+      tag:"Before the run",
+      title:"Look below the water",
+      text:"The English valley has a larger limestone reserve. The Swedish valley has thin soil over granite. Run the comparison."
+    }
+  },
+  3:{
+    label:"ACT 3 · RECOVERY",
+    title:"Save the lake",
+    desc:"Treat the Swedish lake and work with the upwind countries. Review both decisions every five years.",
+    scene:"SWEDISH LAKE",
+    foot:"New rescue scenario. Treatment units and budget credits are game quantities.",
+    start:{
+      tag:"Year 0 · decisions",
+      title:"The lake starts with 2 of 5 groups",
+      text:"Limestone improves the water quickly. A joint plan reduces future pollution. Choose an action or “Not now” for each."
+    }
+  }
+};
+
+/* ---------- Notes and highlighting ---------- */
+
+let displayedNote=-1;
+let displayedSession=null;
+
+function note(tag,title,text,bullets=[]){
+  s.note={tag,title,text,bullets};
+  s.noteVersion++;
+}
+function clearMarks(){
+  s.markE=false;s.markW=false;s.markTools=false;
+  s.changedAnimalsE=[];s.changedAnimalsW=[];
+}
+function markChanges(){
+  const b=s.blockStart;
+  if(!b)return;
+  s.markW=Math.abs(s.w.pH-b.w.pH)>.15||
+    count(s.w)!==b.w.n||Math.abs(s.w.reserve-b.w.reserve)>2;
+  s.changedAnimalsW=s.w.alive.map((a,i)=>a!==b.w.alive[i]?i:-1).filter(i=>i>=0);
+  if(s.e&&b.e){
+    s.markE=Math.abs(s.e.pH-b.e.pH)>.15||
+      count(s.e)!==b.e.n||Math.abs(s.e.reserve-b.e.reserve)>2;
+    s.changedAnimalsE=s.e.alive.map((a,i)=>a!==b.e.alive[i]?i:-1).filter(i=>i>=0);
+  }
+}
+function renderNote(){
+  if(displayedSession===s&&displayedNote===s.noteVersion)return;
+  displayedSession=s;displayedNote=s.noteVersion;
+
+  $("updateTag").textContent=s.note.tag;
+  $("updateTitle").textContent=s.note.title;
+  $("updateText").replaceChildren();
+
+  const p=document.createElement("p");
+  p.textContent=s.note.text;
+  $("updateText").appendChild(p);
+  if(s.note.bullets&&s.note.bullets.length){
+    const ul=document.createElement("ul");
+    s.note.bullets.forEach(text=>{
+      const li=document.createElement("li");
+      li.textContent=text;ul.appendChild(li);
+    });
+    $("updateText").appendChild(ul);
+  }
+  $("newBadge").textContent=s.year===0&&s.spent===0?"START HERE":"UPDATE";
+  $("update").classList.remove("fresh");
+  void $("update").offsetWidth;
+  $("update").classList.add("fresh");
+}
+
+/* ---------- Simulation pacing ---------- */
+
+function stop(){
+  running=false;
+  clearTimeout(timer);timer=null;
+  document.body.classList.remove("running");
+  setRain();
+}
+function startBlock(){
+  if(s.done)return;
+  if(!ready(s))return;
+  clearMarks();
+  s.blockStart=snapshot(s);
+  s.blockEvents=[];
+  running=true;
+  document.body.classList.add("running");
+  $("newBadge").textContent="RUNNING";
+  setRain();
+  render();
+  timer=setTimeout(safe(loop),170);
+}
+function toggleRun(){
+  if(running){
+    stop();
+    $("newBadge").textContent="PAUSED";
+    renderControls();
+    return;
+  }
+  startBlock();
+}
+function pauseForAct2(change){
+  function once(key,condition,fn){
+    if(condition&&!s.flags[key]){
+      s.flags[key]=true;fn();return true;
+    }
+    return false;
+  }
+  if(once("reserve",s.year===10,()=>{
+    note("Year 10 · reserve","The pH can stay steady while the reserve falls",
+      "Neutralizing minerals are being used. Compare the reserve bars—not just the water pH.");
+  }))return true;
+
+  if(once("loss",change.w.lost.length>0,()=>{
+    note("Year "+s.year+" · animals","A Swedish group is now absent",
+      "Conditions have remained unfavorable. The highlighted animal icons show what changed.");
+  }))return true;
+
+  if(once("al",s.w.pH<5.4,()=>{
+    note("Year "+s.year+" · water chemistry","Acidity also affects aluminium",
+      "Acidic conditions can release aluminium from soils. Both low pH and some forms of aluminium can harm aquatic animals.");
+  }))return true;
+
+  if(once("compare",s.year===35,()=>{
+    note("Year 35 · comparison","Check both lakes",
+      "The acid input is equal. Any difference here comes from the modeled catchments and their neutralizing reserves.");
+  }))return true;
+
+  return false;
+}
+function checkpoint(){
+  resetDecisions(s);
+  const bullets=[];
+  const lost=[...new Set(s.blockEvents.filter(e=>e.type==="lost").map(e=>e.i))];
+  const returned=[...new Set(s.blockEvents.filter(e=>e.type==="return").map(e=>e.i))];
+  if(lost.length)bullets.push("Lost during this interval: "+lost.map(i=>GROUPS[i].short).join(", ")+".");
+  if(returned.length)bullets.push("Returned: "+returned.map(i=>GROUPS[i].short).join(", ")+".");
+  if(s.agreed!==null){
+    bullets.push("Emissions reduction: "+Math.round(cut(s)*100)+"%.");
+  }
+  note("Year "+s.year+" · decisions",
+    count(s.w)+" of 5 groups present",
+    "Limestone remaining: "+s.w.lime.toFixed(1)+
+    " units. Review treatment and the clean-air plan before the next five years.",
+    bullets);
+}
+function loop(){
+  if(!running)return;
+  const previousPH=s.w.pH;
+  const change=tick(s);
+
+  if(change.w.lost.length){
+    change.w.lost.forEach(i=>s.blockEvents.push({type:"lost",i}));
+    soundEvent("lost");
+  }
+  if(change.w.returned.length){
+    change.w.returned.forEach(i=>s.blockEvents.push({type:"return",i}));
+    soundEvent("return");
+  }
+  if(previousPH>=5.3&&s.w.pH<5.3)hiss();
+
+  let pause=false;
+  if(s.year===YEARS){
+    stop();
+    finish();
+    render();
+    if(s.act===3)showFinalDialog();
+    else focusUpdate();
+    return;
+  }
+
+  if(s.act===2)pause=pauseForAct2(change);
+  if(s.act===3&&s.year%5===0){
+    checkpoint();
+    pause=true;
+  }
+
+  if(pause){
+    markChanges();stop();soundEvent("checkpoint");
+  }
+  render();
+  setRain();
+  if(pause)focusUpdate();
+  else timer=setTimeout(safe(loop),s.act===1?170:260);
+}
+function finish(){
+  s.done=true;
+  markChanges();
+  $("graphDetails").open=true;
+  if(s.act===1){
+    const difference=count(s.w)<count(s.e);
+    note("Year 50 · result",
+      "England: "+count(s.e)+"/5. Sweden: "+count(s.w)+"/5.",
+      difference
+        ?"Why did fish in the Swedish lake die while those in England survived?"
+        :"The short-chimney run did not produce the same contrast. Would the lakes still respond alike if they received equal acid input?");
+  }else if(s.act===2){
+    note("Year 50 · result","The receiving landscape matters",
+      "Equal pollution does not always cause equal damage. Available neutralizing minerals help explain the difference.");
+  }else{
+    const won=count(s.w)>=3;
+    note("Year 50 · result",
+      won?"Lake target met":"Lake target not met",
+      count(s.w)+" of 5 animal groups are present. You spent "+s.spent+
+      " of 100 credits.");
+  }
+}
+
+/* ---------- Player decisions ---------- */
+
+function choose(kind,yes){
+  if(running)return;
+  const oldLime=s.w.lime;
+  if(!decide(s,kind,yes))return;
+  soundEvent("click");
+  s.markTools=true;
+
+  if(kind==="lime"&&yes){
+    s.markW=true;
+    note("Year "+s.year+" · treatment","Limestone added",
+      oldLime.toFixed(1)+" + 8 = "+s.w.lime.toFixed(1)+
+      " treatment units. Water pH improves now; missing groups take longer to return.");
+  }else if(kind==="plan"&&yes){
+    const messages=[
+      "",
+      "Initial support secured. The countries have not yet agreed to the plan.",
+      "The main terms are being negotiated. Further work is still needed.",
+      "The plan is agreed. Emissions reductions will now increase automatically over ten years."
+    ];
+    note("Year "+s.year+" · cooperation",
+      "Agreement progress: "+PLAN[s.stage]+"%",
+      messages[s.stage]);
+  }else{
+    note("Year "+s.year+" · decision",
+      kind==="lime"?"No limestone added":"No additional negotiation effort",
+      "You can review this choice at the next five-year checkpoint.");
+  }
+  render();
+}
+
+/* ---------- Shared animal artwork ---------- */
+
+function animalArt(i,alive=true){
+  const colors=["#c8ddac","#efbd8d","#a8def0","#ffc786","#9de0c2"];
+  let art="";
+  if(i===0){
+    art=`
+      <ellipse cx="23" cy="19" rx="6" ry="11" fill="${colors[i]}"/>
+      <path d="M20 15 8 9 6 19 19 23M26 15 38 9 40 19 27 23"
+        fill="#d8ede0" opacity=".8"/>
+      <circle cx="23" cy="8" r="4" fill="${colors[i]}"/>
+      <path d="m20 28-5 8m8-7v9m3-10 5 8" stroke="${colors[i]}" stroke-width="2"/>`;
+  }else if(i===1){
+    art=`
+      <path d="M34 11C12 2 6 20 16 28c8 7 21 0 19-9-1-5-8-6-11-2"
+        fill="none" stroke="${colors[i]}" stroke-width="8" stroke-linecap="round"/>
+      <path d="m12 22-6 8m14-1-1 8m8-9 3 8M34 10l8-7m-8 8 10 2"
+        fill="none" stroke="${colors[i]}" stroke-width="2"/>
+      <circle cx="34" cy="11" r="2" fill="#123043"/>`;
+  }else{
+    const c=colors[i];
+    art=`
+      <path d="M13 20 2 11v18Z" fill="${c}"/>
+      <ellipse cx="27" cy="20" rx="17" ry="10" fill="${c}"/>
+      <path d="m22 11 7-7 6 9" fill="${c}"/>
+      <circle cx="37" cy="18" r="2" fill="#123043"/>
+      ${i===3?'<g fill="#916839"><circle cx="23" cy="18" r="1.5"/><circle cx="29" cy="23" r="1.5"/><circle cx="29" cy="16" r="1.5"/></g>':""}
+      ${i===4?'<path d="m22 12-2 15m9-16-2 17m9-14-2 12" stroke="#4b9b80" stroke-width="2.5"/>':""}`;
+  }
+  return `<g opacity="${alive?1:.3}">${art}</g>${
+    alive?"":'<path d="M9 7 39 33M39 7 9 33" stroke="#b6c6d0" stroke-width="2"/>'
+  }`;
+}
+function animalIcon(i,alive){
+  return `<svg viewBox="0 0 48 40" role="img"
+    aria-label="${GROUPS[i].name}: ${alive?"present":"absent"}">
+    ${animalArt(i,alive)}
+  </svg>`;
+}
+
+/* ---------- Landscape SVG ---------- */
+
+function cloud(x,y,scale=1){
+  return `<g transform="translate(${x} ${y}) scale(${scale})" fill="#7896a8" opacity=".8">
+    <ellipse rx="49" ry="15"/>
+    <circle cx="-23" cy="-10" r="20"/>
+    <circle cx="8" cy="-20" r="26"/>
+    <circle cx="35" cy="-5" r="18"/>
+  </g>`;
+}
+function tree(x,y,k=1){
+  return `<g transform="translate(${x} ${y}) scale(${k})">
+    <path d="M0 0v-45" stroke="#536053" stroke-width="5"/>
+    <path d="M-21-15 0-54 21-15ZM-16-34 0-69 16-34Z" fill="#478777"/>
+  </g>`;
+}
+function valley(l,x,name,showRock){
+  const limestone=l.rock==="limestone";
+  const color=name==="England"?"#ffd58a":"#77dfcc";
+  let rain="",animals="",rocks="";
+  for(let i=0;i<17;i++){
+    rain+=`<path d="m${38+i*23} ${118+(i%3)*13}-4 11"
+      stroke="#a4d6ed" stroke-width="2"
+      opacity="${clamp(.16+l.input*.3,.16,.7)}"/>`;
+  }
+  for(let i=0;i<5;i++){
+    animals+=`<g transform="translate(${88+i*61} 236) scale(.9)">
+      <g class="${l.alive[i]?"swimming":""}" style="animation-delay:${i*.4}s">
+        ${animalArt(i,l.alive[i])}
+      </g>
+    </g>`;
+  }
+  for(let i=0;i<13;i++){
+    rocks+=limestone
+      ?`<path d="M${24+i*31} 326h24m-16 13h23" stroke="#c3c5aa" opacity=".35"/>`
+      :`<path d="m${24+i*31} 328 5-5 7 5-6 6Z" fill="#91a5b2" opacity=".5"/>`;
+  }
+
+  return `<g transform="translate(${x} 0)">
+    <text x="225" y="28" text-anchor="middle" fill="${color}" font-size="17" font-weight="800">${name.toUpperCase()}</text>
+    ${cloud(214,86)}
+    <g class="rainmoving">${rain}</g>
+    <path d="M0 238V215L70 172 144 218 180 228H283L374 174 450 215V306H0Z" fill="#285454"/>
+    <path d="M0 261V237L70 198 151 234H293L373 200 450 237V309H0Z" fill="#3a7061"/>
+    ${tree(54,216,.66)}${tree(80,220,.48)}
+    ${tree(391,221,.68)}${tree(367,217,.48)}
+    <path d="M62 233H389Q374 294 226 303 79 294 62 233Z"
+      fill="url(#water)" stroke="#8fd2dc" stroke-width="1.5"/>
+    <path d="M82 235Q150 242 230 235T369 235" fill="none" stroke="#d2f5ec" opacity=".55"/>
+    ${l.lime>.1?'<g fill="#f4efd7"><circle cx="142" cy="244" r="2"/><circle cx="194" cy="238" r="2"/><circle cx="267" cy="246" r="2"/><circle cx="332" cy="239" r="2"/></g>':""}
+    ${animals}
+    <rect x="183" y="278" width="85" height="23" rx="11" fill="#0b2536"/>
+    <text x="225" y="294" fill="#fff" text-anchor="middle" font-size="14" font-weight="800">pH ${l.pH.toFixed(1)}</text>
+    <path d="M0 292Q69 283 127 306T235 315Q310 315 365 299T450 294V323H0Z" fill="#695d4f"/>
+    <path d="M0 316Q100 311 225 324 350 314 450 316V380H0Z"
+      fill="${showRock?(limestone?"#777e70":"#4b5c6b"):"#435766"}"/>
+    ${showRock?rocks:""}
+    <text x="20" y="333" fill="#eef0df" font-size="12" font-weight="750">
+      ${showRock?(limestone?"LIMESTONE":"GRANITE"):"CATCHMENT"}
+    </text>
+    ${showRock?`
+      <rect x="20" y="347" width="410" height="8" rx="4" fill="#162c35"/>
+      <rect x="20" y="347" width="${410*l.reserve/l.max}" height="8" rx="4" fill="${color}"/>
+      <text x="20" y="374" fill="#e1e9e9" font-size="11">
+        Natural reserve: ${l.reserve.toFixed(1)} / ${l.max} model units
+      </text>`:`
+      <text x="20" y="358" fill="#d0dce2" font-size="12">
+        Investigate the rock in Act 2.
+      </text>`}
+  </g>`;
+}
+function svgScene(state){
+  let inside="";
+  if(state.act===3){
+    inside=valley(state.w,267,"Sweden",true)+`
+      <g transform="translate(30 101)">
+        <text y="0" fill="#b4cbd5" font-size="13" font-weight="800">ACID INPUT</text>
+        <text y="43" fill="#ffd58a" font-size="34" font-weight="850">${Math.round(state.w.input*100)}%</text>
+        <text y="66" fill="#b4cbd5" font-size="12">of the starting input</text>
+        <path class="flow" d="M12 97Q93 69 175 97"
+          stroke="#b9d6df" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+      </g>
+      <g transform="translate(777 162)">
+        <rect width="194" height="155" rx="15" fill="#1c3a48" stroke="#567480"/>
+        <text x="15" y="28" fill="#77dfcc" font-size="12" font-weight="800">LAKE LIMESTONE</text>
+        <path d="m33 51-12 37h43L53 51Z" fill="#eee8d2"/>
+        <text x="88" y="82" fill="#f2eedb" font-size="29" font-weight="850">${state.w.lime.toFixed(1)}</text>
+        <text x="15" y="118" fill="#c0d2d9" font-size="12">Treatment units remaining</text>
+        <text x="15" y="139" fill="#c0d2d9" font-size="11">Each dose adds +8</text>
+      </g>`;
+  }else{
+    inside=valley(state.e,15,"England",state.act===2)+
+      valley(state.w,535,"Sweden",state.act===2);
+    inside+='<path d="M500 145V380" stroke="#708b9d" opacity=".5" stroke-dasharray="4 8"/>';
+    if(state.act===1){
+      const tall=state.choice==="tall",top=tall?54:119;
+      inside+=`
+        <g>
+          <rect x="43" y="155" width="99" height="55" fill="#3e5c6e" stroke="#7a98a6"/>
+          <path d="M43 156v-21l33 18v-18l33 18v-18l33 19" fill="#537083"/>
+          <path d="M86 155 89 ${top}H107L111 155Z" fill="#8f9fa2" stroke="#becac5"/>
+          <path d="M58 174v13m24-13v13m40-13v13" stroke="#ffd58a" stroke-width="8"/>
+          <path d="${tall?"M98 54Q351 -14 580 55T823 107":"M98 119Q180 92 271 149"}"
+            fill="none" stroke="#bcd0d5" stroke-width="24" opacity=".22"/>
+          <path class="flow" d="${tall?"M98 54Q351 -14 580 55T823 107":"M98 119Q180 92 271 149"}"
+            fill="none" stroke="#d4e5df" stroke-width="2.5" marker-end="url(#arrow)"/>
+          <rect x="390" y="90" width="217" height="47" rx="12" fill="#163245" stroke="#527083"/>
+          <text x="499" y="109" fill="#c4d7df" font-size="10" text-anchor="middle">LOCAL AIR POLLUTION</text>
+          <text x="499" y="128" fill="${tall?"#77dfcc":"#ffac99"}" font-size="13" font-weight="800" text-anchor="middle">
+            ${tall?"LOWER":"HIGHER"} · SAME EMISSIONS
+          </text>
+        </g>`;
+    }else{
+      inside+=`
+        <rect x="407" y="64" width="186" height="68" rx="15" fill="#193c4d" stroke="#547586"/>
+        <text x="500" y="86" fill="#b9d2dc" font-size="11" text-anchor="middle">EQUAL ACID INPUT</text>
+        <text x="500" y="116" fill="#ffd58a" font-size="25" font-weight="850" text-anchor="middle">${state.pollution}%</text>`;
+    }
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 390"
+    role="img" aria-labelledby="landscapeTitle landscapeDesc">
+    <title id="landscapeTitle">${ACTS[state.act].scene}</title>
+    <desc id="landscapeDesc">Lake illustrations using the same five animal symbols as the labeled readings below.</desc>
+    <defs>
+      <linearGradient id="water" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#28778b"/><stop offset="1" stop-color="#153b51"/>
+      </linearGradient>
+      <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#162d45"/><stop offset="1" stop-color="#294b59"/>
+      </linearGradient>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+        markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#d4e5df"/>
+      </marker>
+    </defs>
+    <rect width="1000" height="390" fill="url(#sky)"/>
+    ${inside}
+  </svg>`;
+}
+
+/* ---------- Readouts ---------- */
+
+function animalRow(l,changed){
+  return `<div class="animalblock">
+    <div class="hint"><b>Five animal groups</b> · crossed out = absent</div>
+    <div class="animals">${GROUPS.map((g,i)=>`
+      <div class="animal ${l.alive[i]?"":"absent"} ${changed.includes(i)?"changed":""}"
+        title="${g.name}: ${l.alive[i]?"present":"absent"}">
+        <div class="art">${animalIcon(i,l.alive[i])}</div>
+        <small>${g.short}</small>
+      </div>`).join("")}</div>
+  </div>`;
+}
+function statCard(l,name,marked,changed){
+  const england=name==="England";
+  const al=l.pH<5.1?"Higher":l.pH<5.7?"Elevated":"Lower";
+  return `<section class="stat ${england?"england":""} ${marked?"changedbox":""}">
+    <div class="stathead">
+      <strong>${name}${marked?'<span class="change-label">CHANGED</span>':""}</strong>
+      ${s.act!==1?`<small>${l.rock}</small>`:""}
+    </div>
+    <div class="phrow">
+      <div class="ph ${l.pH<5.5?"bad":""}">${l.pH.toFixed(1)} <small>pH</small></div>
+      <div class="count">${count(l)} / 5<small>groups present</small></div>
+    </div>
+    ${s.act!==1?`
+      <div class="row reading"><span>Natural reserve</span><b>${Math.round(l.reserve/l.max*100)}%</b></div>
+      <div class="meter"><span style="width:${l.reserve/l.max*100}%;background:${england?"var(--gold)":"var(--teal)"}"></span></div>
+      <div class="row reading"><span>Aluminium concern*</span><b>${al}</b></div>
+    `:""}
+    ${animalRow(l,changed)}
+  </section>`;
+}
+function renderStats(){
+  if(s.act!==3){
+    $("stats").innerHTML=
+      statCard(s.e,"England",s.markE,s.changedAnimalsE)+
+      statCard(s.w,"Sweden",s.markW,s.changedAnimalsW);
+  }else{
+    $("stats").innerHTML=
+      statCard(s.w,"Swedish lake",s.markW,s.changedAnimalsW)+`
+      <section class="stat england ${s.markTools?"changedbox":""}">
+        <div class="stathead"><strong>Source and treatment</strong></div>
+        <div class="row reading" style="margin-top:19px">
+          <span>Incoming acid</span><b>${Math.round(s.w.input*100)}%</b>
+        </div>
+        <div class="row reading">
+          <span>Lake limestone</span><b>${s.w.lime.toFixed(1)} units</b>
+        </div>
+        <div class="row reading">
+          <span>Actual emissions cut</span><b>${Math.round(cut(s)*100)}%</b>
+        </div>
+        <div class="row reading">
+          <span>Years with ≥3 groups</span><b>${s.healthyYears} / ${s.year}</b>
+        </div>
+        <p class="hint" style="margin-top:20px">Agreement progress and actual emissions cuts are different measurements.</p>
+        <p class="hint" style="margin-top:13px">*Aluminium concern is a model warning, not a measured concentration.</p>
+      </section>`;
+  }
+}
+
+/* ---------- Graph ---------- */
+
+function renderGraph(){
+  const W=860,H=205,L=40,R=18,T=17,B=30;
+  const x=y=>L+y/50*(W-L-R);
+  const y=p=>T+(7.5-p)/3.5*(H-T-B);
+  let inside="";
+  for(let ph=4;ph<=7;ph++){
+    inside+=`<path d="M${L} ${y(ph)}H${W-R}" stroke="#345163"/>
+      <text x="25" y="${y(ph)+4}" fill="#b5cbd6" font-size="12">${ph}</text>`;
+  }
+  for(let yr=0;yr<=50;yr+=10){
+    inside+=`<text x="${x(yr)}" y="${H-9}" text-anchor="middle" fill="#b5cbd6" font-size="12">${yr}</text>`;
+  }
+  for(const key of s.e?["e","w"]:["w"]){
+    const line=s.histories.map((r,i)=>
+      (i?"L":"M")+x(r.year).toFixed(1)+" "+y(r[key].pH).toFixed(1)).join(" ");
+    inside+=`<path d="${line}" stroke="${key==="e"?"#ffd58a":"#77dfcc"}"
+      stroke-width="3.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  $("graph").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Lake pH over fifty model years. Current Swedish pH ${s.w.pH.toFixed(1)}.">
+    ${inside}</svg>`;
+  $("graphLegend").innerHTML=(s.e?"<span>— England</span>":"")+"<span>— Sweden</span>";
+}
+
+/* ---------- Controls ---------- */
+
+function renderControls(){
+  [1,2,3].forEach(n=>$("control"+n).hidden=s.act!==n);
+  const locked=s.year>0||running||s.done;
+
+  document.querySelectorAll('input[name="chimney"]').forEach(el=>{
+    el.checked=el.value===s.choice;el.disabled=locked;
+  });
+  $("pollution").value=s.pollution;
+  $("pollution").disabled=locked;
+  $("pollutionValue").textContent=s.pollution+"%";
+
+  if(s.act===3){
+    const active=canDecide(s)&&!running;
+    $("budget").textContent=100-s.spent;
+    $("limeValue").textContent=s.w.lime.toFixed(1)+" left";
+    $("planValue").textContent=PLAN[s.stage]+"%";
+    $("planProgress").style.width=PLAN[s.stage]+"%";
+    $("limeDecision").classList.toggle("changedbox",s.markTools&&s.decisions.lime===true);
+    $("planDecision").classList.toggle("changedbox",s.markTools&&s.decisions.plan===true);
+
+    for(const kind of ["lime","plan"]){
+      const val=s.decisions[kind],cost=kind==="lime"?8:18;
+      const yes=$(kind+"Yes"),no=$(kind+"No");
+      const complete=kind==="plan"&&s.stage===3;
+      yes.disabled=!active||val!==null||s.spent+cost>100||complete;
+      no.disabled=!active||val!==null||complete;
+      yes.classList.toggle("selected",val===true);
+      no.classList.toggle("selected",val===false);
+      yes.setAttribute("aria-pressed",String(val===true));
+      no.setAttribute("aria-pressed",String(val===false));
+    }
+    $("limeStatus").textContent=
+      s.done?"Run complete.":
+      s.decisions.lime===true?"Added this checkpoint.":
+      s.decisions.lime===false?"No addition this checkpoint.":
+      s.spent<8?"Insufficient credits to add; choose “Not now”.":"Choose one option.";
+
+    $("planOptions").hidden=s.stage===3;
+    $("planHint").textContent=s.stage===3
+      ?"Agreement complete. Source controls are being implemented."
+      :"Build agreement between the countries.";
+    $("planStatus").textContent=s.stage===3
+      ?"Actual emissions reduction: "+Math.round(cut(s)*100)+"%."
+      :s.decisions.plan===true?"Negotiations advanced this checkpoint."
+      :s.decisions.plan===false?"No further push this checkpoint."
+      :s.spent<18?"Insufficient credits to push; choose “Not now”."
+      :"Choose one option.";
+  }
+
+  $("runButton").disabled=s.done||(!running&&!ready(s));
+  $("runButton").textContent=running?"Ⅱ Pause":
+    s.done?"Run complete":
+    s.act===1?(s.year?"Resume full run":"Run 50 years"):
+    s.act===2?(s.year?"Continue to next observation":"Run to next observation"):
+    "Run next 5 years →";
+
+  $("checkpointLabel").textContent=s.act===3&&!s.done?"5-year reviews":"";
+  $("playStatus").textContent=s.done?"Result below.":
+    running?(s.act===1?"No automatic pauses in this act.":"Running."):
+    s.act===3&&!ready(s)?"Choose both decisions to continue.":
+    s.act===3&&s.year%5!==0?"Paused between reviews. Resume to the next checkpoint.":
+    s.act===2?"Read the highlighted update, then continue.":
+    "Ready when you are.";
+}
+
+/* ---------- Results and history ---------- */
+
+function renderResult(){
+  const el=$("result");
+  el.hidden=!s.done;
+  if(!s.done){el.innerHTML="";return;}
+
+  if(s.act===1){
+    const tall=s.choice==="tall";
+    el.innerHTML=`
+      <div class="eyebrow">Act 1 complete</div>
+      <h2>England: ${count(s.e)}/5. Sweden: ${count(s.w)}/5.</h2>
+      <p>${tall
+        ?"The tall chimney reduced nearby pollution without reducing total emissions."
+        :"The short chimney kept more pollution nearby. It did not remove the pollution."}</p>
+      <div class="result-question">${count(s.w)<count(s.e)
+        ?"Why did fish in the Swedish lake die while those in England survived?"
+        :"What would happen if both lakes received the same acid input?"}</div>
+      <div class="actions">
+        <button id="nextAct">Compare the catchments →</button>
+        <button id="resultReset" class="secondary">Try the other chimney</button>
+      </div>`;
+    $("nextAct").onclick=safe(()=>openAct(2,true));
+  }else if(s.act===2){
+    el.innerHTML=`
+      <div class="eyebrow">Act 2 complete</div>
+      <h2>Same input. Different protection.</h2>
+      <p>${count(s.e)===count(s.w)
+        ?"The final counts match at this input. The reserve readings still show that the catchments have different capacities."
+        :"The limestone catchment neutralized more of the incoming acidity. The Swedish catchment had a smaller accessible reserve."}</p>
+      <div class="result-question">How can you help a damaged lake while reducing the pollution reaching it?</div>
+      <div class="actions">
+        <button id="nextAct">Try the rescue →</button>
+        <button id="resultReset" class="secondary">Change the acid input</button>
+      </div>`;
+    $("nextAct").onclick=safe(()=>openAct(3,true));
+  }else{
+    const won=count(s.w)>=3;
+    el.innerHTML=`
+      <div class="eyebrow">Act 3 complete</div>
+      <h2>${won?"Lake target met":"Lake target not met"}</h2>
+      <p><b>${count(s.w)} of 5 groups</b> present. <b>${s.spent} of 100 credits</b> spent.</p>
+      <p>${s.stage===3
+        ?"The clean-air plan is agreed. Actual emissions reduction at year 50: "+Math.round(cut(s)*100)+"%."
+        :"The clean-air plan is incomplete. Future treatment may still be needed."}</p>
+      <p class="hint" style="margin-top:10px">At least three groups were present in ${s.healthyYears} of the fifty years. The endpoint is not the whole recovery story.</p>
+      <div class="actions">
+        <button id="historyLink">What happened in real life? →</button>
+        <button id="resultReset" class="secondary">Try another plan</button>
+      </div>`;
+    $("historyLink").onclick=safe(showHistory);
+  }
+  $("resultReset").onclick=safe(restart);
+}
+function celebrate(){
+  if(reduced)return;
+  for(let i=0;i<65;i++){
+    const d=document.createElement("div");
+    d.className="confetti";
+    d.style.left=Math.random()*100+"%";
+    d.style.background=["#ffd58a","#77dfcc","#9cc6ff","#fff3ce"][i%4];
+    d.style.animationDelay=Math.random()*.55+"s";
+    $("finishDialog").appendChild(d);
+    setTimeout(()=>d.remove(),3200);
+  }
+}
+function showFinalDialog(){
+  const won=count(s.w)>=3;
+  $("modalIcon").textContent=won?"✓":"↻";
+  $("modalTitle").textContent=won?"Lake target met":"Try a different plan";
+  $("modalText").textContent=won
+    ?s.stage===3
+      ?"The lake has reached the target within budget, and the joint plan is agreed."
+      :"The lake has reached the target within budget. The joint plan is not yet complete."
+    :"The lake finished below three groups. Review the timing of treatment and negotiations.";
+  $("modalGroups").textContent=count(s.w)+" / 5";
+  $("modalCost").textContent=s.spent+" / 100";
+  $("finishDialog").showModal();
+  if(won){soundEvent("win");celebrate();}
+}
+function closeFinal(){
+  if($("finishDialog").open)$("finishDialog").close();
+}
+function showHistory(){
+  stop();closeFinal();
+  onHistory=true;
+  $("game").hidden=true;
+  $("history").hidden=false;
+  $("historyTitle").focus();
+  window.scrollTo({top:0,behavior:reduced?"auto":"smooth"});
+}
+function backToGame(){
+  onHistory=false;
+  $("game").hidden=false;
+  $("history").hidden=true;
+  render();
+}
+
+/* ---------- Navigation / render ---------- */
+
+function openAct(act,scroll=false){
+  stop();closeFinal();
+  onHistory=false;
+  $("game").hidden=false;$("history").hidden=true;
+  if(!sessions[act]){
+    sessions[act]=makeState(act);
+    sessions[act].note={...ACTS[act].start,bullets:[]};
+  }
+  s=sessions[act];
+  displayedSession=null;
+  $("graphDetails").open=s.done;
+  render();
+  if(scroll)$("actTitle").scrollIntoView({block:"start",behavior:reduced?"auto":"smooth"});
+}
+function restart(){
+  if(s.year>0||s.spent>0){
+    if(!confirm("Restart this act and clear its current run?"))return;
+  }
+  const act=s.act;
+  delete sessions[act];
+  $("error").hidden=true;
+  openAct(act,true);
+}
+function render(){
+  const a=ACTS[s.act];
+  $("actLabel").textContent=a.label;
+  $("actTitle").textContent=a.title;
+  $("actDescription").textContent=a.desc;
+  $("sceneTitle").textContent=a.scene;
+  $("sceneFoot").textContent=a.foot;
+  $("year").textContent="Year "+s.year+" / 50";
+  $("timeProgress").style.width=s.year/50*100+"%";
+  document.querySelectorAll(".tab").forEach(b=>{
+    const active=Number(b.dataset.act)===s.act&&!onHistory;
+    b.classList.toggle("active",active);
+    if(active)b.setAttribute("aria-current","step");
+    else b.removeAttribute("aria-current");
+  });
+  $("scene").innerHTML=svgScene(s);
+  renderStats();
+  renderGraph();
+  renderControls();
+  renderNote();
+  renderResult();
+}
+
+/* ---------- Regression checks ---------- */
+
+function runChecks(){
+  const results=[];
+  function assert(value,message){
+    if(!value)throw new Error(message||"Assertion failed");
+  }
+  function test(name,fn){
+    try{fn();results.push("PASS  "+name);}
+    catch(e){results.push("FAIL  "+name+": "+e.message);}
+  }
+  function runTo(state,year){
+    while(state.year<year)tick(state);
+  }
+
+  test("Limestone stacks: 3.5 + 8 = 11.5",()=>{
+    const t=makeState(3);t.w.lime=3.5;
+    assert(decide(t,"lime",true));
+    assert(Math.abs(t.w.lime-11.5)<1e-10);
+    assert(t.spent===8);
+  });
+
+  test("Only one limestone decision per checkpoint",()=>{
+    const t=makeState(3);
+    decide(t,"lime",true);
+    assert(!decide(t,"lime",true));
+    assert(t.w.lime===8&&t.spent===8);
+  });
+
+  test("Agreement progresses 26%, 64%, 100%",()=>{
+    const t=makeState(3);
+    decide(t,"plan",true);assert(PLAN[t.stage]===26);
+    assert(!decide(t,"plan",true));
+    runTo(t,5);resetDecisions(t);decide(t,"plan",true);
+    assert(PLAN[t.stage]===64);
+    runTo(t,10);resetDecisions(t);decide(t,"plan",true);
+    assert(PLAN[t.stage]===100&&t.agreed===10);
+    assert(t.spent===54);
+  });
+
+  test("Agreement is not an instant emissions cut",()=>{
+    const t=makeState(3);
+    for(const year of [0,5,10]){
+      runTo(t,year);resetDecisions(t);decide(t,"plan",true);
+    }
+    assert(cut(t)===0);
+    runTo(t,15);assert(Math.abs(cut(t)-.475)<1e-9);
+    runTo(t,20);assert(Math.abs(cut(t)-.95)<1e-9);
+  });
+
+  test("Winning route: early negotiation and five lime doses, 94 credits",()=>{
+    const t=makeState(3);
+    for(let y=0;y<50;y+=5){
+      resetDecisions(t);
+      if(y<=20)assert(decide(t,"lime",true),"Lime purchase failed");
+      else decide(t,"lime",false);
+      if(y<=10)assert(decide(t,"plan",true),"Negotiation failed");
+      runTo(t,y+5);
+    }
+    assert(t.spent===94);
+    assert(count(t.w)>=3,"Final animal target not reached");
+    assert(t.stage===3);
+  });
+
+  test("No action fails the rescue target",()=>{
+    const t=makeState(3);runTo(t,50);
+    assert(count(t.w)<3);
+  });
+
+  test("Budget cannot be exceeded",()=>{
+    const t=makeState(3);t.spent=96;
+    assert(!decide(t,"lime",true));
+    assert(!decide(t,"plan",true));
+    assert(t.spent===96);
+  });
+
+  test("Reference comparison produces a lake contrast",()=>{
+    const t=makeState(2);runTo(t,50);
+    assert(count(t.e)===5&&count(t.w)===0);
+  });
+
+  test("Clean comparison keeps both communities",()=>{
+    const t=makeState(2);t.pollution=0;inputs(t);
+    runTo(t,50);
+    assert(count(t.e)===5&&count(t.w)===5);
+  });
+
+  test("Decision checkpoints exclude intermediate years and year 50",()=>{
+    const t=makeState(3);
+    assert(canDecide(t));
+    t.year=1;assert(!canDecide(t));
+    t.year=5;assert(canDecide(t));
+    t.year=50;assert(!canDecide(t));
+  });
+
+  test("All landscape SVGs parse; no attribute fragments appear as text",()=>{
+    for(const act of [1,2,3]){
+      const t=makeState(act);
+      const doc=new DOMParser().parseFromString(svgScene(t),"image/svg+xml");
+      assert(!doc.querySelector("parsererror"),"Invalid SVG in act "+act);
+      const text=doc.documentElement.textContent;
+      assert(!/marker-end=|fill=|stroke=/.test(text),"Leaked SVG attribute text");
+      if(act===3)assert(text.includes("of the starting input"));
+    }
+  });
+
+  test("Animal art is reused in both lake and readouts",()=>{
+    for(let i=0;i<5;i++){
+      const art=animalArt(i,true);
+      assert(animalIcon(i,true).includes(art));
+      assert(svgScene(makeState(2)).includes(art));
+    }
+  });
+
+  const failures=results.filter(x=>x.startsWith("FAIL")).length;
+  $("tests").textContent=results.join("\n")+"\n\n"+
+    (failures?failures+" failed.":"All checks passed.")+
+    "\nLayout, audio, and classroom pacing still need a browser playthrough.";
+  $("tests").style.color=failures?"var(--red)":"var(--teal)";
+}
+
+/* ---------- Bind controls ---------- */
+
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click",safe(()=>openAct(Number(b.dataset.act),true)));
+});
+document.querySelectorAll('input[name="chimney"]').forEach(el=>{
+  el.addEventListener("change",safe(()=>{
+    if(s.act!==1||s.year||running)return;
+    s.choice=el.value;
+    inputs(s);record(s);render();
+  }));
+});
+$("pollution").addEventListener("input",safe(()=>{
+  if(s.act!==2||s.year||running)return;
+  s.pollution=Number($("pollution").value);
+  inputs(s);record(s);
+  $("pollutionValue").textContent=s.pollution+"%";
+  $("scene").innerHTML=svgScene(s);
+}));
+
+$("runButton").addEventListener("click",safe(toggleRun));
+$("resetButton").addEventListener("click",safe(restart));
+$("limeYes").addEventListener("click",safe(()=>choose("lime",true)));
+$("limeNo").addEventListener("click",safe(()=>choose("lime",false)));
+$("planYes").addEventListener("click",safe(()=>choose("plan",true)));
+$("planNo").addEventListener("click",safe(()=>choose("plan",false)));
+$("testButton").addEventListener("click",safe(runChecks));
+$("closeDialog").addEventListener("click",closeFinal);
+$("modalReview").addEventListener("click",()=>{
+  closeFinal();
+  $("result").scrollIntoView({block:"nearest",behavior:reduced?"auto":"smooth"});
+});
+$("modalHistory").addEventListener("click",safe(showHistory));
+$("returnButton").addEventListener("click",safe(backToGame));
+$("historyRestart").addEventListener("click",safe(()=>{
+  backToGame();
+  if(s.act!==3)openAct(3);
+  restart();
+}));
+
+$("soundButton").addEventListener("click",safe(()=>{
+  sound=!sound;
+  if(sound)initAudio();
+  if(master&&ac){
+    master.gain.setTargetAtTime(sound?.65:0,ac.currentTime,.05);
+  }
+  $("soundButton").textContent="Sound: "+(sound?"on":"off");
+  $("soundButton").setAttribute("aria-pressed",String(sound));
+  setRain();
+  if(sound)soundEvent("click");
+}));
+
+function applyMotion(){
+  document.body.classList.toggle("reduced",reduced);
+  $("motionButton").textContent=reduced?"Motion: reduced":"Reduce motion";
+  $("motionButton").setAttribute("aria-pressed",String(reduced));
+}
+$("motionButton").addEventListener("click",()=>{
+  reduced=!reduced;applyMotion();
+});
+
+document.addEventListener("visibilitychange",safe(()=>{
+  if(document.hidden&&running){
+    stop();renderControls();
+    $("newBadge").textContent="PAUSED";
+  }
+}));
+window.addEventListener("error",event=>{
+  stop();
+  $("error").hidden=false;
+  $("error").textContent="Activity error: "+event.message;
+});
+
+applyMotion();
+safe(()=>openAct(1))();
+
+})();
+</script>
+
+
+</body></html>

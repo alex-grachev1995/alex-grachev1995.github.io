@@ -1,0 +1,1270 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Domestication Deal</title>
+<style>
+:root {
+    --bg: #F5F0E8;
+    --card: #FFFFFF;
+    --accent: #6B4226;
+    --accent-hover: #8B5A2B;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+    --red: #C62828;
+    --red-light: #FFEBEE;
+    --orange: #E65100;
+    --text: #2C1810;
+    --text-light: #5D4037;
+    --border: #D7CCC8;
+    --wild: #BF360C;
+    --domestic: #1565C0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #F5F0E8 0%, #E8E0D4 50%, #F0EBE3 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.progress-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    z-index: 1000;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #A0522D);
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 0 3px 3px 0;
+}
+
+.score-display {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    background: var(--card);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.page {
+    display: none;
+    max-width: 800px;
+    margin: 40px auto 30px;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.page.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.page-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    margin-bottom: 6px;
+}
+
+h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 8px; line-height: 1.2; }
+h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 1.3; }
+
+.subtitle {
+    font-size: 1.05rem;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.body-text {
+    font-size: 1.05rem;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.title-page { text-align: center; padding: 50px 32px; }
+.title-icon { font-size: 4rem; margin-bottom: 16px; }
+.title-page h1 { font-size: 2.6rem; margin-bottom: 12px; }
+.title-page .subtitle { font-size: 1.15rem; max-width: 500px; margin: 0 auto 32px; }
+
+.start-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(107,66,38,0.3);
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(107,66,38,0.4);
+}
+
+.comparison {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.animal {
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+    text-align: center;
+}
+
+.animal img {
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+    border-radius: 14px;
+    background: #F5F0E8;
+    padding: 4px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+
+.animal-label {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.wild-label { background: #FBE9E7; color: var(--wild); }
+.domestic-label { background: #E3F2FD; color: var(--domestic); }
+
+.comparison-arrow {
+    font-size: 2.5rem;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.facts {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0 24px;
+    flex-wrap: wrap;
+}
+
+.fact {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.fact-wild { background: #FBE9E7; border-left: 4px solid var(--wild); }
+.fact-domestic { background: #E3F2FD; border-left: 4px solid var(--domestic); }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.info-block {
+    padding: 16px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.info-block .info-icon { font-size: 2rem; margin-bottom: 6px; }
+.info-block .info-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+.info-block .info-desc { font-size: 0.85rem; color: var(--text-light); }
+
+.steps-container { margin: 20px 0; }
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: #FAFAF7;
+    border: 1px solid var(--border);
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s ease;
+}
+
+.step.visible { opacity: 1; transform: translateX(0); }
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.step-text { font-size: 1rem; line-height: 1.4; }
+
+.content-area { transition: all 0.4s ease; }
+.content-area.hidden { display: none; }
+.question-area { padding-top: 20px; }
+.question-area.hidden { display: none; }
+
+.ready-btn {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #4A148C, #6A1B9A);
+    color: white;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74,20,140,0.25);
+}
+
+.ready-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74,20,140,0.35);
+}
+
+.reveal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 8px 16px;
+    background: #FFF8E1;
+    border: 2px solid #FFB74D;
+    color: var(--orange);
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reveal-btn:hover { background: #FFF3E0; transform: scale(1.03); }
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+    padding: 14px 18px;
+    background: #F5F0E8;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent);
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    font-size: 1rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #FDF8F4;
+    transform: translateX(4px);
+}
+
+.option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); font-weight: 600; }
+.option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+.option.disabled { cursor: default; opacity: 0.6; }
+.option.disabled:hover { transform: none; }
+
+.feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: none;
+    animation: fadeIn 0.3s ease;
+    line-height: 1.5;
+}
+
+.feedback.correct-fb { background: var(--green-light); color: var(--green); display: block; }
+.feedback.wrong-fb { background: var(--red-light); color: var(--red); display: block; }
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.checkbox-item:hover { border-color: var(--accent); background: #FDF8F4; }
+.checkbox-item.selected { border-color: var(--accent); background: #FDF8F4; }
+.checkbox-item.correct-check { border-color: var(--green); background: var(--green-light); }
+.checkbox-item.wrong-check { border-color: var(--red); background: var(--red-light); }
+
+.custom-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.checkbox-item.selected .custom-checkbox { background: var(--accent); border-color: var(--accent); color: white; }
+.checkbox-item.correct-check .custom-checkbox { background: var(--green); border-color: var(--green); color: white; }
+.checkbox-item.wrong-check .custom-checkbox { background: var(--red); border-color: var(--red); color: white; }
+
+.checkbox-label { font-size: 0.95rem; }
+
+.submit-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 4px;
+}
+
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(107,66,38,0.3); }
+.submit-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
+
+.nav-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.nav-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(107,66,38,0.3); }
+
+.nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.back-btn {
+    background: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover { background: var(--accent); color: white; }
+
+.deal-columns {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.deal-col {
+    flex: 1;
+    min-width: 220px;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.deal-give { background: #E8F5E9; border: 2px solid var(--green); }
+.deal-get { background: #E3F2FD; border: 2px solid var(--domestic); }
+.deal-lost { background: #FFEBEE; border: 2px solid var(--red); flex: 100%; margin-top: 4px; }
+
+.deal-col h3 { font-size: 1rem; margin-bottom: 10px; }
+.deal-col ul { list-style: none; font-size: 0.95rem; line-height: 1.9; }
+
+.trait-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+    justify-content: center;
+}
+
+.trait-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #FFF3E0;
+    border: 2px solid #FFB74D;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--orange);
+}
+
+.results-card { text-align: center; padding: 50px 32px; }
+.results-score { font-size: 4rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+.results-msg { font-size: 1.2rem; color: var(--text-light); margin-bottom: 24px; line-height: 1.5; }
+.results-breakdown { text-align: left; max-width: 400px; margin: 0 auto; }
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+}
+
+.result-icon { font-size: 1.1rem; }
+
+.confetti-piece { position: fixed; z-index: 9999; pointer-events: none; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+}
+
+.shake { animation: shake 0.4s ease; }
+
+@media (max-width: 650px) {
+    .card { padding: 24px 18px; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.3rem; }
+    .title-page h1 { font-size: 2rem; }
+    .comparison { flex-direction: column; }
+    .comparison-arrow { transform: rotate(90deg); justify-content: center; }
+    .animal { max-width: 100%; }
+    .animal img { height: 200px; }
+    .facts { flex-direction: column; }
+    .info-grid { grid-template-columns: 1fr; }
+    .checkbox-grid { grid-template-columns: 1fr; }
+    .deal-columns { flex-direction: column; }
+    .score-display { font-size: 0.8rem; padding: 5px 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+<div class="score-display" id="scoreDisplay">Score: 0 / 8</div>
+
+<!-- PAGE 0: TITLE -->
+<div class="page active" id="page-0">
+<div class="card title-page">
+    <div class="title-icon">🐺 → 🐕</div>
+    <h1>The Domestication Deal</h1>
+    <p class="subtitle">How wild animals became farm animals — and what they lost.</p>
+    <button class="start-btn" onclick="goTo(1)">Let's Begin →</button>
+</div>
+</div>
+
+<!-- PAGE 1: WHAT IS DOMESTICATION? -->
+<div class="page" id="page-1">
+<div class="card">
+    <p class="page-label">Page 1 of 11</p>
+    <div class="content-area" id="content-1">
+        <h2>What Is Domestication?</h2>
+        <p class="body-text"><strong>Domestication</strong> means making wild animals tame. Humans did this a long time ago — about <strong>15,000 years ago</strong>. The first animal we tamed was the wolf.</p>
+        <p class="body-text">How did we do it? We picked the <strong>friendliest</strong> animals. Then we let them have babies. We picked the friendliest babies again. After a very long time, the animals changed. They became tame.</p>
+        <p class="body-text">Not every animal can be tamed. The animal must be calm and useful. Out of thousands of animals, humans only tamed about <strong>14</strong>.</p>
+        <button class="ready-btn" onclick="showQuestion(1)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-1">
+        <button class="reveal-btn" onclick="revealContent(1)">👁 Read again</button>
+        <p class="question-text">When did humans first tame animals?</p>
+        <div class="options" id="opts1">
+            <button class="option" onclick="checkMC(1, this, false)">About 2,000 years ago</button>
+            <button class="option" onclick="checkMC(1, this, true)">About 15,000 years ago</button>
+            <button class="option" onclick="checkMC(1, this, false)">About 1,000,000 years ago</button>
+            <button class="option" onclick="checkMC(1, this, false)">About 500 years ago</button>
+        </div>
+        <div class="feedback" id="fb1"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(0)">← Back</button>
+            <button class="nav-btn" id="nextPage-1" style="display:none" onclick="goTo(2)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 2: WHY DOMESTICATE? -->
+<div class="page" id="page-2">
+<div class="card">
+    <p class="page-label">Page 2 of 11</p>
+    <h2>Why Did Humans Tame Animals?</h2>
+    <p class="body-text">Every animal we tamed helps us in some way.</p>
+    <div class="info-grid">
+        <div class="info-block" style="background:#FFF3E0">
+            <div class="info-icon">🥩</div>
+            <div class="info-title">Food</div>
+            <div class="info-desc">Meat, milk, eggs</div>
+        </div>
+        <div class="info-block" style="background:#E3F2FD">
+            <div class="info-icon">🧶</div>
+            <div class="info-title">Materials</div>
+            <div class="info-desc">Wool, leather</div>
+        </div>
+        <div class="info-block" style="background:#E8F5E9">
+            <div class="info-icon">🚜</div>
+            <div class="info-title">Work</div>
+            <div class="info-desc">Carrying things, farming</div>
+        </div>
+        <div class="info-block" style="background:#F3E5F5">
+            <div class="info-icon">🐕</div>
+            <div class="info-title">Friends</div>
+            <div class="info-desc">Guarding, helping, company</div>
+        </div>
+    </div>
+    <div class="nav-row">
+        <button class="back-btn" onclick="goTo(1)">← Back</button>
+        <button class="nav-btn" onclick="goTo(3)">Next →</button>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 3: HOW DOES IT WORK? -->
+<div class="page" id="page-3">
+<div class="card">
+    <p class="page-label">Page 3 of 11</p>
+    <h2>How Does It Work?</h2>
+    <p class="body-text">Humans pick the <strong>calmest</strong> animals. Only those animals have babies. After many, many years, the whole animal family changes.</p>
+    <div class="steps-container" id="stepsContainer">
+        <div class="step" data-delay="300">
+            <div class="step-number">1</div>
+            <div class="step-text">Find a wild animal. Pick the <strong>calmest</strong> one.</div>
+        </div>
+        <div class="step" data-delay="700">
+            <div class="step-number">2</div>
+            <div class="step-text">Let it have babies with another calm animal.</div>
+        </div>
+        <div class="step" data-delay="1100">
+            <div class="step-number">3</div>
+            <div class="step-text">From the babies, pick the <strong>calmest</strong> one again.</div>
+        </div>
+        <div class="step" data-delay="1500">
+            <div class="step-number">4</div>
+            <div class="step-text">Do it again. And again. And again.</div>
+        </div>
+        <div class="step" data-delay="1900">
+            <div class="step-number">5</div>
+            <div class="step-text">After a very long time… you have a <strong>new, tame</strong> animal! 🎉</div>
+        </div>
+    </div>
+    <div class="nav-row">
+        <button class="back-btn" onclick="goTo(2)">← Back</button>
+        <button class="nav-btn" onclick="goTo(4)">Next →</button>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 4: WOLF → DOG -->
+<div class="page" id="page-4">
+<div class="card">
+    <p class="page-label">Page 4 of 11</p>
+    <div class="content-area" id="content-4">
+        <h2>Wolf → Dog</h2>
+        <p class="subtitle">First tamed about 15,000 years ago</p>
+        <div class="comparison">
+            <div class="animal">
+                <img src="wolf.jpg" alt="Gray Wolf">
+                <span class="animal-label wild-label">🐺 Wolf</span>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="animal">
+                <img src="dog.jpg" alt="Domestic Dog">
+                <span class="animal-label domestic-label">🐕 Dog</span>
+            </div>
+        </div>
+        <div class="facts">
+            <div class="fact fact-wild">🐺 <strong>Wolf:</strong> Big brain. Hunts in groups. Afraid of people. Can live alone in the wild.</div>
+            <div class="fact fact-domestic">🐕 <strong>Dog:</strong> Brain is <strong>20% smaller</strong>. Follows people. Needs people. Can understand our faces very well.</div>
+        </div>
+        <button class="ready-btn" onclick="showQuestion(4)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-4">
+        <button class="reveal-btn" onclick="revealContent(4)">👁 Read again</button>
+        <p class="question-text">A dog's brain is ___% smaller than a wolf's brain.</p>
+        <div class="options" id="opts4">
+            <button class="option" onclick="checkMC(4, this, false)">50%</button>
+            <button class="option" onclick="checkMC(4, this, false)">2%</button>
+            <button class="option" onclick="checkMC(4, this, true)">20%</button>
+            <button class="option" onclick="checkMC(4, this, false)">75%</button>
+        </div>
+        <div class="feedback" id="fb4"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(3)">← Back</button>
+            <button class="nav-btn" id="nextPage-4" style="display:none" onclick="goTo(5)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 5: AUROCHS → COW -->
+<div class="page" id="page-5">
+<div class="card">
+    <p class="page-label">Page 5 of 11</p>
+    <div class="content-area" id="content-5">
+        <h2>Aurochs → Cow</h2>
+        <p class="subtitle">Tamed about 10,000 years ago</p>
+        <div class="comparison">
+            <div class="animal">
+                <img src="aurochs.jpg" alt="Aurochs">
+                <span class="animal-label wild-label">🦬 Aurochs</span>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="animal">
+                <img src="cow.jpg" alt="Domestic Cow">
+                <span class="animal-label domestic-label">🐄 Cow</span>
+            </div>
+        </div>
+        <div class="facts">
+            <div class="fact fact-wild">🦬 <strong>Aurochs:</strong> Very big — almost 2 meters tall! Strong and dangerous. People drew them in caves. The last one died in <strong>1627</strong>.</div>
+            <div class="fact fact-domestic">🐄 <strong>Cow:</strong> Calm and gentle. Cannot fight other animals. Needs people to give it food and a home.</div>
+        </div>
+        <button class="ready-btn" onclick="showQuestion(5)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-5">
+        <button class="reveal-btn" onclick="revealContent(5)">👁 Read again</button>
+        <p class="question-text">When did the last wild aurochs die?</p>
+        <div class="options" id="opts5">
+            <button class="option" onclick="checkMC(5, this, false)">10,000 years ago</button>
+            <button class="option" onclick="checkMC(5, this, false)">They are still alive</button>
+            <button class="option" onclick="checkMC(5, this, true)">In 1627</button>
+            <button class="option" onclick="checkMC(5, this, false)">In 1920</button>
+        </div>
+        <div class="feedback" id="fb5"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(4)">← Back</button>
+            <button class="nav-btn" id="nextPage-5" style="display:none" onclick="goTo(6)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 6: BOAR → PIG -->
+<div class="page" id="page-6">
+<div class="card">
+    <p class="page-label">Page 6 of 11</p>
+    <h2>Wild Boar → Pig</h2>
+    <p class="subtitle">Tamed about 9,000 years ago</p>
+    <div class="comparison">
+        <div class="animal">
+            <img src="boar.jpg" alt="Wild Boar">
+            <span class="animal-label wild-label">🐗 Wild Boar</span>
+        </div>
+        <div class="comparison-arrow">→</div>
+        <div class="animal">
+            <img src="pig.jpg" alt="Domestic Pig">
+            <span class="animal-label domestic-label">🐷 Pig</span>
+        </div>
+    </div>
+    <div class="facts">
+        <div class="fact fact-wild">🐗 <strong>Wild Boar:</strong> Strong with big teeth. Can run very fast. Lives in forests.</div>
+        <div class="fact fact-domestic">🐷 <strong>Pig:</strong> Round body. Curly tail. Small teeth. Calm — but very <strong>smart</strong>! (Smarter than dogs!)</div>
+    </div>
+    <p class="body-text" style="font-style:italic; color:var(--text-light);">Fun fact: If farm pigs go back to the wild, their babies start to look like wild boars again! The wild is still inside them.</p>
+    <div class="nav-row">
+        <button class="back-btn" onclick="goTo(5)">← Back</button>
+        <button class="nav-btn" onclick="goTo(7)">Next →</button>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 7: JUNGLEFOWL → CHICKEN -->
+<div class="page" id="page-7">
+<div class="card">
+    <p class="page-label">Page 7 of 11</p>
+    <div class="content-area" id="content-7">
+        <h2>Junglefowl → Chicken</h2>
+        <p class="subtitle">Tamed about 8,000 years ago in Southeast Asia</p>
+        <div class="comparison">
+            <div class="animal">
+                <img src="junglefowl.jpg" alt="Red Junglefowl">
+                <span class="animal-label wild-label">🐦 Junglefowl</span>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="animal">
+                <img src="chicken.jpg" alt="Domestic Chicken">
+                <span class="animal-label domestic-label">🐔 Chicken</span>
+            </div>
+        </div>
+        <div class="facts">
+            <div class="fact fact-wild">🐦 <strong>Junglefowl:</strong> Can fly well. Lives in forests. Only lays about <strong>12 eggs</strong> a year. Quick and alert.</div>
+            <div class="fact fact-domestic">🐔 <strong>Chicken:</strong> Cannot fly well. Lays about <strong>300 eggs</strong> a year! Heavier body. Slower and calmer.</div>
+        </div>
+        <button class="ready-btn" onclick="showQuestion(7)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-7">
+        <button class="reveal-btn" onclick="revealContent(7)">👁 Read again</button>
+        <p class="question-text">How many eggs does a farm chicken lay in one year?</p>
+        <div class="options" id="opts7">
+            <button class="option" onclick="checkMC(7, this, false)">About 12</button>
+            <button class="option" onclick="checkMC(7, this, true)">About 300</button>
+            <button class="option" onclick="checkMC(7, this, false)">About 1,000</button>
+            <button class="option" onclick="checkMC(7, this, false)">About 50</button>
+        </div>
+        <div class="feedback" id="fb7"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(6)">← Back</button>
+            <button class="nav-btn" id="nextPage-7" style="display:none" onclick="goTo(8)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 8: WILD CAT → DOMESTIC CAT -->
+<div class="page" id="page-8">
+<div class="card">
+    <p class="page-label">Page 8 of 11</p>
+    <div class="content-area" id="content-8">
+        <h2>Wildcat → House Cat</h2>
+        <p class="subtitle">Tamed about 10,000 years ago</p>
+        <div class="comparison">
+            <div class="animal">
+                <img src="wild cat.jpg" alt="African Wildcat">
+                <span class="animal-label wild-label">🐆 Wildcat</span>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="animal">
+                <img src="cat.jpg" alt="Domestic Cat">
+                <span class="animal-label domestic-label">🐱 House Cat</span>
+            </div>
+        </div>
+        <div class="facts">
+            <div class="fact fact-wild">🐆 <strong>Wildcat:</strong> Lives alone. Stays away from people. Hunts mice and birds at night.</div>
+            <div class="fact fact-domestic">🐱 <strong>House Cat:</strong> Still a good hunter. But likes to be near people. Has a <strong>smaller brain</strong>. Stays for food and warmth.</div>
+        </div>
+        <p class="body-text" style="font-style:italic; color:var(--text-light);">Cats are special! Scientists think cats tamed <strong>themselves</strong>. When people grew food, mice came. Cats followed the mice. The friendliest cats got free food from people and stayed. Nobody chose to tame them — they chose us!</p>
+        <button class="ready-btn" onclick="showQuestion(8)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-8">
+        <button class="reveal-btn" onclick="revealContent(8)">👁 Read again</button>
+        <p class="question-text">What is special about cats?</p>
+        <div class="options" id="opts8">
+            <button class="option" onclick="checkMC(8, this, false)">They were tamed first</button>
+            <button class="option" onclick="checkMC(8, this, false)">They cannot hunt anymore</button>
+            <button class="option" onclick="checkMC(8, this, true)">They tamed themselves — people didn't choose them</button>
+            <button class="option" onclick="checkMC(8, this, false)">Their brains got bigger</button>
+        </div>
+        <div class="feedback" id="fb8"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(7)">← Back</button>
+            <button class="nav-btn" id="nextPage-8" style="display:none" onclick="goTo(9)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 9: MOUFLON → SHEEP -->
+<div class="page" id="page-9">
+<div class="card">
+    <p class="page-label">Page 9 of 11</p>
+    <div class="content-area" id="content-9">
+        <h2>Mouflon → Sheep</h2>
+        <p class="subtitle">Tamed about 11,000 years ago</p>
+        <div class="comparison">
+            <div class="animal">
+                <img src="mouflon.jpg" alt="Mouflon">
+                <span class="animal-label wild-label">🐏 Mouflon</span>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="animal">
+                <img src="sheep.jpg" alt="Domestic Sheep">
+                <span class="animal-label domestic-label">🐑 Sheep</span>
+            </div>
+        </div>
+        <div class="facts">
+            <div class="fact fact-wild">🐏 <strong>Mouflon:</strong> Short brown fur that <strong>falls off</strong> every spring. Big horns. Good at climbing rocks.</div>
+            <div class="fact fact-domestic">🐑 <strong>Sheep:</strong> Wool grows and <strong>never stops</strong>! People must cut it. One sheep didn't get a haircut for 6 years — it had 27 kg of wool!</div>
+        </div>
+        <button class="ready-btn" onclick="showQuestion(9)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-9">
+        <button class="reveal-btn" onclick="revealContent(9)">👁 Read again</button>
+        <p class="question-text">What happens to a sheep's wool if nobody cuts it?</p>
+        <div class="options" id="opts9">
+            <button class="option" onclick="checkMC(9, this, false)">It falls off every spring</button>
+            <button class="option" onclick="checkMC(9, this, true)">It keeps growing and never stops</button>
+            <button class="option" onclick="checkMC(9, this, false)">It stops growing after a short time</button>
+            <button class="option" onclick="checkMC(9, this, false)">It changes color</button>
+        </div>
+        <div class="feedback" id="fb9"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(8)">← Back</button>
+            <button class="nav-btn" id="nextPage-9" style="display:none" onclick="goTo(10)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 10: DOMESTICATION SYNDROME -->
+<div class="page" id="page-10">
+<div class="card">
+    <p class="page-label">Page 10 of 11</p>
+    <div class="content-area" id="content-10">
+        <h2>Domestication Syndrome</h2>
+        <p class="body-text">Scientists found something interesting: <strong>ALL</strong> tame animals — dogs, cats, pigs, cows, horses — get the <strong>same changes</strong>. It doesn't matter what animal it is. If you make it tame, these things happen:</p>
+        <div class="trait-list">
+            <span class="trait-tag">Floppy ears</span>
+            <span class="trait-tag">Curly tails</span>
+            <span class="trait-tag">Spotted fur</span>
+            <span class="trait-tag">Smaller brains</span>
+            <span class="trait-tag">Shorter faces</span>
+            <span class="trait-tag">Less fear</span>
+        </div>
+        <p class="body-text">Why? When you choose calm animals, you also change special cells in their body. These cells control ear shape, fur color, brain size, and fear — <strong>all at once</strong>. Change one thing, and everything changes!</p>
+        <button class="ready-btn" onclick="showQuestion(10)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-10">
+        <button class="reveal-btn" onclick="revealContent(10)">👁 Read again</button>
+        <p class="question-text">Which of these happen to tame animals? Choose ALL the correct ones.</p>
+        <div class="checkbox-grid" id="checkboxGrid">
+            <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Floppy ears</span>
+            </div>
+            <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Bigger brains</span>
+            </div>
+            <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Spotted fur</span>
+            </div>
+            <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Longer legs</span>
+            </div>
+            <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Curly tails</span>
+            </div>
+            <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Sharper teeth</span>
+            </div>
+            <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">Shorter faces</span>
+            </div>
+            <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
+                <div class="custom-checkbox"></div>
+                <span class="checkbox-label">More fear</span>
+            </div>
+        </div>
+        <button class="submit-btn" id="submitCheck" onclick="checkCheckboxes()">Check My Answers</button>
+        <div class="feedback" id="fb10"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(9)">← Back</button>
+            <button class="nav-btn" id="nextPage-10" style="display:none" onclick="goTo(11)">Next Page →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 11: THE DEAL -->
+<div class="page" id="page-11">
+<div class="card">
+    <p class="page-label">Page 11 of 11</p>
+    <div class="content-area" id="content-11">
+        <h2>The Deal</h2>
+        <p class="body-text">Domestication is like a <strong>trade</strong>. People give something. Animals give something. But the animals also <strong>lost</strong> something important.</p>
+        <div class="deal-columns">
+            <div class="deal-col deal-give">
+                <h3>🧑‍🌾 People Give</h3>
+                <ul>
+                    <li>Food and water</li>
+                    <li>A home</li>
+                    <li>Safety from danger</li>
+                    <li>Help when sick</li>
+                </ul>
+            </div>
+            <div class="deal-col deal-get">
+                <h3>🐄 Animals Give</h3>
+                <ul>
+                    <li>Meat and milk</li>
+                    <li>Eggs</li>
+                    <li>Wool and leather</li>
+                    <li>Work</li>
+                </ul>
+            </div>
+            <div class="deal-col deal-lost">
+                <h3>⚠️ But Animals Lost</h3>
+                <ul>
+                    <li>Thick fur to keep warm</li>
+                    <li>How to find food alone</li>
+                    <li>How to travel far</li>
+                    <li>Big brains and fighting skills</li>
+                </ul>
+            </div>
+        </div>
+        <p class="body-text">This is a problem! If people cannot help the animals (for example, in a big storm), the animals <strong>cannot take care of themselves</strong>. They forgot how.</p>
+        <button class="ready-btn" onclick="showQuestion(11)">I'm ready for the question →</button>
+    </div>
+    <div class="question-area hidden" id="question-11">
+        <button class="reveal-btn" onclick="revealContent(11)">👁 Read again</button>
+        <p class="question-text">Why can't farm animals live alone in the wild?</p>
+        <div class="options" id="opts11">
+            <button class="option" onclick="checkMC(11, this, false)">They don't like the wild</button>
+            <button class="option" onclick="checkMC(11, this, true)">They lost the skills to find food and stay safe alone</button>
+            <button class="option" onclick="checkMC(11, this, false)">They have too much fur</button>
+            <button class="option" onclick="checkMC(11, this, false)">They are too fast</button>
+        </div>
+        <div class="feedback" id="fb11"></div>
+        <div class="nav-row">
+            <button class="back-btn" onclick="goTo(10)">← Back</button>
+            <button class="nav-btn" id="nextPage-11" style="display:none" onclick="goTo(12)">See Results →</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PAGE 12: RESULTS -->
+<div class="page" id="page-12">
+<div class="card results-card">
+    <div class="title-icon">🏆</div>
+    <h2>Results</h2>
+    <div class="results-score" id="finalScore">0 / 8</div>
+    <div class="results-msg" id="finalMsg"></div>
+    <div class="results-breakdown" id="breakdown"></div>
+    <button class="nav-btn" onclick="goTo(0)" style="margin-top:24px">Start Over</button>
+</div>
+</div>
+
+<script>
+let currentPage = 0;
+const totalPages = 13;
+const totalQuestions = 8;
+let score = 0;
+let answered = {};
+let contentRevealed = {};
+
+const questionNames = {
+    1: "What Is Domestication?",
+    4: "Wolf → Dog",
+    5: "Aurochs → Cow",
+    7: "Junglefowl → Chicken",
+    8: "Wildcat → Cat",
+    9: "Mouflon → Sheep",
+    10: "Domestication Syndrome",
+    11: "The Deal"
+};
+
+const correctFeedback = {
+    1: "Yes! Dogs were the first — about 15,000 years ago.",
+    4: "Correct! Dogs have smaller brains than wolves.",
+    5: "Right! The last aurochs died in 1627.",
+    7: "Yes! Farm chickens lay about 300 eggs a year.",
+    8: "Yes! Cats are special — they chose US, not the other way around.",
+    9: "Yes! Sheep wool never stops growing. People must cut it.",
+    11: "That's right. Farm animals lost the skills to live alone."
+};
+
+const wrongFeedback = {
+    1: "Not quite. Look again — it says 15,000 years ago.",
+    4: "Not quite. The answer is 20%.",
+    5: "No! The last aurochs died in 1627.",
+    7: "Not quite. Look at the numbers again — 12 vs 300.",
+    8: "Think again — the text says cats tamed THEMSELVES.",
+    9: "No — that's what wild mouflons do. Sheep wool never stops!",
+    11: "Think about it: they lost the skills to find food and stay safe alone."
+};
+
+function goTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    currentPage = page;
+    updateProgress();
+    window.scrollTo(0, 0);
+    if (page === 3) animateSteps();
+    if (page === 12) showResults();
+}
+
+function updateProgress() {
+    const pct = (currentPage / (totalPages - 1)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function showQuestion(pageNum) {
+    const content = document.getElementById('content-' + pageNum);
+    const question = document.getElementById('question-' + pageNum);
+    content.classList.add('hidden');
+    question.classList.remove('hidden');
+    contentRevealed[pageNum] = false;
+    window.scrollTo(0, 0);
+}
+
+function revealContent(pageNum) {
+    const content = document.getElementById('content-' + pageNum);
+    if (contentRevealed[pageNum]) {
+        content.classList.add('hidden');
+        contentRevealed[pageNum] = false;
+    } else {
+        content.classList.remove('hidden');
+        const readyBtn = content.querySelector('.ready-btn');
+        if (readyBtn) readyBtn.style.display = 'none';
+        contentRevealed[pageNum] = true;
+    }
+}
+
+function checkMC(qNum, btn, isCorrect) {
+    if (answered[qNum]) return;
+    answered[qNum] = { correct: isCorrect };
+
+    const opts = document.getElementById('opts' + qNum).querySelectorAll('.option');
+    opts.forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+
+    const fb = document.getElementById('fb' + qNum);
+
+    if (isCorrect) {
+        btn.classList.add('correct');
+        score++;
+        fb.className = 'feedback correct-fb';
+        fb.textContent = '✅ ' + correctFeedback[qNum];
+        createConfetti();
+    } else {
+        btn.classList.add('wrong');
+        fb.className = 'feedback wrong-fb';
+        fb.textContent = '❌ ' + wrongFeedback[qNum];
+        opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+        document.querySelector('.page.active .card').classList.add('shake');
+        setTimeout(() => document.querySelector('.page.active .card').classList.remove('shake'), 400);
+    }
+
+    updateScore();
+    const nextBtn = document.getElementById('nextPage-' + qNum);
+    if (nextBtn) { nextBtn.style.display = 'inline-block'; nextBtn.style.animation = 'fadeIn 0.3s ease'; }
+}
+
+function toggleCheck(item) {
+    if (answered[10]) return;
+    item.classList.toggle('selected');
+    const cb = item.querySelector('.custom-checkbox');
+    cb.textContent = item.classList.contains('selected') ? '✓' : '';
+}
+
+function checkCheckboxes() {
+    if (answered[10]) return;
+    answered[10] = { correct: false };
+
+    const items = document.querySelectorAll('#checkboxGrid .checkbox-item');
+    let allCorrect = true;
+
+    items.forEach(item => {
+        const isCorrect = item.dataset.correct === 'true';
+        const isSelected = item.classList.contains('selected');
+        item.style.pointerEvents = 'none';
+
+        if (isCorrect && isSelected) item.classList.add('correct-check');
+        else if (isCorrect && !isSelected) { item.classList.add('correct-check'); allCorrect = false; }
+        else if (!isCorrect && isSelected) { item.classList.add('wrong-check'); allCorrect = false; }
+        item.classList.remove('selected');
+    });
+
+    document.getElementById('submitCheck').disabled = true;
+    const fb = document.getElementById('fb10');
+
+    if (allCorrect) {
+        score++;
+        answered[10].correct = true;
+        fb.className = 'feedback correct-fb';
+        fb.textContent = '✅ Perfect! You got all of them right.';
+        createConfetti();
+    } else {
+        fb.className = 'feedback wrong-fb';
+        fb.textContent = '❌ Not quite — the green ones are correct. Remember: tame animals get SMALLER brains, not bigger!';
+        document.querySelector('.page.active .card').classList.add('shake');
+        setTimeout(() => document.querySelector('.page.active .card').classList.remove('shake'), 400);
+    }
+
+    updateScore();
+    document.getElementById('nextPage-10').style.display = 'inline-block';
+    document.getElementById('nextPage-10').style.animation = 'fadeIn 0.3s ease';
+}
+
+function updateScore() {
+    document.getElementById('scoreDisplay').textContent = 'Score: ' + score + ' / ' + totalQuestions;
+}
+
+function showResults() {
+    document.getElementById('finalScore').textContent = score + ' / ' + totalQuestions;
+    let msg = '';
+    if (score === 8) msg = "🏆 Amazing! You know everything about domestication!";
+    else if (score >= 6) msg = "🌟 Great job! You understand domestication very well.";
+    else if (score >= 4) msg = "👍 Good! Read again the parts you missed.";
+    else msg = "📚 Let's try again! Read the pages more carefully.";
+    document.getElementById('finalMsg').textContent = msg;
+
+    const bd = document.getElementById('breakdown');
+    bd.innerHTML = '';
+    [1, 4, 5, 7, 8, 9, 10, 11].forEach(q => {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        const wasCorrect = answered[q] && answered[q].correct;
+        item.innerHTML = '<span>' + questionNames[q] + '</span><span class="result-icon">' + (wasCorrect ? '✅' : '❌') + '</span>';
+        bd.appendChild(item);
+    });
+    if (score >= 6) createConfetti();
+}
+
+function animateSteps() {
+    const steps = document.querySelectorAll('#stepsContainer .step');
+    steps.forEach((s, i) => {
+        s.classList.remove('visible');
+        const delay = parseInt(s.dataset.delay) || (i * 400);
+        setTimeout(() => s.classList.add('visible'), delay);
+    });
+}
+
+function createConfetti() {
+    const colors = ['#6B4226', '#8B6914', '#2E7D32', '#FFB74D', '#E65100', '#1565C0'];
+    const shapes = ['●', '■', '▲', '◆'];
+    for (let i = 0; i < 40; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+        el.style.left = (Math.random() * 100) + 'vw';
+        el.style.top = '-20px';
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        el.style.fontSize = (Math.random() * 14 + 8) + 'px';
+        el.style.opacity = Math.random() * 0.8 + 0.2;
+        document.body.appendChild(el);
+        const xDrift = (Math.random() - 0.5) * 200;
+        const duration = Math.random() * 2000 + 1500;
+        const spin = Math.random() * 720 - 360;
+        el.animate([
+            { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+            { transform: `translateY(${window.innerHeight + 40}px) translateX(${xDrift}px) rotate(${spin}deg)`, opacity: 0 }
+        ], { duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+        setTimeout(() => el.remove(), duration);
+    }
+}
+
+function createParticles() {
+    const colors = ['#D7CCC8', '#BCAAA4', '#A1887F', '#C8E6C9', '#FFE0B2'];
+    for (let i = 0; i < 15; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 8 + 4;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.left = (Math.random() * 100) + 'vw';
+        p.style.top = (Math.random() * 100) + 'vh';
+        document.body.appendChild(p);
+        const duration = Math.random() * 15000 + 10000;
+        const xEnd = (Math.random() - 0.5) * 200;
+        const yEnd = (Math.random() - 0.5) * 200;
+        p.animate([
+            { transform: 'translate(0, 0)' },
+            { transform: `translate(${xEnd}px, ${yEnd}px)` }
+        ], { duration, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
+    }
+}
+
+createParticles();
+updateProgress();
+</script>
+
+</body></html>

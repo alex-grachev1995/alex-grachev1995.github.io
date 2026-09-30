@@ -1,0 +1,564 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will It Imprint? — Mind Hacker Certification</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --yellow: #ffc93c;
+    --yellow-dark: #f0a500;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #2b3440;
+    --green: #2ea56d;
+    --red: #e05252;
+    --gray: #8a94a3;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', 'Trebuchet MS', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ---------- floating background particles ---------- */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .particle {
+    position: absolute;
+    bottom: -60px;
+    font-size: 26px;
+    opacity: 0.18;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-110vh) rotate(360deg); }
+  }
+
+  /* ---------- layout ---------- */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px 14px 110px;
+    min-height: 100%;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .score-pill {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray);
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 12px;
+    background: #e1e6ec;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--yellow), var(--yellow-dark));
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+
+  /* ---------- card ---------- */
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 6px 24px rgba(43,52,64,0.10);
+    padding: 26px 22px;
+    text-align: center;
+    animation: fadeIn 0.45s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card h1 {
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .subtitle { color: var(--gray); font-size: 15px; margin-bottom: 18px; }
+
+  .big-emoji {
+    font-size: 64px;
+    line-height: 1;
+    margin: 6px 0 14px;
+    display: block;
+    animation: pop 0.4s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.4); }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .scenario-text {
+    font-size: 20px;
+    line-height: 1.45;
+    font-weight: 600;
+    margin-bottom: 22px;
+    min-height: 58px;
+  }
+
+  /* ---------- answer buttons ---------- */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .answer-btn {
+    flex: 1;
+    min-width: 130px;
+    max-width: 240px;
+    border: none;
+    border-radius: 16px;
+    padding: 18px 10px;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    color: #fff;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+  }
+  .answer-btn:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.03);
+    filter: brightness(1.07);
+    box-shadow: 0 7px 0 rgba(0,0,0,0.18);
+  }
+  .answer-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+  }
+  .answer-btn:disabled { opacity: 0.45; cursor: default; }
+  .btn-yes { background: var(--green); }
+  .btn-no  { background: var(--red); }
+
+  /* ---------- feedback ---------- */
+  .feedback {
+    margin-top: 20px;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: left;
+    animation: fadeIn 0.35s ease;
+  }
+  .feedback.correct { background: #e6f6ee; border: 2px solid var(--green); }
+  .feedback.wrong   { background: #fdeaea; border: 2px solid var(--red); }
+  .feedback .verdict {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .feedback.correct .verdict { color: var(--green); }
+  .feedback.wrong   .verdict { color: var(--red); }
+  .feedback .rule {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .feedback .explain { font-size: 15px; line-height: 1.5; }
+
+  .next-btn, .start-btn, .restart-btn {
+    margin-top: 18px;
+    border: none;
+    border-radius: 16px;
+    padding: 15px 34px;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 0 4px 0 var(--yellow-dark);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .next-btn:hover, .start-btn:hover, .restart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 var(--yellow-dark);
+  }
+  .next-btn:active, .start-btn:active, .restart-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 var(--yellow-dark);
+  }
+
+  /* ---------- checklist ---------- */
+  .checklist-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0 22px;
+    text-align: left;
+  }
+  .check-item {
+    background: #fdf6e3;
+    border: 2px solid var(--yellow);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .check-item .ci-emoji { font-size: 26px; }
+
+  .checklist-pin {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    background: rgba(43,52,64,0.94);
+    color: #fff;
+    border-radius: 999px;
+    padding: 9px 16px;
+    display: flex;
+    gap: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    white-space: nowrap;
+    max-width: 96vw;
+    overflow-x: auto;
+  }
+  .checklist-pin span { display: flex; align-items: center; gap: 4px; }
+
+  /* ---------- results ---------- */
+  .result-trophy { font-size: 78px; display: block; margin-bottom: 10px; animation: pop 0.5s ease; }
+  .result-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .result-score { font-size: 44px; font-weight: 800; color: var(--yellow-dark); margin-bottom: 8px; }
+  .result-msg { font-size: 16px; color: var(--gray); margin-bottom: 6px; line-height: 1.5; }
+
+  /* ---------- shake ---------- */
+  .shake { animation: shake 0.45s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-7px); }
+    80% { transform: translateX(7px); }
+  }
+
+  /* ---------- confetti ---------- */
+  .confetti-piece {
+    position: fixed;
+    top: -20px;
+    z-index: 50;
+    pointer-events: none;
+    border-radius: 3px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
+  }
+
+  @media (max-width: 420px) {
+    .checklist-intro { grid-template-columns: 1fr; }
+    .scenario-text { font-size: 17px; }
+    .card h1 { font-size: 22px; }
+    .checklist-pin { gap: 9px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="wrap" id="app"></div>
+
+<div class="checklist-pin" id="pin" style="display:none;">
+  <span>⏱ &lt;36 hrs</span>
+  <span>🏃 moves</span>
+  <span>🔊 sounds</span>
+  <span>🐾 follows on its own</span>
+</div>
+
+<script>
+  // ---------------- data ----------------
+  const scenarios = [
+    {
+      emoji: "🥎",
+      text: "A duckling hatches and the first thing it sees is a slowly rolling red ball that makes beeping sounds.",
+      answer: true,
+      rule: "🏃 MOVES + 🔊 SOUNDS + ⏱ IN THE WINDOW",
+      explain: "It moves, it makes noise, and the duckling just hatched. The brain bug doesn't check if 'mom' is round and rubber. Lorenz proved this with real balls and boxes!"
+    },
+    {
+      emoji: "🙈",
+      text: "A duckling hatches with its eyes closed for 3 days. On day 3, it opens its eyes and sees its real mother duck.",
+      answer: false,
+      rule: "⏱ WINDOW CLOSED",
+      explain: "Trap! Even its REAL mother can't get in anymore. The imprinting window slams shut at about 36 hours — 3 days is way too late."
+    },
+    {
+      emoji: "🧺",
+      text: "A duckling is carried in a cozy basket right behind its mother duck for two whole days.",
+      answer: false,
+      rule: "🐾 MUST FOLLOW ACTIVELY",
+      explain: "Trap! Being carried doesn't count. The duckling has to WALK and FOLLOW with its own little legs. No effort — no imprint. The textbook sidebar warned you!"
+    },
+    {
+      emoji: "📦",
+      text: "A duckling hatches and sees a shoebox sitting on the floor — perfectly still and totally silent.",
+      answer: false,
+      rule: "🏃 NO MOVEMENT, 🔊 NO SOUND",
+      explain: "A frozen, silent box triggers nothing. But put that same box on wheels with a speaker inside? Instant mom."
+    },
+    {
+      emoji: "🐈",
+      text: "A duckling hatches and the first thing it sees is a cat strolling past, purring loudly.",
+      answer: true,
+      rule: "🏃 MOVES + 🔊 SOUNDS + ⏱ IN THE WINDOW",
+      explain: "Terrifying... but YES. The bug has no safety check! It moves, it purrs, it's within the window. The duckling will follow the cat. Nature can be a very bad programmer."
+    },
+    {
+      emoji: "🧑‍🔬",
+      text: "A one-week-old duckling meets a friendly scientist waving a duck puppet and quacking.",
+      answer: false,
+      rule: "⏱ WINDOW CLOSED",
+      explain: "Great costume, wrong week. At 7 days old the window has been closed for ages. The scientist is just a weird stranger with a puppet."
+    },
+    {
+      emoji: "🤖",
+      text: "A duckling hatches and sees a robot vacuum humming around the room in circles.",
+      answer: true,
+      rule: "🏃 MOVES + 🔊 SOUNDS + ⏱ IN THE WINDOW",
+      explain: "Beep beep, mama! It moves, it hums, the duckling is fresh out of the egg. Congratulations to the vacuum on its new child."
+    },
+    {
+      emoji: "🧤",
+      text: "A newly hatched chick is fed every day during its first hours by a yellow rubber glove.",
+      answer: true,
+      rule: "🏃 MOVES + ⏱ IN THE WINDOW",
+      explain: "This REALLY happened in a 1966 experiment. The chicks fell in love with the glove — some even tried to court gloves when they grew up!"
+    }
+  ];
+
+  const rules = [
+    { emoji: "⏱", text: "Within the window: first ~36 hours only" },
+    { emoji: "🏃", text: "It has to MOVE" },
+    { emoji: "🔊", text: "Sound makes it stronger" },
+    { emoji: "🐾", text: "Baby must follow ACTIVELY (no free rides)" }
+  ];
+
+  let current = 0;
+  let score = 0;
+  const app = document.getElementById("app");
+  const pin = document.getElementById("pin");
+
+  // ---------------- background particles ----------------
+  (function makeParticles() {
+    const emojis = ["🪶", "🥚", "🪶", "🐣", "🪶", "🥚"];
+    const box = document.getElementById("particles");
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement("div");
+      p.className = "particle";
+      p.textContent = emojis[i % emojis.length];
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.animationDuration = (14 + Math.random() * 16) + "s";
+      p.style.animationDelay = (-Math.random() * 20) + "s";
+      p.style.fontSize = (18 + Math.random() * 20) + "px";
+      box.appendChild(p);
+    }
+  })();
+
+  // ---------------- confetti ----------------
+  function confetti() {
+    const colors = ["#ffc93c", "#2ea56d", "#4a90d9", "#e05252", "#9b59b6", "#f0a500"];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti-piece";
+      const size = 6 + Math.random() * 8;
+      c.style.width = size + "px";
+      c.style.height = size * (0.6 + Math.random()) + "px";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (1.4 + Math.random() * 1.6) + "s";
+      c.style.animationDelay = (Math.random() * 0.3) + "s";
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3500);
+    }
+  }
+
+  function bigConfetti() { confetti(); setTimeout(confetti, 400); setTimeout(confetti, 800); }
+
+  // ---------------- screens ----------------
+  function renderStart() {
+    pin.style.display = "none";
+    app.innerHTML = `
+      <div class="card">
+        <span class="big-emoji">🐣</span>
+        <h1>WILL IT IMPRINT?</h1>
+        <div class="subtitle">Mind Hacker Certification Test · 8 scenarios</div>
+        <p style="font-size:15px; line-height:1.5; margin-bottom:6px;">
+          A baby bird's brain has a <b>bug</b>: it locks onto the first moving thing it meets
+          and calls it <b>MOM — forever</b>.
+        </p>
+        <p style="font-size:15px; line-height:1.5;">Your hacker's checklist:</p>
+        <div class="checklist-intro">
+          ${rules.map(r => `
+            <div class="check-item"><span class="ci-emoji">${r.emoji}</span><span>${r.text}</span></div>
+          `).join("")}
+        </div>
+        <p style="font-size:15px; color:var(--gray); margin-bottom:4px;">
+          Judge each case: does the baby imprint or not?<br>
+          <b>6+ correct = Certified Mind Hacker.</b> One attempt per case. No retries. Quickfire!
+        </p>
+        <button class="start-btn" onclick="startGame()">START THE TEST 🔍</button>
+      </div>
+    `;
+  }
+
+  function startGame() {
+    current = 0;
+    score = 0;
+    pin.style.display = "flex";
+    renderScenario();
+  }
+
+  function renderScenario() {
+    const s = scenarios[current];
+    app.innerHTML = `
+      <div class="topbar">
+        <div class="progress-label">Scenario ${current + 1} of ${scenarios.length}</div>
+        <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+        <div class="score-pill">⭐ ${score}</div>
+      </div>
+      <div class="card" id="card">
+        <span class="big-emoji">${s.emoji}</span>
+        <div class="scenario-text">${s.text}</div>
+        <div class="btn-row">
+          <button class="answer-btn btn-yes" id="btnYes" onclick="answer(true)">✅ IMPRINTS</button>
+          <button class="answer-btn btn-no" id="btnNo" onclick="answer(false)">❌ DOESN'T</button>
+        </div>
+        <div id="fbSlot"></div>
+      </div>
+    `;
+    requestAnimationFrame(() => {
+      document.getElementById("pfill").style.width = ((current) / scenarios.length * 100) + "%";
+      setTimeout(() => {
+        document.getElementById("pfill").style.width = ((current + 0.5) / scenarios.length * 100) + "%";
+      }, 60);
+    });
+  }
+
+  function answer(choice) {
+    const s = scenarios[current];
+    const correct = (choice === s.answer);
+    document.getElementById("btnYes").disabled = true;
+    document.getElementById("btnNo").disabled = true;
+
+    if (correct) {
+      score++;
+      confetti();
+    } else {
+      document.getElementById("card").classList.add("shake");
+    }
+
+    const fb = document.createElement("div");
+    fb.className = "feedback " + (correct ? "correct" : "wrong");
+    fb.innerHTML = `
+      <div class="verdict">${correct ? "✅ CORRECT!" : "❌ NOT QUITE!"}</div>
+      <div class="rule">${s.rule}</div>
+      <div class="explain">${s.explain}</div>
+      <div style="text-align:center;">
+        <button class="next-btn" onclick="next()">${current === scenarios.length - 1 ? "SEE RESULTS 🏁" : "NEXT CASE ➡️"}</button>
+      </div>
+    `;
+    document.getElementById("fbSlot").appendChild(fb);
+
+    // update score pill
+    document.querySelector(".score-pill").textContent = "⭐ " + score;
+    document.getElementById("pfill").style.width = ((current + 1) / scenarios.length * 100) + "%";
+    fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function next() {
+    current++;
+    if (current < scenarios.length) {
+      renderScenario();
+    } else {
+      renderResults();
+    }
+  }
+
+  function renderResults() {
+    pin.style.display = "none";
+    let trophy, title, msg;
+    if (score === 8) {
+      trophy = "🏆"; title = "LEGENDARY MIND HACKER";
+      msg = "A perfect score. Konrad Lorenz would hire you on the spot.<br>You didn't fall for a single trap — not the basket, not the closed eyes, not the cat.";
+      bigConfetti();
+    } else if (score >= 6) {
+      trophy = "🕵️"; title = "CERTIFIED MIND HACKER";
+      msg = "Certification: <b>PASSED</b>. You know the bug, you know the rules.<br>Time to use this power to save some cranes.";
+      confetti();
+    } else {
+      trophy = "🐥"; title = "INTERN";
+      msg = "The ducklings are confused and so are you.<br>Recheck the checklist — especially the <b>36-hour window</b> and the <b>active following</b> rule — and try again.";
+    }
+    app.innerHTML = `
+      <div class="card">
+        <span class="result-trophy">${trophy}</span>
+        <div class="result-title">${title}</div>
+        <div class="result-score">${score} / 8</div>
+        <div class="result-msg">${msg}</div>
+        <div class="checklist-intro" style="margin-top:16px;">
+          ${rules.map(r => `
+            <div class="check-item"><span class="ci-emoji">${r.emoji}</span><span>${r.text}</span></div>
+          `).join("")}
+        </div>
+        <button class="restart-btn" onclick="startGame()">🔄 RETAKE THE TEST</button>
+      </div>
+    `;
+  }
+
+  renderStart();
+</script>
+
+
+</body></html>

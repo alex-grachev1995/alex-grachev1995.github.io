@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STEM Sims — Mark &amp; Ming</title>
+<style>
+:root{
+  --ink:#2f3a52; --muted:#6b7794; --navy:#1d2d50; --line:rgba(29,45,80,.10);
+  --ming:#1e8e6e; --ming-bg:#eefaf4; --mark:#b06f10; --mark-bg:#fdf6ea;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);
+  min-height:100vh;padding:26px 16px 80px;
+  background:linear-gradient(180deg,#f7f9fc 0%,#fdf3e4 55%,#fbe7c8 100%)}
+#wrap{max-width:1080px;margin:0 auto}
+header{text-align:center;margin:8px 0 8px}
+h1{font-size:1.7em;color:var(--navy);letter-spacing:.5px}
+.sub{color:var(--muted);font-size:.88em;margin-top:4px}
+.tip{max-width:640px;margin:14px auto 26px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:10px 14px;font-size:.82em;color:var(--muted);line-height:1.55;
+  box-shadow:0 4px 16px rgba(29,45,80,.06)}
+.tip b{color:var(--navy)}
+.kid{border-radius:20px;padding:22px 20px 20px;margin-bottom:28px;border:1px solid var(--line);
+  box-shadow:0 8px 30px rgba(29,45,80,.07)}
+.kid.ming{background:linear-gradient(180deg,#f2fbf6,#e7f6ee)}
+.kid.mark{background:linear-gradient(180deg,#fdf8ef,#fbeedd)}
+.kid-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.kid-head h2{font-size:1.35em;letter-spacing:2px}
+.kid.ming .kid-head h2{color:var(--ming)}
+.kid.mark .kid-head h2{color:var(--mark)}
+.kid-head .count{font-size:.78em;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+a.card{display:block;background:#fff;border:1.5px solid var(--line);border-radius:14px;
+  padding:14px 15px;text-decoration:none;color:var(--ink);transition:all .15s;
+  box-shadow:0 2px 8px rgba(29,45,80,.05)}
+a.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(29,45,80,.12)}
+.chip{display:inline-block;font-size:.66em;font-weight:800;letter-spacing:.8px;border-radius:99px;
+  padding:3px 9px;margin-bottom:8px}
+.kid.ming .chip{background:var(--ming-bg);color:var(--ming);border:1px solid rgba(30,142,110,.35)}
+.kid.mark .chip{background:var(--mark-bg);color:var(--mark);border:1px solid rgba(176,111,16,.35)}
+.card .t{font-size:.94em;font-weight:800;color:var(--navy);line-height:1.35}
+.card .go{font-size:.74em;color:var(--muted);margin-top:8px}
+a.card:hover .go{color:var(--navy)}
+footer{text-align:center;color:var(--muted);font-size:.78em;line-height:1.7;max-width:660px;margin:0 auto}
+footer code{background:rgba(29,45,80,.07);padding:1px 6px;border-radius:5px;font-size:.92em}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <h1>STEM Sims &amp; Games</h1>
+    <div class="sub">Interactive lessons — pick your name, pick a game</div>
+  </header>
+  <div class="tip"><b>How to open:</b> tap a card, and the game opens in your browser.
+    If you opened this page inside WeChat, tap <b>···</b> (top right) → <b>Open in Browser</b> first —
+    the games need a real browser (Safari or Chrome) to run.</div>
+
+  <section class="kid ming">
+    <div class="kid-head"><h2>MING</h2><span class="count">11 sims · newest first</span></div>
+    <div class="grid">
+      <a class="card" href="ming/the-gap/"><span class="chip">LESSON 53</span><div class="t">The Gap</div><div class="go">open →</div></a>
+      <a class="card" href="ming/the-dead-lake/"><span class="chip">LESSON 52</span><div class="t">The Dead Lake</div><div class="go">open →</div></a>
+      <a class="card" href="ming/ph-the-number-that-lies/"><span class="chip">LESSON 52</span><div class="t">pH: The Number That Lies</div><div class="go">open →</div></a>
+      <a class="card" href="ming/the-race/"><span class="chip">LESSON 51</span><div class="t">The Race</div><div class="go">open →</div></a>
+      <a class="card" href="ming/clean-access/"><span class="chip">LESSON 51</span><div class="t">Clean Access</div><div class="go">open →</div></a>
+      <a class="card" href="ming/staying-warm/"><span class="chip">LESSON 51</span><div class="t">Staying Warm</div><div class="go">open →</div></a>
+      <a class="card" href="ming/severed/"><span class="chip">LESSON 50</span><div class="t">Severed — Roads, Forests and the Animals In Between</div><div class="go">open →</div></a>
+      <a class="card" href="ming/cavity/"><span class="chip">LESSON 49</span><div class="t">CAVITY — Microwave Detective Lab</div><div class="go">open →</div></a>
+      <a class="card" href="ming/kitchen-fire-triage/"><span class="chip">LESSON 49</span><div class="t">Kitchen Fire Triage</div><div class="go">open →</div></a>
+      <a class="card" href="ming/the-danger-zone/"><span class="chip">LESSON 49</span><div class="t">The Danger Zone</div><div class="go">open →</div></a>
+      <a class="card" href="ming/the-evidence-court/"><span class="chip">LESSON 48</span><div class="t">The Evidence Court — Final Verdicts</div><div class="go">open →</div></a>
+    </div>
+  </section>
+
+  <section class="kid mark">
+    <div class="kid-head"><h2>MARK</h2><span class="count">10 sims · newest first</span></div>
+    <div class="grid">
+      <a class="card" href="mark/judgment-of-the-pharaoh/"><span class="chip">LESSON 54</span><div class="t">Judgment of the Pharaoh — True or False</div><div class="go">open →</div></a>
+      <a class="card" href="mark/will-it-imprint/"><span class="chip">LESSON 52</span><div class="t">Will It Imprint? — Mind Hacker Certification</div><div class="go">open →</div></a>
+      <a class="card" href="mark/the-invisible-messenger/"><span class="chip">LESSON 51</span><div class="t">Case File: The Invisible Messenger</div><div class="go">open →</div></a>
+      <a class="card" href="mark/how-the-killer-changed-the-world/"><span class="chip">LESSON 50</span><div class="t">The Aftermath — Case File #1353</div><div class="go">open →</div></a>
+      <a class="card" href="mark/the-chain-of-death/"><span class="chip">LESSON 50</span><div class="t">The Chain of Death — Case File #1347</div><div class="go">open →</div></a>
+      <a class="card" href="mark/suspect-profile-mold/"><span class="chip">LESSON 49</span><div class="t">Suspect Profile: MOLD</div><div class="go">open →</div></a>
+      <a class="card" href="mark/the-lucky-accident-files/"><span class="chip">LESSON 49</span><div class="t">The Lucky Accident Files</div><div class="go">open →</div></a>
+      <a class="card" href="mark/the-chain-of-luck/"><span class="chip">LESSON 49</span><div class="t">The Chain of Luck</div><div class="go">open →</div></a>
+      <a class="card" href="mark/roman-water-true-or-false/"><span class="chip">LESSON 48</span><div class="t">Roman Water: True or False</div><div class="go">open →</div></a>
+      <a class="card" href="mark/the-domestication-deal/"><span class="chip">LESSON 44</span><div class="t">The Domestication Deal</div><div class="go">open →</div></a>
+    </div>
+  </section>
+
+  <footer>
+    To add a new game later: in the GitHub repo, go to <code>Add file → Upload files</code>,
+    and upload the game as <code>ming/game-name/index.html</code> (or <code>mark/…</code>) —
+    then add one card above with the same link. Ask me and I can prepare the files for you.
+  </footer>
+</div>
+</body>
+</html>

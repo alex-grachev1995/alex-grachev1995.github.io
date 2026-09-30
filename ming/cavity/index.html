@@ -1,0 +1,1768 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="x-poe-datastore-behavior" content="local_only">
+<title>CAVITY — Microwave Detective Lab</title>
+
+<style>
+:root{
+  --bg:#0c1428;
+  --panel:#16233d;
+  --panel2:#1d2e4d;
+  --ink:#f3f7ff;
+  --muted:#bac9df;
+  --line:#3b5072;
+  --cyan:#75eed8;
+  --gold:#ffda85;
+  --pink:#ffa5be;
+  --blue:#72b7ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse at 15% 0%,#253b65 0,transparent 48%),
+    var(--bg);
+  color:var(--ink);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+main{max-width:1160px;margin:auto;padding:20px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin-bottom:10px}
+h2{font-size:24px;line-height:1.2;margin-bottom:10px}
+h3{font-size:17px;margin-bottom:10px}
+button,input,select,textarea{font:inherit}
+button{
+  cursor:pointer;
+  color:var(--ink);
+  background:var(--panel2);
+  border:1px solid var(--line);
+  padding:10px 14px;
+  border-radius:12px;
+  font-weight:700;
+}
+button:hover:not(:disabled){border-color:var(--cyan)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--cyan);color:#10283a;border-color:var(--cyan)}
+button.gold{background:var(--gold);color:#30291c;border-color:var(--gold)}
+button.selected,button[aria-pressed="true"]{
+  border-color:var(--cyan);
+  box-shadow:inset 0 0 0 1px var(--cyan);
+  background:#25475b;
+}
+button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,canvas:focus-visible,summary:focus-visible{
+  outline:3px solid var(--gold);outline-offset:4px;
+}
+input[type="range"]{width:100%;accent-color:var(--cyan);min-height:30px}
+input[type="checkbox"]{accent-color:var(--cyan);width:19px;height:19px}
+input[type="number"],select,textarea{
+  background:#0d192e;color:var(--ink);
+  border:1px solid var(--line);border-radius:9px;padding:8px;
+}
+input[type="number"]{width:90px}
+textarea{width:100%;resize:vertical;min-height:85px}
+label{cursor:pointer}
+a{color:var(--cyan)}
+small,.small{font-size:13px}
+.muted{color:var(--muted)}
+.eyebrow{
+  color:var(--cyan);font-size:12px;letter-spacing:2px;
+  font-weight:800;text-transform:uppercase;margin-bottom:8px;
+}
+.hero{display:flex;justify-content:space-between;gap:18px;align-items:start}
+.hero p{max-width:720px;color:var(--muted)}
+.pill{
+  display:inline-block;background:#233d51;color:var(--cyan);
+  border:1px solid #45647a;border-radius:100px;padding:5px 10px;
+  font-size:12px;white-space:nowrap;
+}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.stack>*+*{margin-top:12px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:18px 0}
+.tabs button{text-align:left;padding:12px}
+.tabs .number{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+.tabs button.active{background:var(--gold);color:#30291c;border-color:var(--gold)}
+.tabs button.active .number{color:#594520}
+.panel{
+  border:1px solid var(--line);background:var(--panel);
+  border-radius:18px;padding:18px;margin-bottom:15px;
+}
+.shared{
+  display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+  border-color:#647394;
+}
+.frequency{font-size:26px;color:var(--gold);font-weight:850;font-variant-numeric:tabular-nums}
+.scale{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(290px,1fr);gap:20px}
+.phase[hidden]{display:none}
+canvas{
+  width:100%;height:auto;display:block;border-radius:14px;background:#091326;
+}
+#cookCanvas,#chocCanvas{touch-action:none}
+#cookCanvas{cursor:grab}
+#cookCanvas:active{cursor:grabbing}
+#chocCanvas{cursor:crosshair}
+.caption{font-size:13px;color:var(--muted);margin:9px 0 0}
+.callout{
+  background:#223c50;border-left:4px solid var(--cyan);
+  padding:12px 14px;border-radius:0 12px 12px 0;
+}
+.warning{background:#3b3037;border-color:var(--gold)}
+.question{background:#302f49;border-color:var(--pink)}
+.callout p:last-child{margin-bottom:0}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.metric{background:#0c192e;border-radius:12px;padding:12px}
+.metric .value{
+  display:block;font-size:25px;font-weight:850;color:var(--gold);
+  font-variant-numeric:tabular-nums;
+}
+.metric .label{font-size:12px;color:var(--muted)}
+.formula{font-size:19px;color:var(--cyan);font-weight:750}
+.help{
+  display:inline-grid;place-items:center;padding:0;width:22px;height:22px;
+  border-radius:50%;font-size:12px;vertical-align:middle;
+  color:var(--cyan);border-color:#66839b;
+}
+details{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
+summary{cursor:pointer;font-weight:750;color:var(--gold)}
+details p,details ul{margin:10px 0}
+progress{width:100%;height:12px;accent-color:var(--cyan)}
+.legend{height:10px;border-radius:10px;background:linear-gradient(90deg,#eef1da,#ffd76e,#eb805d,#5a2743)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare>div{padding:12px;border-radius:12px;background:#0b192c}
+.compare strong{font-size:25px;color:var(--gold);display:block}
+.tablewrap{overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:9px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-size:12px}
+.feedback{min-height:24px;color:var(--cyan);font-weight:650}
+.choice{display:block;width:100%;text-align:left;margin:8px 0}
+.casebuttons{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.casebuttons button{padding:12px 5px;font-size:13px}
+.casebuttons .emoji{font-size:25px;display:block}
+.stepnames{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:8px}
+#caseCaption{min-height:120px}
+#caseCaption h3{color:var(--gold)}
+#hintDialog{
+  width:min(440px,calc(100% - 32px));border:1px solid var(--cyan);
+  background:var(--panel);color:var(--ink);border-radius:16px;padding:22px;
+}
+#hintDialog::backdrop{background:rgba(0,0,0,.65)}
+footer{color:var(--muted);font-size:13px;margin:22px 0}
+@media(max-width:800px){
+  main{padding:12px}
+  .grid{grid-template-columns:1fr}
+  .tabs{grid-template-columns:repeat(2,1fr)}
+  .shared{grid-template-columns:1fr}
+  .hero{display:block}
+  .panel{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important}
+}
+</style>
+</head>
+
+<body>
+<main>
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Predict • change one thing • explain</div>
+      <h1>📡 CAVITY</h1>
+      <p>A microwave detective lab. Move the waves. Move the food.
+        Find out why the same oven can melt one bite and miss the next.</p>
+    </div>
+    <label class="small row">
+      <input type="checkbox" id="lessMotion">
+      Less motion
+    </label>
+  </header>
+
+  <nav class="tabs" aria-label="Lab activities">
+    <button class="active" data-tab="0" data-lock="" aria-current="step">
+      <span class="number">01 / EXPLORE</span>The wave pattern
+    </button>
+    <button data-tab="1" data-lock="">
+      <span class="number">02 / INVESTIGATE</span>Cook &amp; compare
+    </button>
+    <button data-tab="2" data-lock="">
+      <span class="number">03 / MEASURE</span>Chocolate ruler
+    </button>
+    <button data-tab="3" data-lock="">
+      <span class="number">04 / PREDICT</span>Microwave mysteries
+    </button>
+  </nav>
+
+  <section class="panel shared" id="frequencyPanel" aria-label="Shared frequency control">
+    <div>
+      <div class="row spread">
+        <label for="frequency">
+          <b>Frequency</b>
+          <button class="help" data-help="frequency" aria-label="What is frequency?">?</button>
+        </label>
+        <output id="frequencyValue" class="frequency">2.45 GHz</output>
+      </div>
+      <input id="frequency" data-lock="" type="range" min="0.90" max="5.00" step="0.05" value="2.45">
+      <div class="scale"><span>0.90 GHz</span><span>Longer waves ← → Shorter waves</span><span>5.00 GHz</span></div>
+    </div>
+    <div>
+      <button id="realFrequency" data-lock="">↩ Typical oven: 2.45 GHz</button>
+      <p class="caption">Shared by Parts 1–3.<br>Changing it starts a fresh trial.</p>
+    </div>
+  </section>
+
+  <!-- PART 1 -->
+  <section class="phase panel" id="phase0">
+    <div class="eyebrow">01 / See the invisible</div>
+    <h2>Why are there hot stripes?</h2>
+    <div class="grid">
+      <div>
+        <canvas id="waveCanvas" width="560" height="440" role="img" aria-label="Standing-wave energy map and slowed wave diagram"></canvas>
+        <div class="row spread" style="margin-top:10px">
+          <label class="row"><input type="checkbox" id="showTwo" checked=""> Show the two travelling waves</label>
+          <button id="freezeWaves">Pause waves</button>
+        </div>
+        <p class="caption">Top: where energy is absorbed most strongly.
+          Bottom: the electric field, slowed enormously so we can see it.</p>
+      </div>
+
+      <div class="stack">
+        <div class="callout question">
+          <b>First, predict:</b> If you increase the frequency, will the hot stripes get
+          closer together or farther apart?
+          <div class="row" style="margin-top:10px">
+            <button data-quiz="wave" data-correct="yes">Closer</button>
+            <button data-quiz="wave" data-correct="no">Farther apart</button>
+          </div>
+          <div id="waveFeedback" class="feedback" aria-live="polite"></div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="label">Wavelength λ
+              <button class="help" data-help="wavelength" aria-label="What is wavelength?">?</button>
+            </span>
+            <output class="value" id="lambdaValue"></output>
+          </div>
+          <div class="metric">
+            <span class="label">Hot-stripe spacing</span>
+            <output class="value" id="spacingValue"></output>
+          </div>
+        </div>
+
+        <p class="formula">wavelength = wave speed ÷ frequency</p>
+
+        <div class="callout">
+          <b>Try this:</b> choose 1.20 GHz, then 2.40 GHz.
+          What happens to the spacing when you double the frequency?
+          <div class="row" style="margin-top:10px">
+            <button data-setfreq="1.20">1.20 GHz</button>
+            <button data-setfreq="2.40">2.40 GHz</button>
+          </div>
+        </div>
+
+        <details>
+          <summary>Reveal the explanation</summary>
+          <p>A wave and its reflection overlap. Their electric fields add.
+            At some places they reinforce each other; at others they cancel.
+            That creates a <b>standing wave</b>
+            <button class="help" data-help="standing" aria-label="What is a standing wave?">?</button>.
+          </p>
+          <p>The high-exposure stripes are at <b>antinodes</b>
+            <button class="help" data-help="antinode" aria-label="What is an antinode?">?</button>.
+            The gaps contain <b>nodes</b>
+            <button class="help" data-help="node" aria-label="What is a node?">?</button>.
+            Neighbouring antinodes are half a wavelength apart.</p>
+          <p><b>Important:</b> the field changes direction, but the locations of
+            strong and weak exposure stay put in this model.</p>
+        </details>
+
+        <button class="primary" data-go="1">Put food in this pattern →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 2 -->
+  <section class="phase panel" id="phase1" hidden="">
+    <div class="eyebrow">02 / Run a fair test</div>
+    <h2>Can you rescue the uneven lunch?</h2>
+
+    <div class="grid">
+      <div>
+        <canvas id="cookCanvas" width="560" height="560" tabindex="0" aria-label="Food on a turntable. Drag to move it, or focus here and use arrow keys."></canvas>
+        <p class="caption">
+          Drag the food—or tap a new position. Keyboard: focus the picture, then use arrow keys.
+          Food stays inside the circular tray.
+        </p>
+
+        <div style="margin-top:14px">
+          <div class="row spread small">
+            <b>The white dot’s exposure</b>
+            <span id="probeNow">0%</span>
+          </div>
+          <canvas id="traceCanvas" width="560" height="110" role="img" aria-label="Microwave exposure at the marked point over time"></canvas>
+          <p class="caption">High on the graph = passing through a strong part of the pattern.
+            This is exposure now, not accumulated heat.</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="row">
+          <label for="food"><b>Food</b></label>
+          <select id="food" data-lock="">
+            <option value="sausage">🌭 Sausage</option>
+            <option value="potato">🥔 Potato slice</option>
+            <option value="ice">🧊 Frozen block</option>
+          </select>
+          <button id="centerFood" data-lock="">Centre it</button>
+        </div>
+
+        <label class="row">
+          <input id="turntable" type="checkbox" data-lock="">
+          <b>Turntable ON</b>
+        </label>
+
+        <div>
+          <div class="row spread">
+            <label for="power">Average power
+              <button class="help" data-help="power" aria-label="What is power?">?</button>
+            </label>
+            <output id="powerValue">100%</output>
+          </div>
+          <input id="power" data-lock="" type="range" min="25" max="100" step="25" value="100">
+        </div>
+
+        <div class="row spread">
+          <label for="duration">Virtual heating time</label>
+          <select id="duration" data-lock="">
+            <option value="10">10 seconds</option>
+            <option value="20">20 seconds</option>
+            <option value="30" selected="">30 seconds</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="probe">Track the food’s</label>
+          <select id="probe" data-lock="">
+            <option value="tip">near-edge point</option>
+            <option value="center">centre point</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <button id="run" class="primary" data-lock="">▶ Run fresh trial</button>
+          <button id="pause" disabled="">Pause</button>
+          <button id="resetFood">↺ Reset food</button>
+        </div>
+        <progress id="cookProgress" value="0" max="30"></progress>
+        <div id="cookStatus" class="small muted" aria-live="polite">
+          Start with the turntable OFF. Then repeat with it ON.
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="label">Most / least absorbed
+              <button class="help" data-help="heatunits" aria-label="What do these units mean?">?</button>
+            </span>
+            <output class="value" id="doseValues">—</output>
+          </div>
+          <div class="metric">
+            <span class="label">Most ÷ least</span>
+            <output class="value" id="ratioValue">—</output>
+          </div>
+        </div>
+
+        <div class="row spread small">
+          <span>Evenness
+            <button class="help" data-help="evenness" aria-label="How is evenness calculated?">?</button>
+          </span>
+          <b id="evenValue">—</b>
+        </div>
+        <progress id="evenBar" value="0" max="100"></progress>
+
+        <div class="legend"></div>
+        <div class="scale"><span>Low absorbed energy</span><span>High absorbed energy</span></div>
+        <p class="small muted">Colours show model energy units—not °C, actual scorching,
+          or whether food is safe to eat.</p>
+
+        <button id="opposite" class="gold" data-lock="" disabled="">
+          Repeat: same food, other turntable setting
+        </button>
+
+        <div id="comparison" hidden="">
+          <h3>Same settings. One difference.</h3>
+          <div class="compare">
+            <div>Turntable OFF<strong id="offRatio">—</strong><span id="offEven" class="small"></span></div>
+            <div>Turntable ON<strong id="onRatio">—</strong><span id="onEven" class="small"></span></div>
+          </div>
+          <p class="caption">Numbers above are most ÷ least absorbed energy.
+            Same frequency, food, position, power, and time.</p>
+        </div>
+
+        <div class="callout question">
+          <b>The pattern stayed fixed. What did the turntable change?</b>
+          <div class="row" style="margin-top:10px">
+            <button data-quiz="motion" data-correct="no">The wavelength</button>
+            <button data-quiz="motion" data-correct="yes">Each bite’s path</button>
+          </div>
+          <div id="motionFeedback" class="feedback" aria-live="polite"></div>
+        </div>
+
+        <details>
+          <summary>Two more detective challenges</summary>
+          <ul>
+            <li>Track the centre point with the food centred on the tray.
+              Does that point travel anywhere?</li>
+            <li>Try a much lower frequency. Does rotation always make
+              the heating nearly equal?</li>
+          </ul>
+          <p>Moving the food changes which parts of the pattern each bite visits.
+            Different circular paths can still receive different amounts of energy.
+            Rotation helps in many cases; it is not a guarantee.</p>
+          <p>With the frozen block, a simplified rule makes melted patches
+            absorb faster than frozen patches. Watch differences grow.
+            Real thawing also involves heat spreading and energy used to melt ice.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 3 -->
+  <section class="phase panel" id="phase2" hidden="">
+    <div class="eyebrow">03 / Measure, then change the frequency</div>
+    <h2>A chocolate ruler for the speed of light</h2>
+    <div class="grid">
+      <div>
+        <canvas id="chocCanvas" width="560" height="360" aria-label="Chocolate bar and centimetre ruler. Tap the centres of two melted stripes, or use the number fields."></canvas>
+        <p class="caption">The chocolate uses your current frequency—not a hidden 2.45 GHz setting.
+          Click positions snap to 0.25 cm.</p>
+
+        <div class="row" style="margin-top:12px">
+          <button id="zap" class="primary">🍫 Reveal melt pattern</button>
+          <button id="clearMarks">Clear marks</button>
+        </div>
+
+        <div class="callout question" style="margin-top:16px">
+          <b>Prediction:</b> If the frequency changes, should your answer for the
+          speed of light change too?
+          <p class="small" style="margin-top:8px">Try measuring at two very different frequencies.
+            The stripe spacing changes—but what happens to spacing × frequency?</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <p>Reveal the pattern. Mark the centres of two neighbouring melted stripes.
+          Use the picture or enter ruler readings:</p>
+
+        <div class="row">
+          <label for="markA">A:</label>
+          <input id="markA" type="number" min="1" max="31" step="0.25" placeholder="cm" disabled="">
+          <label for="markB">B:</label>
+          <input id="markB" type="number" min="1" max="31" step="0.25" placeholder="cm" disabled="">
+          <span>cm</span>
+        </div>
+
+        <div class="row">
+          <label for="gaps">Gaps between your marks
+            <button class="help" data-help="gaps" aria-label="How do I count gaps?">?</button>
+          </label>
+          <input id="gaps" type="number" min="1" max="10" step="1" value="1">
+        </div>
+        <p class="small muted">Leave this at 1 for neighbouring stripes.
+          Optional: span several gaps for a longer measurement.</p>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="label">One hot-stripe spacing</span>
+            <output id="measuredSpacing" class="value">—</output>
+          </div>
+          <div class="metric">
+            <span class="label">Your wavelength = 2 × spacing</span>
+            <output id="measuredLambda" class="value">—</output>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="formula">speed = wavelength × frequency</div>
+          <p class="small" style="margin-top:8px">We convert centimetres to metres and
+            GHz to waves per second for you.
+            <button class="help" data-help="units" aria-label="Explain the unit conversion">?</button>
+          </p>
+        </div>
+
+        <button id="calculate" class="gold" disabled="">Calculate &amp; save measurement</button>
+        <div id="measurementResult" class="feedback" aria-live="polite"></div>
+
+        <details>
+          <summary>Is this a real measurement of nature?</summary>
+          <p>This is a <b>virtual measurement</b>. The program uses the known speed
+            of light to draw the pattern, so getting it back checks your measuring
+            method—not a new discovery about nature.</p>
+          <p>A real chocolate experiment is messier: the oven has a three-dimensional
+            pattern, the food changes that pattern, and melted patches are not perfect
+            ruler marks.</p>
+        </details>
+      </div>
+    </div>
+
+    <div style="margin-top:22px">
+      <div class="row spread">
+        <h3>📓 Your measurement notebook</h3>
+        <span id="measurementChallenge" class="pill">Try two frequencies</span>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th>Frequency</th><th>Spacing</th><th>Estimated speed</th><th>Difference</th>
+          </tr></thead>
+          <tbody id="measurements">
+            <tr><td colspan="4" class="muted">Your measurements will appear here.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 4 -->
+  <section class="phase panel" id="phase3" hidden="">
+    <div class="eyebrow">04 / Prediction room</div>
+    <div class="row spread">
+      <h2>Microwave mysteries</h2>
+      <span id="mysteryCount" class="pill">0 / 5 explored</span>
+    </div>
+
+    <div class="callout warning" style="margin-bottom:16px">
+      <b>Screen experiments only.</b> Predict here and compare with your teacher’s videos.
+      Do not test grapes, forks, other unusual objects, or an empty oven in a real microwave.
+      Fire, burns, and oven damage are possible.
+    </div>
+
+    <div class="casebuttons" id="caseButtons"></div>
+
+    <div class="grid">
+      <div>
+        <canvas id="mysteryCanvas" width="560" height="390" role="img" aria-label="Conceptual animation of the selected microwave mystery"></canvas>
+        <p class="caption">A science sketch, not a prediction of exact timing or severity.
+          This room is separate from the adjustable-frequency model.</p>
+
+        <div id="sceneControls" hidden="" style="margin-top:15px">
+          <label for="sceneStep"><b>Scrub through the explanation</b></label>
+          <input id="sceneStep" type="range" min="0" max="3" step="1" value="0">
+          <div class="stepnames">
+            <span>1. Before</span><span>2. Wave meets it</span>
+            <span>3. Energy moves</span><span>4. Outcome</span>
+          </div>
+
+          <div id="grapeControls" class="row" hidden="" style="margin-top:12px">
+            <span class="small">Conceptual field view:</span>
+            <button id="oneGrape" aria-pressed="false">One grape</button>
+            <button id="twoGrapes" aria-pressed="true">Nearby pair</button>
+          </div>
+
+          <div id="caseCaption" class="callout" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h3 id="caseTitle"></h3>
+        <p id="caseQuestion"></p>
+        <div id="predictions"></div>
+        <button id="revealMystery" class="gold" disabled="">Reveal the science</button>
+        <div id="predictionFeedback" class="feedback" aria-live="polite"></div>
+
+        <div id="videoNotebook" hidden="">
+          <label for="videoNotes"><b>After your teacher’s video...</b></label>
+          <p class="small muted">What did you notice? Which part of this explanation
+            might account for it?</p>
+          <textarea id="videoNotes" placeholder="I noticed... I think this happened because..."></textarea>
+          <p class="caption">Notes stay in this page while it is open. They are not uploaded or saved after reload.</p>
+        </div>
+
+        <details>
+          <summary>Why doesn’t every material heat the same way?</summary>
+          <p>Microwaves carry a changing <b>electric field</b>
+            <button class="help" data-help="field" aria-label="What is an electric field?">?</button>.
+            Water molecules have slightly positive and negative ends.
+            They try to turn with the field. Their delayed response transfers energy
+            into the liquid.</p>
+          <p>But water is not the only absorber. Dissolved charged particles and other
+            ingredients matter too. A material’s composition, shape, and surroundings
+            affect the result.</p>
+          <p>2.45 GHz is not a special, unique “water resonance” setting.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <details class="panel">
+    <summary>For the teacher: model boundaries, prompts &amp; sources</summary>
+
+    <h3 style="margin-top:14px">What the model deliberately simplifies</h3>
+    <ul>
+      <li>Parts 1–3 use one ideal standing-wave stripe pattern:
+        intensity is proportional to sin²(2πx/λ). This is not a full solution
+        for a closed metal box at every slider frequency.</li>
+      <li>The displayed 32 cm width is a measuring window. A real cavity supports
+        more complicated three-dimensional patterns with boundary constraints.</li>
+      <li>Food does not modify the field here. Real food can modify it.</li>
+      <li>Changing frequency changes wavelength and spacing. We hold ordinary-food
+        absorption fixed to isolate that idea; real absorption and penetration
+        also depend on frequency and the material.</li>
+      <li>Cooking tracks local absorbed energy, not temperature.
+        It omits heat conduction, evaporation, and detailed melting physics.
+        Dark food colours are not proof of scorching; light colours are not proof
+        that bacteria survived.</li>
+      <li>Frozen patches use a deliberately simplified increase in absorption after
+        a model threshold. This illustrates feedback, not a calibrated thawing time.</li>
+      <li>The turntable makes one revolution per 12 virtual seconds.
+        Average power is applied continuously here; many real ovens cycle power.</li>
+      <li>Part 4 uses explanatory drawings, not a field solver or a real-oven safety test.</li>
+    </ul>
+
+    <h3>Suggested questions</h3>
+    <ul>
+      <li>Before explaining rotation: “The pattern did not change. What did?”</li>
+      <li>“Which point on a centred plate travels the shortest distance?”</li>
+      <li>“If everything gets equally little energy, is ‘even’ the same as ‘cooked’?”</li>
+      <li>“What did you hold constant to make your comparison fair?”</li>
+      <li>“When frequency doubled, what had to happen to wavelength?”</li>
+      <li>“What can this simulation tell us—and what can it not tell us?”</li>
+    </ul>
+
+    <h3>Cross-module thawing question</h3>
+    <p>“Warm water would transfer heat faster. Why does the safety advice say cold?”</p>
+    <p>For the USDA cold-water method: use a leak-proof package submerged in cold tap
+      water, change the water every 30 minutes, and cook immediately after thawing.
+      Cold water is not a guarantee that the surface remains below 40°F throughout.
+      Safe handling and prompt cooking still matter. Cook immediately after
+      microwave thawing too.</p>
+
+    <h3>Sources for the explanations</h3>
+    <ul>
+      <li><a href="https://openstax.org/books/university-physics-volume-1/pages/16-6-standing-waves-and-resonance" target="_blank" rel="noopener noreferrer">OpenStax: standing waves and spacing</a></li>
+      <li><a href="https://www.fda.gov/radiation-emitting-products/resources-you-radiation-emitting-products/microwave-ovens" target="_blank" rel="noopener noreferrer">FDA: microwave ovens and safe use</a></li>
+      <li><a href="https://van.physics.illinois.edu/ask/listing/821" target="_blank" rel="noopener noreferrer">University of Illinois: materials, reflection, and sparks</a></li>
+      <li><a href="https://doi.org/10.1073/pnas.1818350116" target="_blank" rel="noopener noreferrer">Khattak, Bianucci &amp; Slepkov: grape resonances and plasma, PNAS</a></li>
+      <li><a href="https://www.sciencedirect.com/science/article/pii/S0260877407001422" target="_blank" rel="noopener noreferrer">Research: dielectric properties of butter</a></li>
+      <li><a href="https://arxiv.org/abs/cond-mat/0607766" target="_blank" rel="noopener noreferrer">Tanaka &amp; Sato: modelling water, ice, and microwave heating</a></li>
+      <li><a href="https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/big-thaw-safe-defrosting-methods" target="_blank" rel="noopener noreferrer">USDA: safe thawing methods</a></li>
+    </ul>
+  </details>
+
+  <footer>
+    A thinking tool, not a cooking guide. All heating times and colours in this lab are simulated.
+    No external libraries, tracking, sound, or video downloads.
+  </footer>
+</main>
+
+<dialog id="hintDialog" aria-labelledby="hintTitle">
+  <h2 id="hintTitle"></h2>
+  <p id="hintText"></p>
+  <form method="dialog"><button class="primary">Got it</button></form>
+</dialog>
+
+<script>
+(() => {
+"use strict";
+
+const $ = id => document.getElementById(id);
+const all = selector => [...document.querySelectorAll(selector)];
+const TAU = 2 * Math.PI;
+const C = 299792458;          // metres per second
+const BOX = 32;               // cm across the model window
+const PAD = 30, SIZE = 500;
+const SCALE = SIZE / BOX;
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const mix = (a,b,t) => a+(b-a)*t;
+
+let currentTab = 0;
+let frequency = 2.45;        // GHz: one source of truth for Parts 1–3
+let waveTime = 0;
+let wavePaused = false;
+let previousTime = 0;
+let lastDraw = 0;
+
+$("lessMotion").checked =
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const hints = {
+  frequency: [
+    "Frequency",
+    "How many complete wave cycles happen each second. 1 GHz means one billion cycles per second. A higher frequency means more cycles—not automatically more power."
+  ],
+  wavelength: [
+    "Wavelength, written λ",
+    "The distance for one full repeating wave shape, such as from one crest to the next. In this model, neighbouring hot stripes are only HALF a wavelength apart."
+  ],
+  standing: [
+    "Standing wave",
+    "A wave pattern made by overlapping waves travelling in opposite directions. The field still changes, but its strong and weak locations stay in the same places."
+  ],
+  node: [
+    "Node",
+    "A place where the two electric fields cancel in this ideal standing wave. The electric field remains zero there."
+  ],
+  antinode: [
+    "Antinode",
+    "A place where the standing wave has its biggest back-and-forth electric-field change. Our model food absorbs most strongly there."
+  ],
+  field: [
+    "Electric field",
+    "An electric push or pull on charged particles. A microwave carries an electric field that repeatedly changes size and direction."
+  ],
+  power: [
+    "Power versus frequency",
+    "Power is energy delivered per second. Frequency is cycles per second. In this lab, more power increases the energy absorbed without changing the stripe spacing."
+  ],
+  heatunits: [
+    "Model energy units",
+    "These numbers compare how much energy different pieces absorbed. They are not degrees Celsius, and they cannot tell you whether real food is cooked safely."
+  ],
+  evenness: [
+    "Our evenness score",
+    "100 × least absorbed energy ÷ most absorbed energy. 100% means equal amounts. Equal heating does not necessarily mean enough heating!"
+  ],
+  gaps: [
+    "Count spaces, not stripes",
+    "Two neighbouring stripe centres have ONE gap between them. If you mark the first and fourth stripe centres, there are THREE gaps. Divide the total distance by three."
+  ],
+  units: [
+    "The conversion",
+    "Divide centimetres by 100 to get metres. Multiply GHz by 1,000,000,000 to get cycles per second. Wavelength in metres × frequency in cycles per second gives speed in metres per second."
+  ],
+  molecule: [
+    "Molecule",
+    "A tiny group of joined atoms. A water molecule has one oxygen atom and two hydrogen atoms. Its electric charge is slightly uneven."
+  ],
+  resonance: [
+    "Resonance",
+    "A strong response when waves fit a particular object or system especially well. For the grape example, shape and size matter—it is not a special resonance of an isolated water molecule."
+  ],
+  plasma: [
+    "Plasma",
+    "A gas containing free electrons and electrically charged particles. Strong electric fields can help create it. The glowing discharge can be extremely hot."
+  ],
+  charge: [
+    "Electric charge",
+    "A property that causes electric pushes and pulls. Electrons carry negative charge. In metal, some electrons can move through the material."
+  ],
+  feedback: [
+    "Positive feedback",
+    "A change that helps cause more of the same change. Here: a patch melts → absorbs faster → gains energy faster → more melting."
+  ],
+  conduction: [
+    "Conduction",
+    "Heat spreading through touching material. A hot meal can warm a dish even when the dish absorbs relatively little microwave energy itself."
+  ]
+};
+
+function help(key) {
+  return `<button class="help" data-help="${key}" aria-label="Explain ${key}">?</button>`;
+}
+
+document.addEventListener("click", e => {
+  const button = e.target.closest("[data-help]");
+  if (!button) return;
+  e.preventDefault();
+  const item = hints[button.dataset.help];
+  if (!item) return;
+  $("hintTitle").textContent = item[0];
+  $("hintText").textContent = item[1];
+  $("hintDialog").showModal();
+});
+
+$("hintDialog").addEventListener("click", e => {
+  if (e.target !== $("hintDialog")) return;
+  const r = $("hintDialog").getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right ||
+      e.clientY < r.top || e.clientY > r.bottom) {
+    $("hintDialog").close();
+  }
+});
+
+function lambdaCM() { return C / (frequency * 1e9) * 100; }
+function intensity(x) {
+  return Math.sin(TAU * x / lambdaCM()) ** 2;
+}
+function px(x) { return PAD + x * SCALE; }
+
+function text(g,str,x,y,color="#bac9df",size=13,align="left") {
+  g.fillStyle = color;
+  g.font = `${size >= 17 ? "700 " : ""}${size}px system-ui,sans-serif`;
+  g.textAlign = align;
+  g.textBaseline = "middle";
+  g.fillText(str,x,y);
+}
+function line(g,x1,y1,x2,y2,color,width=2) {
+  g.strokeStyle=color;g.lineWidth=width;
+  g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();
+}
+function circle(g,x,y,r,fill,stroke=null) {
+  g.beginPath();g.arc(x,y,r,0,TAU);
+  if(fill){g.fillStyle=fill;g.fill();}
+  if(stroke){g.strokeStyle=stroke;g.lineWidth=2;g.stroke();}
+}
+function arrow(g,x1,y1,x2,y2,color="#75eed8",width=2) {
+  const a=Math.atan2(y2-y1,x2-x1);
+  line(g,x1,y1,x2,y2,color,width);
+  line(g,x2,y2,x2-9*Math.cos(a-.5),y2-9*Math.sin(a-.5),color,width);
+  line(g,x2,y2,x2-9*Math.cos(a+.5),y2-9*Math.sin(a+.5),color,width);
+}
+
+const mapCanvas=document.createElement("canvas");
+mapCanvas.width=SIZE;mapCanvas.height=SIZE;
+function rebuildMap() {
+  const g=mapCanvas.getContext("2d");
+  for(let i=0;i<SIZE;i+=2){
+    const v=intensity((i+1)/SCALE);
+    g.fillStyle=`hsl(${mix(216,21,v)}, ${mix(60,87,v)}%, ${mix(24,58,v)}%)`;
+    g.fillRect(i,0,2,SIZE);
+  }
+}
+
+function changeFrequency(value) {
+  if(cooking) return;
+  frequency=clamp(Math.round(Number(value)*20)/20,.9,5);
+  $("frequency").value=frequency.toFixed(2);
+  $("frequencyValue").textContent=frequency.toFixed(2)+" GHz";
+  $("lambdaValue").textContent=lambdaCM().toFixed(2)+" cm";
+  $("spacingValue").textContent=(lambdaCM()/2).toFixed(2)+" cm";
+  rebuildMap();
+  resetCook();
+  resetChocolate(true);
+}
+$("frequency").addEventListener("input",e=>changeFrequency(e.target.value));
+$("realFrequency").onclick=()=>changeFrequency(2.45);
+all("[data-setfreq]").forEach(b=>b.onclick=()=>changeFrequency(b.dataset.setfreq));
+
+function goTab(n) {
+  if(cooking) return;
+  currentTab=n;
+  all(".phase").forEach((p,i)=>p.hidden=i!==n);
+  all("[data-tab]").forEach((b,i)=>{
+    b.classList.toggle("active",i===n);
+    if(i===n)b.setAttribute("aria-current","step");
+    else b.removeAttribute("aria-current");
+  });
+  $("frequencyPanel").hidden=n===3;
+}
+all("[data-tab]").forEach(b=>b.onclick=()=>goTab(+b.dataset.tab));
+all("[data-go]").forEach(b=>b.onclick=()=>goTab(+b.dataset.go));
+
+const quizFeedback = {
+  wave: {
+    yes:"Prediction recorded: closer. Now move the slider and check.",
+    no:"Prediction recorded: farther apart. Move the slider and look for evidence."
+  },
+  motion: {
+    yes:"Exactly: each bite follows a path through the fixed pattern. Do all paths receive equal exposure?",
+    no:"Compare the stripe spacing before and after. The turntable moves the food; it does not change frequency."
+  }
+};
+all("[data-quiz]").forEach(b=>b.onclick=()=>{
+  all(`[data-quiz="${b.dataset.quiz}"]`).forEach(x=>x.classList.remove("selected"));
+  b.classList.add("selected");
+  $(b.dataset.quiz+"Feedback").textContent=
+    quizFeedback[b.dataset.quiz][b.dataset.correct];
+});
+
+$("freezeWaves").onclick=()=>{
+  wavePaused=!wavePaused;
+  $("freezeWaves").textContent=wavePaused?"Resume waves":"Pause waves";
+};
+
+function drawWave() {
+  const g=$("waveCanvas").getContext("2d");
+  g.clearRect(0,0,560,440);
+  text(g,"ENERGY MAP · ideal stripes",30,19,"#bac9df",12);
+  g.drawImage(mapCanvas,30,38,500,172);
+  g.strokeStyle="#8194af";g.lineWidth=2;g.strokeRect(30,38,500,172);
+
+  const sp=lambdaCM()/2;
+  for(let x=lambdaCM()/4;x<BOX;x+=sp){
+    circle(g,px(x),65,4,"#ffda85");
+  }
+  const first=lambdaCM()/4;
+  if(first+sp<BOX){
+    const a=px(first),b=px(first+sp);
+    line(g,a,229,b,229,"#ffda85");
+    line(g,a,223,a,235,"#ffda85");
+    line(g,b,223,b,235,"#ffda85");
+    text(g,sp.toFixed(2)+" cm", (a+b)/2,250,"#ffda85",14,"center");
+  }
+
+  text(g,"ELECTRIC FIELD · slow motion, not the shape of a water wave",30,282,"#bac9df",11);
+  const base=344;
+  line(g,30,base,530,base,"#3b5072",1);
+  const phase=waveTime*2.1;
+
+  function plot(fn,color,width,dashed=false){
+    g.beginPath();g.strokeStyle=color;g.lineWidth=width;
+    g.setLineDash(dashed?[5,5]:[]);
+    for(let i=0;i<=500;i+=2){
+      const x=i/SCALE;
+      const y=base-fn(TAU*x/lambdaCM())*43;
+      if(i===0)g.moveTo(30+i,y);else g.lineTo(30+i,y);
+    }
+    g.stroke();g.setLineDash([]);
+  }
+  if($("showTwo").checked){
+    plot(k=>.5*Math.sin(k-phase),"#72b7ff",2);
+    plot(k=>.5*Math.sin(k+phase),"#ffa5be",2,true);
+  }
+  plot(k=>Math.sin(k)*Math.cos(phase),"#75eed8",3);
+
+  for(let x=0;x<=BOX;x+=sp) circle(g,px(x),base,3,"#ffffff");
+
+  text(g,"→ incoming",30,415,"#72b7ff",12);
+  text(g,"← reflected",176,415,"#ffa5be",12);
+  text(g,"sum = standing wave",332,415,"#75eed8",12);
+}
+
+/* ===================== COOKING ===================== */
+
+const foodTypes={
+  sausage:{w:16,h:3,shape:"oval"},
+  potato:{w:10,h:7,shape:"oval"},
+  ice:{w:9,h:9,shape:"rect"}
+};
+
+let food={kind:"sausage",cx:16,cy:16,cells:[]};
+let cooking=false,paused=false,elapsed=0,angle=0,accumulator=0;
+let trace=[],lastSample=-1;
+let runSettings=null;
+let lastCompletedKey=null;
+const trials=new Map();
+
+function buildFood() {
+  const d=foodTypes[food.kind];
+  food.w=d.w;food.h=d.h;
+  food.cells=[];
+  const res=.5;
+  for(let x=-d.w/2+res/2;x<d.w/2;x+=res){
+    for(let y=-d.h/2+res/2;y<d.h/2;y+=res){
+      if(d.shape==="oval" && (x/(d.w/2))**2+(y/(d.h/2))**2>1)continue;
+      food.cells.push({x,y,dose:0});
+    }
+  }
+  constrainFood();
+}
+function constrainFood() {
+  // Bounding-circle constraint keeps every corner inside the tray throughout rotation.
+  const maxRadius=13.7-Math.hypot(food.w/2,food.h/2);
+  let dx=food.cx-16,dy=food.cy-16,r=Math.hypot(dx,dy);
+  if(r>maxRadius){
+    food.cx=16+dx*maxRadius/r;
+    food.cy=16+dy*maxRadius/r;
+  }
+}
+function settingsKey() {
+  return JSON.stringify([
+    frequency,food.kind,food.cx.toFixed(4),food.cy.toFixed(4),
+    +$("power").value,+$("duration").value
+  ]);
+}
+function worldPoint(x,y,a=angle) {
+  const dx=food.cx+x-16,dy=food.cy+y-16;
+  return {
+    x:16+dx*Math.cos(a)-dy*Math.sin(a),
+    y:16+dx*Math.sin(a)+dy*Math.cos(a)
+  };
+}
+function probeLocal() {
+  return $("probe").value==="center"?{x:0,y:0}:{x:food.w*.4,y:0};
+}
+function setLocked(lock) {
+  all("[data-lock]").forEach(e=>e.disabled=lock);
+  $("pause").disabled=!lock;
+  $("pause").textContent=paused?"Resume":"Pause";
+  if(!lock)$("opposite").disabled=lastCompletedKey!==settingsKey();
+}
+
+function resetCook() {
+  cooking=false;paused=false;elapsed=0;angle=0;accumulator=0;
+  trace=[];lastSample=-1;runSettings=null;
+  food.cells.forEach(c=>c.dose=0);
+  $("cookProgress").max=+$("duration").value;
+  $("cookProgress").value=0;
+  $("cookStatus").textContent="Fresh food ready. Change one thing, then compare.";
+  $("doseValues").textContent="—";
+  $("ratioValue").textContent="—";
+  $("evenValue").textContent="—";
+  $("evenBar").value=0;
+  $("probeNow").textContent="0%";
+  setLocked(false);
+  renderComparison();
+}
+
+function runCook() {
+  if(cooking)return;
+  resetCook();
+  runSettings={
+    key:settingsKey(),
+    rotating:$("turntable").checked,
+    power:+$("power").value/100,
+    duration:+$("duration").value
+  };
+  cooking=true;
+  setLocked(true);
+  $("cookStatus").textContent="Heating virtual food. Watch the white dot and its graph.";
+}
+
+function getStats() {
+  let min=Infinity,max=0;
+  for(const c of food.cells){min=Math.min(min,c.dose);max=Math.max(max,c.dose);}
+  return {
+    min,max,
+    ratio:min>1e-10?max/min:Infinity,
+    even:max>0?100*min/max:0
+  };
+}
+function ratioText(s) {
+  if(!s || s.max<=0)return "—";
+  if(!Number.isFinite(s.ratio))return "∞";
+  if(s.ratio>9999)return "> 9,999×";
+  return s.ratio.toFixed(1)+"×";
+}
+function updateStats() {
+  const s=getStats();
+  $("doseValues").textContent=`${Math.round(s.max*100)} / ${Math.round(s.min*100)}`;
+  $("ratioValue").textContent=ratioText(s);
+  $("evenValue").textContent=s.even.toFixed(0)+"%";
+  $("evenBar").value=s.even;
+}
+
+function stepCook(dt) {
+  const a=runSettings.rotating?(elapsed+dt/2)*TAU/12:0;
+  for(const cell of food.cells){
+    const p=worldPoint(cell.x,cell.y,a);
+    let absorption=1;
+    // Illustrative thaw-feedback switch; not calibrated thermodynamics.
+    if(food.kind==="ice")absorption=cell.dose<.16?.18:1.8;
+    cell.dose+=intensity(p.x)*runSettings.power*absorption*dt/15;
+  }
+
+  elapsed=Math.min(runSettings.duration,elapsed+dt);
+  angle=runSettings.rotating?elapsed*TAU/12:0;
+
+  const local=probeLocal();
+  const p=worldPoint(local.x,local.y);
+  const v=intensity(p.x)*runSettings.power;
+  if(elapsed-lastSample>=.19){
+    trace.push({t:elapsed,v});
+    lastSample=elapsed;
+  }
+  $("probeNow").textContent=Math.round(v*100)+"% of model maximum";
+  $("cookProgress").value=elapsed;
+  $("cookStatus").textContent=`${elapsed.toFixed(1)} / ${runSettings.duration} virtual seconds`;
+  updateStats();
+
+  if(elapsed>=runSettings.duration-1e-8)finishCook();
+}
+function finishCook() {
+  const s=getStats();
+  const pair=trials.get(runSettings.key)||{};
+  pair[runSettings.rotating?"on":"off"]={...s};
+  trials.set(runSettings.key,pair);
+  lastCompletedKey=runSettings.key;
+  cooking=false;paused=false;
+  setLocked(false);
+  renderComparison();
+  $("cookStatus").textContent=
+    "Trial complete. Repeat with the other turntable setting for a fair comparison.";
+}
+function renderComparison() {
+  const pair=trials.get(settingsKey());
+  $("comparison").hidden=!(pair?.off && pair?.on);
+  if(pair?.off && pair?.on){
+    $("offRatio").textContent=ratioText(pair.off);
+    $("onRatio").textContent=ratioText(pair.on);
+    $("offEven").textContent=pair.off.even.toFixed(0)+"% evenness";
+    $("onEven").textContent=pair.on.even.toFixed(0)+"% evenness";
+  }
+}
+
+$("run").onclick=runCook;
+$("pause").onclick=()=>{
+  if(!cooking)return;
+  paused=!paused;
+  $("pause").textContent=paused?"Resume":"Pause";
+  if(paused)$("cookStatus").textContent="Paused. The food and virtual clock are stopped.";
+};
+$("resetFood").onclick=resetCook;
+$("opposite").onclick=()=>{
+  if(cooking || lastCompletedKey!==settingsKey())return;
+  $("turntable").checked=!$("turntable").checked;
+  runCook();
+};
+$("food").onchange=()=>{
+  food.kind=$("food").value;
+  buildFood();resetCook();
+};
+$("centerFood").onclick=()=>{
+  food.cx=16;food.cy=16;resetCook();
+};
+$("turntable").onchange=resetCook;
+$("duration").onchange=resetCook;
+$("probe").onchange=resetCook;
+$("power").oninput=()=>{
+  $("powerValue").textContent=$("power").value+"%";
+  resetCook();
+};
+
+let dragging=false;
+function moveFood(e) {
+  if(cooking)return;
+  const r=$("cookCanvas").getBoundingClientRect();
+  food.cx=((e.clientX-r.left)*560/r.width-PAD)/SCALE;
+  food.cy=((e.clientY-r.top)*560/r.height-PAD)/SCALE;
+  constrainFood();resetCook();
+}
+$("cookCanvas").addEventListener("pointerdown",e=>{
+  if(cooking)return;
+  dragging=true;
+  $("cookCanvas").setPointerCapture(e.pointerId);
+  moveFood(e);
+});
+$("cookCanvas").addEventListener("pointermove",e=>{
+  if(dragging)moveFood(e);
+});
+$("cookCanvas").addEventListener("pointerup",()=>dragging=false);
+$("cookCanvas").addEventListener("pointercancel",()=>dragging=false);
+$("cookCanvas").addEventListener("lostpointercapture",()=>dragging=false);
+$("cookCanvas").addEventListener("keydown",e=>{
+  if(cooking)return;
+  const directions={
+    ArrowLeft:[-.5,0],ArrowRight:[.5,0],
+    ArrowUp:[0,-.5],ArrowDown:[0,.5]
+  };
+  if(!directions[e.key])return;
+  e.preventDefault();
+  food.cx+=directions[e.key][0];food.cy+=directions[e.key][1];
+  constrainFood();resetCook();
+});
+
+function doseColor(v) {
+  const stops=[
+    [0,[238,241,218]],[.5,[255,215,110]],
+    [1,[235,128,93]],[1.6,[90,39,67]]
+  ];
+  if(v>=1.6)return "rgb(90,39,67)";
+  for(let i=1;i<stops.length;i++){
+    if(v<=stops[i][0]){
+      const [a,ca]=stops[i-1],[b,cb]=stops[i];
+      const t=(v-a)/(b-a);
+      return `rgb(${ca.map((x,j)=>Math.round(mix(x,cb[j],t))).join(",")})`;
+    }
+  }
+  return "#eef1da";
+}
+
+function drawCook() {
+  const g=$("cookCanvas").getContext("2d");
+  g.clearRect(0,0,560,560);
+  text(g,`${frequency.toFixed(2)} GHz · fixed pattern · top view`,30,16,"#bac9df",12);
+  g.globalAlpha=.65;
+  g.drawImage(mapCanvas,PAD,PAD);
+  g.globalAlpha=1;
+  g.strokeStyle="#8296b4";g.lineWidth=3;g.strokeRect(PAD,PAD,SIZE,SIZE);
+
+  const center=px(16);
+  circle(g,center,center,14*SCALE,"rgba(9,19,38,.12)","#d5e3f0");
+  circle(g,center,center,3,"#d5e3f0");
+
+  g.save();
+  g.translate(center,center);g.rotate(angle);
+  line(g,0,0,14*SCALE,0,"rgba(255,255,255,.2)",2);
+  g.restore();
+
+  const pl=probeLocal();
+  const radius=Math.hypot(food.cx+pl.x-16,food.cy+pl.y-16);
+  if($("turntable").checked){
+    g.setLineDash([5,5]);
+    circle(g,center,center,radius*SCALE,null,"rgba(255,255,255,.7)");
+    g.setLineDash([]);
+  }
+
+  g.save();
+  g.translate(center,center);
+  g.rotate(angle);
+  g.translate((food.cx-16)*SCALE,(food.cy-16)*SCALE);
+  for(const cell of food.cells){
+    g.fillStyle=food.kind==="ice" && cell.dose<.16
+      ?`hsl(202,70%,${83-cell.dose*120}%)`
+      :doseColor(cell.dose);
+    g.fillRect((cell.x-.25)*SCALE,(cell.y-.25)*SCALE,.5*SCALE+.5,.5*SCALE+.5);
+  }
+  g.strokeStyle="#ffffff";g.lineWidth=1.5;
+  if(foodTypes[food.kind].shape==="oval"){
+    g.beginPath();g.ellipse(0,0,food.w*SCALE/2,food.h*SCALE/2,0,0,TAU);g.stroke();
+  }else g.strokeRect(-food.w*SCALE/2,-food.h*SCALE/2,food.w*SCALE,food.h*SCALE);
+  g.restore();
+
+  const probe=worldPoint(pl.x,pl.y);
+  circle(g,px(probe.x),px(probe.y),7,"#ffffff","#10283a");
+  text(g,"white dot = tracked point",42,510,"#ffffff",12);
+  text(g,$("turntable").checked?"TURNTABLE ON":"TURNTABLE OFF",42,49,"#ffffff",12);
+}
+
+function drawTrace() {
+  const g=$("traceCanvas").getContext("2d");
+  g.clearRect(0,0,560,110);
+  const duration=runSettings?.duration || +$("duration").value;
+  line(g,38,15,538,15,"#304663",1);
+  line(g,38,83,538,83,"#304663",1);
+  text(g,"high",5,16,"#bac9df",10);
+  text(g,"low",9,83,"#bac9df",10);
+  text(g,"0 s",38,101,"#bac9df",10);
+  text(g,duration+" s",538,101,"#bac9df",10,"right");
+  if(!trace.length)return;
+  g.beginPath();g.strokeStyle="#75eed8";g.lineWidth=2.5;
+  trace.forEach((p,i)=>{
+    const x=38+500*p.t/duration,y=83-68*p.v;
+    if(i===0)g.moveTo(x,y);else g.lineTo(x,y);
+  });
+  g.stroke();
+}
+
+/* ===================== CHOCOLATE ===================== */
+
+let chocolateRevealed=false;
+let chocolateFade=0;
+let marks=[];
+let measurementLog=[];
+
+function resetChocolate(newBar=false) {
+  if(newBar){
+    chocolateRevealed=false;chocolateFade=0;
+    $("markA").disabled=true;$("markB").disabled=true;
+  }
+  marks=[];
+  $("markA").value="";$("markB").value="";
+  $("measuredSpacing").textContent="—";
+  $("measuredLambda").textContent="—";
+  $("measurementResult").textContent="";
+  $("calculate").disabled=true;
+}
+$("zap").onclick=()=>{
+  resetChocolate(true);
+  chocolateRevealed=true;chocolateFade=0;
+  $("markA").disabled=false;$("markB").disabled=false;
+};
+$("clearMarks").onclick=()=>resetChocolate(false);
+
+function validReadings() {
+  const a=$("markA").value,b=$("markB").value;
+  const n=+$("gaps").value;
+  if(!chocolateRevealed || a==="" || b==="" ||
+    !Number.isFinite(+a) || !Number.isFinite(+b) ||
+    +a<1 || +a>31 || +b<1 || +b>31 || +a===+b ||
+    !Number.isInteger(n) || n<1 || n>10)return null;
+  return {a:+a,b:+b,n,spacing:Math.abs(+b-+a)/n};
+}
+function updateMeasurement() {
+  const r=validReadings();
+  $("calculate").disabled=!r;
+  $("measurementResult").textContent="";
+  $("measuredSpacing").textContent=r?r.spacing.toFixed(2)+" cm":"—";
+  $("measuredLambda").textContent=r?(2*r.spacing).toFixed(2)+" cm":"—";
+}
+["markA","markB"].forEach(id=>{
+  $(id).addEventListener("input",()=>{
+    marks=[$("markA").value,$("markB").value]
+      .filter(v=>v!=="")
+      .map(Number)
+      .filter(v=>Number.isFinite(v)&&v>=1&&v<=31);
+    updateMeasurement();
+  });
+});
+$("gaps").addEventListener("input",updateMeasurement);
+
+$("chocCanvas").addEventListener("pointerdown",e=>{
+  if(!chocolateRevealed)return;
+  const r=$("chocCanvas").getBoundingClientRect();
+  let x=((e.clientX-r.left)*560/r.width-PAD)/SCALE;
+  const y=(e.clientY-r.top)*360/r.height;
+  if(x<1||x>31||y<45||y>275)return;
+  x=Math.round(x*4)/4;
+  if(marks.length>=2)marks=[];
+  marks.push(x);
+  $("markA").value=marks[0]??"";
+  $("markB").value=marks[1]??"";
+  updateMeasurement();
+});
+
+$("calculate").onclick=()=>{
+  const r=validReadings();
+  if(!r)return;
+  const estimate=(2*r.spacing/100)*(frequency*1e9);
+  const error=100*Math.abs(estimate-C)/C;
+  const m={f:frequency,spacing:r.spacing,estimate,error};
+  measurementLog.push(m);
+
+  let message=`Your estimate: ${(estimate/1e6).toFixed(1)} million m/s. `;
+  message+=`${error.toFixed(1)}% different from the known value. `;
+  message+=error<8
+    ?"Now change frequency and measure again. Does your speed estimate stay similar?"
+    :"Check that your marks are at stripe centres and that you counted gaps, not stripes.";
+  $("measurementResult").textContent=message;
+
+  $("measurements").innerHTML=measurementLog.slice(-10).map(m=>`
+    <tr>
+      <td>${m.f.toFixed(2)} GHz</td>
+      <td>${m.spacing.toFixed(2)} cm</td>
+      <td>${(m.estimate/1e6).toFixed(1)} million m/s</td>
+      <td>${m.error.toFixed(1)}%</td>
+    </tr>`).join("");
+
+  const good=new Set(measurementLog.filter(m=>m.error<8).map(m=>m.f.toFixed(2)));
+  $("measurementChallenge").textContent=good.size>=2
+    ?"✓ Similar speed at different frequencies"
+    :"Try two frequencies";
+  $("calculate").disabled=true; // avoids duplicate saves until marks/settings change
+};
+
+function drawChocolate(dt) {
+  const g=$("chocCanvas").getContext("2d");
+  g.clearRect(0,0,560,360);
+  if(chocolateRevealed)chocolateFade=Math.min(1,chocolateFade+dt*1.8);
+
+  text(g,`${frequency.toFixed(2)} GHz · no rotation`,30,23,"#bac9df",13);
+  const x0=px(1),x1=px(31),top=77,height=110;
+  g.fillStyle="#754628";g.fillRect(x0,top,x1-x0,height);
+
+  for(let x=1;x<31;x+=.08){
+    const v=intensity(x);
+    if(chocolateRevealed && v>.68){
+      g.fillStyle=`rgba(255,212,113,${chocolateFade*(v-.68)/.32*.9})`;
+      g.fillRect(px(x),top+5,.08*SCALE+1,height-10);
+    }
+  }
+  for(let x=1;x<=31;x+=3){
+    line(g,px(x),top,px(x),top+height,"rgba(44,20,12,.45)",2);
+  }
+  line(g,x0,top+height/2,x1,top+height/2,"rgba(44,20,12,.45)",2);
+  g.strokeStyle="#bb8757";g.lineWidth=2;g.strokeRect(x0,top,x1-x0,height);
+
+  const rulerY=230;
+  line(g,x0,rulerY,x1,rulerY,"#bac9df",1);
+  for(let x=1;x<=31;x+=.25){
+    const whole=Math.abs(x-Math.round(x))<.001;
+    const major=whole&&Math.round(x)%2===0;
+    line(g,px(x),rulerY,px(x),rulerY+(major?12:whole?8:4),"#bac9df",1);
+    if(major)text(g,String(x),px(x),254,"#bac9df",11,"center");
+  }
+  text(g,"centimetres · smallest tick = 0.25 cm",280,284,"#bac9df",12,"center");
+
+  marks.forEach((x,i)=>{
+    line(g,px(x),57,px(x),216,"#75eed8",2);
+    circle(g,px(x),55,5,"#75eed8");
+    text(g,`${i===0?"A":"B"} ${x.toFixed(2)}`,px(x),40,"#75eed8",12,"center");
+  });
+
+  if(marks.length===2){
+    line(g,px(marks[0]),208,px(marks[1]),208,"#75eed8",2);
+  }
+  text(g,chocolateRevealed
+    ?"Mark the middle of two melted stripes."
+    :"Reveal the melt pattern to begin.",280,325,"#ffda85",15,"center");
+}
+
+/* ===================== MYSTERY ROOM ===================== */
+
+const cases={
+  butter:{
+    emoji:"🧈",name:"Butter",
+    question:"Butter is mostly fat. What is the best prediction?",
+    options:[
+      "It cannot absorb energy because it is not pure water.",
+      "It can soften and melt; heating may be uneven.",
+      "It must make a metal-like spark."
+    ],
+    correct:1,
+    stages:[
+      ["A mixture, not one substance",
+       "Butter has tiny water droplets inside a mostly fatty mixture. The blue dots in this drawing represent water droplets—not individual molecules."],
+      ["The changing field meets the mixture",
+       `Water molecules ${help("molecule")} respond to the changing electric field. Dissolved charged particles can also contribute to absorption.`],
+      ["Energy spreads",
+       "Absorbed energy warms the mixture. Fat is not perfectly invisible to microwaves either. Heat also spreads from warmer areas into neighbouring material."],
+      ["Softening and melting",
+       "Butter can soften and melt unevenly. Composition, starting temperature, shape, and the oven pattern all affect the result. This picture does not predict a safe heating time."]
+    ]
+  },
+  grapes:{
+    emoji:"🍇",name:"Grapes",
+    question:"In some videos, nearby grapes produce a glowing discharge. Which explanation fits best?",
+    options:[
+      "Their shape can concentrate the microwave field.",
+      "The grape skin is secretly metal.",
+      "They turn microwaves into radioactivity."
+    ],
+    correct:0,
+    stages:[
+      ["Water-rich objects",
+       "A grape contains lots of water. Waves behave differently inside it than in the surrounding air. This room is a conceptual zoom, not a setup guide."],
+      ["Waves build up inside",
+       `A grape’s shape and size can support a strong wave response called resonance ${help("resonance")}. Use One grape / Nearby pair to compare the sketches.`],
+      ["A concentrated field",
+       "With a nearby pair, the wave responses can interact and concentrate the electric field in a small region between the grapes. A conducting skin bridge is not required for this explanation."],
+      ["A possible glowing discharge",
+       `An intense concentrated field can help create plasma ${help("plasma")}: a gas with free charged particles. The outcome depends on conditions. Do not try this in a real oven.`]
+    ]
+  },
+  fork:{
+    emoji:"🍴",name:"Fork",
+    question:"The oven walls are metal. Why can a fork be a problem?",
+    options:[
+      "All metal always explodes in microwaves.",
+      "The fork absorbs no energy, so nothing can happen.",
+      "Sharp points and gaps can concentrate electric fields."
+    ],
+    correct:2,
+    stages:[
+      ["The shape matters",
+       "A smooth metal oven wall and a fork are not the same geometry. A fork has narrow points and spaces between them."],
+      ["Charges move",
+       `The field pushes mobile electric charges ${help("charge")} in the metal. Metal reflects much of the incoming microwave energy.`],
+      ["Strong fields near points",
+       "Electric fields can become especially strong near sharp features or across gaps. The drawing highlights these regions; it does not calculate their strength."],
+      ["Sparks are possible—not guaranteed",
+       "A strong field can produce an electrical discharge through air. Sparks can cause fire or damage. Use only items allowed by the oven and product instructions—not a fork as an experiment."]
+    ]
+  },
+  ice:{
+    emoji:"🧊",name:"Ice",
+    question:"A frozen food patch starts to melt. What can happen next?",
+    options:[
+      "That patch must stop absorbing microwaves.",
+      "The liquid patch can absorb faster than the ice beside it.",
+      "Every part must melt at the same speed."
+    ],
+    correct:1,
+    stages:[
+      ["Same molecule, different arrangement",
+       "Left: an ordered ice structure. Right: liquid water. In ice, the molecules are much more restricted in how they turn."],
+      ["Different responses",
+       "At typical oven frequencies, pure ice absorbs much less strongly than liquid water. The moving liquid molecules here are an enormously slowed cartoon."],
+      ["A patch gets ahead",
+       `A melted patch can absorb faster and gain energy faster. This can create positive feedback ${help("feedback")}. Frozen food is not pure ice: salts and unfrozen water also matter.`],
+      ["Uneven thawing",
+       "Some regions can become hot while others remain frozen. Real thawing also involves heat spreading and energy used for melting. After microwave thawing, food should be cooked immediately."]
+    ]
+  },
+  dish:{
+    emoji:"🍽️",name:"Dish",
+    question:"A microwave-safe dish feels hot after heating food. Why?",
+    options:[
+      "Heat from the food can warm it; some dishes also absorb energy.",
+      "Microwave-safe means it must always stay cold.",
+      "The dish has become radioactive."
+    ],
+    correct:0,
+    stages:[
+      ["A dish and a meal",
+       "This drawing shows food on a suitable dish. It is not a recommendation to test an empty dish or an unknown container."],
+      ["Much of the wave passes through",
+       "Many suitable glass and ceramic dishes absorb relatively little microwave energy compared with the food. But composition and glazes vary—not all glass or ceramic behaves identically."],
+      ["Heat moves into the dish",
+       `A hot meal warms the material touching it. This is conduction ${help("conduction")}. Some dishes also heat by directly absorbing microwave energy.`],
+      ["Safe does not mean cool",
+       "Microwave-safe does not mean the field completely ignores the dish, or that it cannot burn your fingers. Follow the product and oven instructions."]
+    ]
+  }
+};
+
+let selectedCase="butter",prediction=null,mysteryRevealed=false;
+let sceneStep=0,grapePair=true;
+const explored=new Set();
+const notes={};
+
+$("caseButtons").innerHTML=Object.entries(cases).map(([key,c])=>
+  `<button data-case="${key}"><span class="emoji">${c.emoji}</span>${c.name}</button>`
+).join("");
+
+function selectCase(key) {
+  selectedCase=key;prediction=null;mysteryRevealed=false;sceneStep=0;
+  const c=cases[key];
+  $("caseTitle").textContent=c.emoji+" "+c.name;
+  $("caseQuestion").textContent=c.question;
+  $("predictions").innerHTML=c.options.map((option,i)=>
+    `<button class="choice" data-prediction="${i}">${option}</button>`
+  ).join("");
+  $("predictionFeedback").textContent="";
+  $("revealMystery").disabled=true;
+  $("sceneControls").hidden=true;
+  $("videoNotebook").hidden=true;
+  $("grapeControls").hidden=true;
+  $("sceneStep").value=0;
+  $("videoNotes").value=notes[key]||"";
+  all("[data-case]").forEach(b=>{
+    b.classList.toggle("selected",b.dataset.case===key);
+    b.setAttribute("aria-pressed",String(b.dataset.case===key));
+  });
+  all("[data-prediction]").forEach(b=>b.onclick=()=>{
+    if(mysteryRevealed)return;
+    prediction=+b.dataset.prediction;
+    all("[data-prediction]").forEach(x=>x.classList.toggle("selected",x===b));
+    $("revealMystery").disabled=false;
+  });
+}
+all("[data-case]").forEach(b=>b.onclick=()=>selectCase(b.dataset.case));
+
+function updateSceneCaption() {
+  const stage=cases[selectedCase].stages[sceneStep];
+  $("caseCaption").innerHTML=`<h3>${sceneStep+1}. ${stage[0]}</h3><p>${stage[1]}</p>`;
+  if(selectedCase==="grapes" && !grapePair && sceneStep>=2){
+    $("caseCaption").innerHTML+=
+      "<p><b>Single-grape view:</b> internal field build-up is still possible, but this sketch no longer has the pair’s concentrated junction field.</p>";
+  }
+}
+
+$("revealMystery").onclick=()=>{
+  if(prediction===null)return;
+  mysteryRevealed=true;
+  explored.add(selectedCase);
+  $("mysteryCount").textContent=`${explored.size} / 5 explored`;
+  $("sceneControls").hidden=false;
+  $("videoNotebook").hidden=false;
+  $("grapeControls").hidden=selectedCase!=="grapes";
+  $("predictionFeedback").textContent=prediction===cases[selectedCase].correct
+    ?"That prediction fits. Now scrub through the explanation."
+    :"Let’s revise that prediction. Scrub through the explanation and look for the missing idea.";
+  $("revealMystery").disabled=true;
+  all("[data-prediction]").forEach(b=>b.disabled=true);
+  updateSceneCaption();
+};
+$("sceneStep").oninput=()=>{
+  sceneStep=+$("sceneStep").value;updateSceneCaption();
+};
+$("videoNotes").oninput=()=>notes[selectedCase]=$("videoNotes").value;
+function setGrapePair(value) {
+  grapePair=value;
+  $("oneGrape").setAttribute("aria-pressed",String(!value));
+  $("twoGrapes").setAttribute("aria-pressed",String(value));
+  updateSceneCaption();
+}
+$("oneGrape").onclick=()=>setGrapePair(false);
+$("twoGrapes").onclick=()=>setGrapePair(true);
+
+function incomingWaves(g,t,limit=195) {
+  for(let row=0;row<4;row++){
+    const y=105+row*48;
+    g.beginPath();g.strokeStyle="rgba(117,238,216,.65)";g.lineWidth=2;
+    for(let x=25;x<limit;x+=3){
+      const yy=y+8*Math.sin(x/14-t*2);
+      if(x===25)g.moveTo(x,yy);else g.lineTo(x,yy);
+    }
+    g.stroke();
+  }
+  arrow(g,40,320,130,320,"#75eed8");
+  text(g,"incoming wave",35,342,"#75eed8",12);
+}
+function glow(g,x,y,r,color) {
+  const grad=g.createRadialGradient(x,y,1,x,y,r);
+  grad.addColorStop(0,color);
+  grad.addColorStop(1,"rgba(255,180,70,0)");
+  circle(g,x,y,r,grad);
+}
+function molecule(g,x,y,a,scale=1) {
+  g.save();g.translate(x,y);g.rotate(a);
+  circle(g,0,0,8*scale,"#ffa5be");
+  circle(g,9*scale,-7*scale,5*scale,"#e8f7ff");
+  circle(g,9*scale,7*scale,5*scale,"#e8f7ff");
+  g.restore();
+}
+
+function drawMystery(t) {
+  const g=$("mysteryCanvas").getContext("2d");
+  g.clearRect(0,0,560,390);
+  const s=mysteryRevealed?sceneStep:0;
+  const c=cases[selectedCase];
+  text(g,"CONCEPTUAL ZOOM · not to scale",25,25,"#bac9df",12);
+  if(s>0 && selectedCase!=="ice")incomingWaves(g,t);
+  if(!mysteryRevealed)text(g,"Make a prediction before revealing the science.",280,365,"#ffda85",14,"center");
+
+  if(selectedCase==="butter"){
+    if(s>=3){
+      g.fillStyle="#eec45e";g.beginPath();
+      g.ellipse(346,252,126,33,0,0,TAU);g.fill();
+    }
+    g.fillStyle="#f4d573";
+    const h=s>=3?67:105;
+    g.fillRect(232,246-h,215,h);
+    g.fillStyle="#ffe7a0";
+    g.beginPath();g.moveTo(232,246-h);g.lineTo(263,223-h);
+    g.lineTo(475,223-h);g.lineTo(447,246-h);g.closePath();g.fill();
+    for(let i=0;i<14;i++){
+      const x=249+(i%7)*28,y=246-h+20+Math.floor(i/7)*31;
+      circle(g,x,y,6,"#72b7ff");
+      if(s>=1)arrow(g,x-4,y+8,x+4,y-8,"#153952",1.5);
+      if(s>=2)glow(g,x,y,18,"rgba(255,120,65,.25)");
+    }
+    text(g,"water droplets inside fat",342,290,"#bac9df",14,"center");
+    if(s>=3)text(g,"softening / melting",342,318,"#ffda85",16,"center");
+  }
+
+  if(selectedCase==="grapes"){
+    const centers=grapePair?[268,397]:[335];
+    centers.forEach((x,index)=>{
+      circle(g,x,201,64,"#586cb0","#bbc4ff");
+      circle(g,x-17,182,18,"rgba(255,255,255,.12)");
+      if(s>=1){
+        for(let j=0;j<3;j++){
+          g.strokeStyle=`rgba(200,180,255,${.3+j*.16})`;
+          g.lineWidth=2;
+          g.beginPath();
+          g.ellipse(x,201,18+j*13,46-j*8,.45*Math.sin(t+index),0,TAU);
+          g.stroke();
+        }
+      }
+    });
+    if(grapePair && s>=2){
+      glow(g,332.5,201,s>=3?76:40,
+        s>=3?"rgba(255,207,125,.8)":"rgba(255,207,125,.55)");
+      circle(g,332.5,201,s>=3?12:5,"#fff0bf");
+      text(g,s>=3?"possible plasma":"concentrated field",333,299,"#ffda85",16,"center");
+      if(s>=3){
+        // Steady glow rather than rapid flashing.
+        g.strokeStyle="#fff1c7";g.lineWidth=3;
+        g.beginPath();g.moveTo(333,195);g.quadraticCurveTo(315,160,335,131);
+        g.quadraticCurveTo(359,161,339,194);g.stroke();
+      }
+    }else{
+      text(g,grapePair?"nearby pair":"one grape",335,298,"#bac9df",16,"center");
+    }
+  }
+
+  if(selectedCase==="fork"){
+    // Smooth metal wall for visual comparison.
+    g.fillStyle="#7d8ba3";g.fillRect(492,72,18,228);
+    text(g,"wall",501,322,"#bac9df",13,"center");
+
+    g.strokeStyle="#d9e4f3";g.lineWidth=16;g.lineCap="round";
+    g.beginPath();g.moveTo(334,290);g.lineTo(334,209);g.stroke();
+    g.lineWidth=8;
+    for(let i=0;i<4;i++){
+      const x=298+i*24;
+      g.beginPath();g.moveTo(x,118);g.lineTo(x,183);
+      g.quadraticCurveTo(x,214,334,214);g.stroke();
+      if(s>=1){
+        circle(g,x,128,4,"#75eed8");
+        text(g,"−",x,127,"#10283a",10,"center");
+      }
+      if(s>=2)glow(g,x,117,24,"rgba(255,212,110,.45)");
+    }
+    g.lineCap="butt";
+    if(s>=3){
+      line(g,304,117,310,105,"#ffda85",3);
+      line(g,310,105,316,120,"#ffda85",3);
+      line(g,316,120,322,111,"#ffda85",3);
+      text(g,"a discharge is possible",331,330,"#ffda85",16,"center");
+    }else if(s>=2){
+      text(g,"field concentrates near points",327,330,"#ffda85",14,"center");
+    }
+  }
+
+  if(selectedCase==="ice"){
+    const left={x:40,y:94,w:215,h:207};
+    const right={x:305,y:94,w:215,h:207};
+    g.fillStyle="#203f64";g.fillRect(left.x,left.y,left.w,left.h);
+    g.fillStyle=s>=3?"#704453":"#174759";
+    g.fillRect(right.x,right.y,right.w,right.h);
+    text(g,"ICE",147,67,"#72b7ff",17,"center");
+    text(g,"LIQUID WATER",412,67,s>=3?"#ffda85":"#75eed8",17,"center");
+
+    for(let i=0;i<3;i++){
+      for(let j=0;j<3;j++){
+        const x=83+i*63,y=137+j*62;
+        if(i<2)line(g,x,y,x+63,y,"#577da3",2);
+        if(j<2)line(g,x,y,x,y+62,"#577da3",2);
+      }
+    }
+    for(let i=0;i<3;i++){
+      for(let j=0;j<3;j++){
+        const idx=i*3+j;
+        molecule(g,83+i*63,137+j*62,s>0?.05*Math.sin(t*2):0);
+        const jitter=s>0?Math.sin(t*1.4+idx)*4:0;
+        molecule(g,348+i*62+jitter,136+j*63,
+          s>0?Math.sin(t*2-.6+idx*.4)*1.5:idx);
+      }
+    }
+    if(s>=2){
+      arrow(g,271,172,291,172,"#ffda85");
+      text(g,"less absorption",147,325,"#72b7ff",13,"center");
+      text(g,"more absorption",412,325,"#ffda85",13,"center");
+    }
+    if(s>=3)text(g,"melting → faster absorption → more energy",280,358,"#ffda85",14,"center");
+  }
+
+  if(selectedCase==="dish"){
+    if(s>=1){
+      incomingWaves(g,t,510);
+    }
+    g.fillStyle="rgba(114,183,255,.24)";
+    g.beginPath();g.ellipse(347,259,127,29,0,0,TAU);g.fill();
+    g.strokeStyle=s>=3?"#ffc578":"#bcdfff";g.lineWidth=7;
+    g.beginPath();g.ellipse(347,250,130,25,0,0,TAU);g.stroke();
+    g.fillStyle=s>=2?"#ed9873":"#96ba77";
+    g.beginPath();g.ellipse(347,220,79,35,0,0,TAU);g.fill();
+    for(let i=0;i<6;i++)circle(g,297+i*19,213+Math.sin(i)*12,9,"#d0b063");
+    if(s>=2){
+      for(let i=0;i<3;i++)arrow(g,315+i*32,243,315+i*32,273,"#ffda85",3);
+      text(g,"heat moves into the dish",347,315,"#ffda85",15,"center");
+    }else text(g,"food + suitable dish",347,312,"#bac9df",15,"center");
+  }
+}
+
+/* ===================== ANIMATION & INIT ===================== */
+
+function frame(now) {
+  const dt=previousTime?Math.min((now-previousTime)/1000,.05):0;
+  previousTime=now;
+
+  if(!document.hidden){
+    if(!wavePaused && !$("lessMotion").checked)waveTime+=dt;
+
+    if(cooking && !paused){
+      // Fixed simulation steps: independent of frame count and screen refresh rate.
+      accumulator+=dt*5;
+      while(accumulator>=.1 && cooking){
+        stepCook(Math.min(.1,runSettings.duration-elapsed));
+        accumulator-=.1;
+      }
+    }
+
+    if(now-lastDraw>32){
+      const renderDt=(now-lastDraw)/1000;
+      lastDraw=now;
+      if(currentTab===0)drawWave();
+      if(currentTab===1){drawCook();drawTrace();}
+      if(currentTab===2)drawChocolate(Math.min(renderDt,.1));
+      if(currentTab===3)drawMystery($("lessMotion").checked?0:waveTime);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+document.addEventListener("visibilitychange",()=>{
+  previousTime=performance.now();
+  if(document.hidden && cooking && !paused){
+    paused=true;
+    $("pause").textContent="Resume";
+    $("cookStatus").textContent="Paused while this page was hidden. Resume when ready.";
+  }
+});
+
+buildFood();
+selectCase("butter");
+changeFrequency(2.45);
+requestAnimationFrame(frame);
+
+})();
+</script>
+
+
+</body></html>

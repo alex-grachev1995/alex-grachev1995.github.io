@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lucky Accident Files</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: Georgia, serif; background:#171310; color:#e8dcc4;
+    min-height:100vh; padding:20px 12px 60px;
+  }
+  .wrap { max-width:720px; margin:0 auto; }
+  header { text-align:center; margin-bottom:16px; }
+  .stamp {
+    display:inline-block; border:3px solid #b08a2e; color:#d4aa45;
+    padding:2px 14px; font-size:.8em; letter-spacing:3px;
+    transform:rotate(-3deg); text-transform:uppercase; font-weight:bold; margin-bottom:10px;
+  }
+  h1 { color:#f0e3c0; font-size:1.6em; }
+  .sub { color:#a99a75; font-style:italic; margin-top:6px; font-size:.95em; }
+  #hud {
+    display:flex; justify-content:space-between; background:#241f16;
+    border:1px solid #5a4d33; border-radius:8px; padding:8px 14px;
+    margin:14px 0; font-size:.9em; letter-spacing:1px;
+  }
+  .folder {
+    background:#e9dcb8; color:#2b2416; border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,.6); overflow:hidden;
+    animation:slideIn .4s ease;
+  }
+  @keyframes slideIn { 0%{transform:translateY(24px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+  .folder-tab {
+    background:#c9b478; padding:8px 16px; font-family:sans-serif;
+    font-size:.78em; letter-spacing:2px; text-transform:uppercase; font-weight:bold; color:#4a3d20;
+  }
+  .folder-body { padding:18px; }
+  .story { font-size:1.02em; line-height:1.5; margin-bottom:16px; }
+  .q { font-weight:bold; margin-bottom:10px; color:#5a4520; }
+  .opt {
+    display:block; width:100%; text-align:left; margin-bottom:8px;
+    background:#f7eed2; border:2px solid #b09a5e; border-radius:8px;
+    padding:11px 14px; font-family:inherit; font-size:.98em; cursor:pointer;
+    transition: transform .1s, background .15s;
+  }
+  .opt:hover { transform:translateX(4px); background:#fdf6dd; }
+  .opt.right { background:#d8e8c0; border-color:#5d7a3a; font-weight:bold; }
+  .opt.wrongpick { background:#f0cfc2; border-color:#a05535; animation:shk .4s; }
+  .opt.off { pointer-events:none; opacity:.55; }
+  .opt.right.off, .opt.wrongpick.off { opacity:1; }
+  @keyframes shk { 0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}50%{transform:translateX(7px);}75%{transform:translateX(-5px);} }
+  .bonus {
+    display:none; margin-top:14px; background:#2b2416; color:#e8dcc4;
+    border-left:5px solid #b08a2e; padding:12px 14px; border-radius:0 8px 8px 0;
+    font-size:.95em; line-height:1.45; animation:slideIn .35s ease;
+  }
+  .bonus b { color:#d4aa45; }
+  #nextBtn {
+    display:none; margin:16px auto 0; padding:11px 28px; font-size:1em;
+    background:#4a3d20; color:#f0e3c0; border:2px solid #b09a5e; border-radius:8px;
+    cursor:pointer; font-family:inherit; letter-spacing:1px;
+  }
+  #nextBtn:hover { background:#5a4a28; }
+  #final {
+    display:none; text-align:center; background:#241f16; border:2px solid #b08a2e;
+    border-radius:12px; padding:24px; animation:slideIn .5s ease;
+  }
+  #final h2 { color:#d4aa45; margin-bottom:10px; }
+  #final p { color:#c9ba95; line-height:1.5; }
+  .confetti-bit { position:fixed; width:9px; height:9px; z-index:99; pointer-events:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stamp">Classified Archive</div>
+    <h1>🗃️ The Lucky Accident Files</h1>
+    <div class="sub">Seven real mistakes. Seven world-famous results. Can you deduce what each blunder became?</div>
+  </header>
+  <div id="hud">
+    <span>Case: <span id="caseNum">1</span>/7</span>
+    <span>Solved first try: <span id="score">0</span> ⭐</span>
+  </div>
+  <div id="stage"></div>
+  <button id="nextBtn">Open next case file →</button>
+  <div id="final">
+    <h2 id="fTitle"></h2>
+    <p id="fText"></p>
+    <p style="margin-top:14px; font-style:italic;">Final question, Detective: what did ALL these people have in common with Fleming?</p>
+  </div>
+</div>
+
+<script>
+const CASES = [
+  { tab:"Case #1 · USA, 1945",
+    story:"An engineer named Percy Spencer was testing a powerful radar tube for the military. Standing next to it, he noticed something odd: the chocolate bar in his pocket had completely melted — but he felt no heat. Curious, he held a bag of corn kernels near the tube. They started popping all over the lab.",
+    q:"What did his company build from this accident?",
+    opts:["A heat lamp for keeping restaurant food warm","The microwave oven","An automatic popcorn vending machine"],
+    correct:1,
+    bonus:"The first model was called the 'Radarange' — it was almost 2 meters tall, weighed 340 kg, and cost as much as a car. Spencer, by the way, never finished school — he taught himself everything." },
+  { tab:"Case #2 · Germany, 1895",
+    story:"A scientist named Wilhelm Röntgen was experimenting with electricity inside a glass tube, which he had covered completely in black cardboard. Suddenly he noticed a screen on the other side of the room glowing — something invisible was passing straight THROUGH the cardboard. He locked himself in the lab for weeks. He even slept there.",
+    q:"What did this mysterious glow turn out to be?",
+    opts:["The technology behind television screens","Invisible rays for night-vision goggles","X-rays — letting doctors see inside the body"],
+    correct:2,
+    bonus:"The first X-ray photo in history was of his wife's hand — you can see her wedding ring on the bone. When she saw it, she reportedly gasped: 'I have seen my death!' He called them 'X'-rays because X means 'unknown' in math — and the name stuck forever." },
+  { tab:"Case #3 · USA, 1905",
+    story:"An 11-year-old boy named Frank Epperson mixed a fizzy drink powder with water on his porch, stirring it with a wooden stick. Then he got distracted and left the cup outside all night. That night happened to be freezing cold. In the morning he found his drink frozen solid — with the stick standing straight up in it. He pulled it out and licked it.",
+    q:"What did Frank's forgotten cup become?",
+    opts:["The slushie machine","The popsicle","Fizzy sherbet candy"],
+    correct:1,
+    bonus:"Frank waited 18 years, then patented it as the 'Epsicle.' His own kids kept calling it 'Pop's sicle' — and the kids' name won. So a real 11-year-old is behind every popsicle you've ever eaten." },
+  { tab:"Case #4 · Switzerland, 1941",
+    story:"An engineer named George de Mestral came home from a hunting walk and found his dog — and his own trousers — covered in prickly burrs from a plant. Instead of just picking them off and grumbling, he put one under a microscope. He saw thousands of tiny hooks, perfectly designed to grab onto loops of fur and fabric.",
+    q:"What did he spend the next 14 years inventing based on those hooks?",
+    opts:["Velcro — the hook-and-loop fastener on shoes and jackets","The modern zipper","Barbed fishing hooks that fish can't escape"],
+    correct:0,
+    bonus:"Copying nature like this is now a whole science called biomimicry. NASA later used Velcro in spacecraft to stop objects floating away in zero gravity — which is why many people wrongly think NASA invented it." },
+  { tab:"Case #5 · USA, 1853",
+    story:"A customer at a fancy restaurant kept sending his fried potatoes back to the kitchen, complaining they were 'too thick and soggy.' Again. And again. The chef, George Crum, lost his patience. Out of pure spite, he sliced the potatoes paper-thin — so thin you couldn't even stab them with a fork — fried them rock-crisp and drowned them in salt. The customer LOVED them.",
+    q:"What did the chef's act of revenge become?",
+    opts:["French fries","Hash browns","Potato chips"],
+    correct:2,
+    bonus:"They were first called 'Saratoga Chips' after the town. Today, chips are one of the best-selling snacks on planet Earth — all because one chef got angry at one picky customer." },
+  { tab:"Case #6 · USA, 1930s–1950s",
+    story:"A company sold a soft, squishy putty with exactly one purpose: cleaning black coal soot off wallpaper. Then homes switched from coal heating to gas — walls stayed clean, and nobody needed the putty anymore. The company was about to go under… until the owner's sister-in-law, a teacher, noticed the kids in her class doing something unexpected with it.",
+    q:"What did the wallpaper cleaner get reborn as?",
+    opts:["Silly Putty — the bouncing stretchy putty","Play-Doh","Chewing gum"],
+    correct:1,
+    bonus:"They just removed the cleaning chemicals, added colors and that famous smell. The smell is actually trademarked — legally protected, like a logo. More than 3 billion cans have been sold. (Silly Putty was ALSO an accident, by the way — a failed attempt at artificial rubber. Two accidental toys!)" },
+  { tab:"Case #7 · USA, 1968–1974",
+    story:"A scientist at the 3M company was trying to invent a SUPER-strong glue. He failed spectacularly: his glue was super-WEAK — it stuck lightly, peeled right off, and left no mark. A useless failure… for five whole years. Then a colleague, fed up with paper bookmarks constantly falling out of his choir hymn book, remembered the 'failed' glue.",
+    q:"What did the world's worst glue become?",
+    opts:["Masking tape for painters","The glue stick for school","Post-it sticky notes"],
+    correct:2,
+    bonus:"At first, office workers ignored them. So 3M gave away free samples to offices — and once people tried them, 90% wanted more. The classic yellow color? Also an accident — the lab next door only had yellow scrap paper to test with." }
+];
+
+let idx=0, score=0, answeredWrong=false;
+const stage = document.getElementById('stage');
+const nextBtn = document.getElementById('nextBtn');
+
+function render(){
+  answeredWrong=false;
+  document.getElementById('caseNum').textContent = idx+1;
+  const c = CASES[idx];
+  // shuffle options, track correct
+  const order = c.opts.map((_,i)=>i).sort(()=>Math.random()-.5);
+  let html = '<div class="folder"><div class="folder-tab">📁 '+c.tab+'</div><div class="folder-body">'
+    + '<div class="story">'+c.story+'</div>'
+    + '<div class="q">'+c.q+'</div>';
+  order.forEach(oi=>{
+    html += '<button class="opt" data-oi="'+oi+'">'+c.opts[oi]+'</button>';
+  });
+  html += '<div class="bonus" id="bonus"><b>📌 Detail for the case report:</b><br>'+c.bonus+'</div>';
+  html += '</div></div>';
+  stage.innerHTML = html;
+  stage.querySelectorAll('.opt').forEach(b=>{
+    b.onclick = ()=>answer(b, +b.dataset.oi === c.correct);
+  });
+}
+
+function answer(btn, isRight){
+  if(isRight){
+    btn.classList.add('right');
+    stage.querySelectorAll('.opt').forEach(b=>b.classList.add('off'));
+    if(!answeredWrong){ score++; document.getElementById('score').textContent=score; miniConfetti(); }
+    document.getElementById('bonus').style.display='block';
+    nextBtn.style.display='block';
+    nextBtn.textContent = idx < CASES.length-1 ? 'Open next case file →' : 'Close the archive →';
+  } else {
+    answeredWrong=true;
+    btn.classList.add('wrongpick','off');
+  }
+}
+
+nextBtn.onclick = ()=>{
+  idx++;
+  nextBtn.style.display='none';
+  if(idx < CASES.length){ render(); window.scrollTo({top:0,behavior:'smooth'}); }
+  else finish();
+};
+
+function finish(){
+  stage.innerHTML='';
+  document.getElementById('hud').style.display='none';
+  const t=document.getElementById('fTitle'), x=document.getElementById('fText');
+  if(score>=6){ t.textContent='🏆 CHIEF DETECTIVE OF LUCKY ACCIDENTS'; x.textContent='You solved '+score+' of 7 on the first try. Fleming would hire you on the spot.'; }
+  else if(score>=4){ t.textContent='🕵️ SENIOR INVESTIGATOR'; x.textContent=score+' of 7 first-try. Some of these fooled entire generations of adults — solid work.'; }
+  else { t.textContent='🔍 DETECTIVE IN TRAINING'; x.textContent=score+' of 7 first-try — but here\'s the secret: these cases fooled the inventors themselves. That\'s the whole point.'; }
+  document.getElementById('final').style.display='block';
+  bigConfetti();
+}
+
+function miniConfetti(){ confetti(25); }
+function bigConfetti(){ confetti(90); }
+function confetti(n){
+  const colors=['#d4aa45','#b08a2e','#e8dcc4','#7a9a4a','#c55'];
+  for(let i=0;i<n;i++){
+    const b=document.createElement('div');
+    b.className='confetti-bit';
+    b.style.background=colors[Math.floor(Math.random()*colors.length)];
+    b.style.left=Math.random()*100+'vw'; b.style.top='-12px';
+    b.style.borderRadius=Math.random()>.5?'50%':'0';
+    document.body.appendChild(b);
+    const a=b.animate([
+      {transform:'translateY(0) rotate(0)',opacity:1},
+      {transform:'translateY(105vh) rotate('+(Math.random()*720-360)+'deg)',opacity:.6}
+    ],{duration:2000+Math.random()*2000,easing:'ease-in',delay:Math.random()*300});
+    a.onfinish=()=>b.remove();
+  }
+}
+
+render();
+</script>
+
+
+</body></html>

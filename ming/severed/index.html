@@ -1,0 +1,1416 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Severed — Roads, Forests and the Animals In Between</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#20361f 0%,#1a2b23 55%,#131f1c 100%);
+  color:#f2f7ee;min-height:100vh;padding:14px;}
+#wrap{max-width:1200px;margin:0 auto;}
+h1{font-size:1.5em;text-align:center;color:#f7d794;letter-spacing:.4px;}
+.sub{text-align:center;color:#b9cbb2;font-size:.86em;margin:4px 0 12px;}
+#errbar{display:none;background:#7a1f1f;border:2px solid #ff8a72;border-radius:10px;
+  padding:11px 13px;margin-bottom:11px;font-family:'Consolas','Courier New',monospace;font-size:.82em;line-height:1.5;}
+#errbar b{color:#ffd0c6;}
+.screen{display:none;}
+.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:13px;padding:15px;margin-bottom:11px;}
+.btn{border:none;border-radius:10px;padding:10px 20px;font-size:.94em;font-weight:800;cursor:pointer;
+  color:#22331f;background:linear-gradient(90deg,#f7d794,#e8b95f);}
+.btn:hover{filter:brightness(1.07);}
+.btn.wide{width:100%;margin-top:9px;}
+.btn.ghost{background:rgba(255,255,255,.12);color:#f2f7ee;border:1px solid rgba(255,255,255,.28);}
+.btn.sm{padding:7px 14px;font-size:.84em;}
+.btn:disabled{opacity:.3;cursor:not-allowed;filter:none;}
+.lab{font-size:.7em;letter-spacing:1.3px;color:#9fb89a;font-weight:800;margin-bottom:6px;}
+.note{font-size:.85em;color:#d6e3d1;line-height:1.55;}
+.note b{color:#f7d794;}
+.kw{color:#f7d794;font-weight:800;}
+.build{display:grid;grid-template-columns:1fr 306px;gap:13px;align-items:start;}
+@media(max-width:1020px){.build{grid-template-columns:1fr;}}
+canvas{background:#0e1611;border-radius:11px;display:block;width:100%;height:auto;cursor:crosshair;}
+.tools{display:flex;flex-direction:column;gap:6px;}
+.tool{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:9px;
+  padding:8px 11px;color:#f2f7ee;font-size:.83em;font-weight:700;cursor:pointer;text-align:left;}
+.tool:hover{border-color:#f7d794;background:rgba(247,215,148,.14);}
+.tool.on{border-color:#f7d794;background:rgba(247,215,148,.22);}
+.tool i{display:block;font-style:normal;font-size:.85em;color:#a8bda3;font-weight:600;margin-top:2px;}
+.obj{background:rgba(0,0,0,.26);border-radius:9px;padding:10px;font-size:.82em;line-height:1.6;margin-bottom:9px;}
+.obj div{padding:2px 0;}
+.obj .ok{color:#8fe0a5;}
+.obj .no{color:#e8a08a;}
+.budget{font-family:'Consolas','Courier New',monospace;background:rgba(0,0,0,.3);border-radius:9px;
+  padding:9px 11px;font-size:.85em;margin-bottom:9px;}
+.budget div{display:flex;justify-content:space-between;padding:2px 0;gap:8px;}
+.budget b{color:#f7d794;}
+.budget .over{color:#e8776a;}
+.budget .free{color:#8fe0a5;}
+.ovbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.ovb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;
+  padding:5px 9px;font-size:.78em;font-weight:700;color:#f2f7ee;cursor:pointer;}
+.ovb.on{border-color:#f7d794;background:rgba(247,215,148,.2);}
+.spx{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media(max-width:760px){.spx{grid-template-columns:1fr 1fr;}}
+.sp{background:rgba(0,0,0,.26);border-radius:10px;padding:10px;text-align:center;}
+.sp .e{font-size:1.9em;line-height:1;}
+.sp .n{font-size:.77em;font-weight:800;margin:3px 0;}
+.sp .v{font-size:1.25em;font-weight:900;font-variant-numeric:tabular-nums;}
+.sp .d{font-size:.71em;color:#a8bda3;line-height:1.35;margin-top:2px;}
+.sp.gone{background:rgba(232,119,106,.16);border:1px solid rgba(232,119,106,.42);}
+.sp.up{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.35);}
+#gcv{background:#101a14;border-radius:11px;display:block;width:100%;height:auto;}
+.legend{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:8px;font-size:.78em;}
+.legend span i{display:inline-block;width:13px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+.card{background:rgba(0,0,0,.28);border-left:4px solid #6a8f5f;border-radius:9px;padding:11px 13px;
+  font-size:.86em;line-height:1.62;margin-bottom:8px;}
+.card.bad{border-left-color:#e8776a;}
+.card.good{border-left-color:#8fe0a5;}
+.card.warn{border-left-color:#f7d794;}
+.card h4{font-size:1em;margin-bottom:4px;}
+.card.bad h4{color:#ffb0a2;} .card.good h4{color:#a8ecbb;} .card.warn h4{color:#ffe3a8;}
+.card b{color:#f7d794;}
+.diag{font-family:'Consolas','Courier New',monospace;font-size:.79em;color:#a8bda3;
+  background:rgba(0,0,0,.3);border-radius:6px;padding:6px 8px;margin-top:7px;}
+.cmp{width:100%;border-collapse:collapse;font-size:.83em;margin-top:8px;}
+.cmp th,.cmp td{padding:6px 8px;text-align:right;border-bottom:1px solid rgba(255,255,255,.1);}
+.cmp th:first-child,.cmp td:first-child{text-align:left;}
+.cmp th{color:#9fb89a;font-size:.85em;letter-spacing:.5px;text-transform:uppercase;}
+.cmp .up{color:#8fe0a5;font-weight:800;} .cmp .dn{color:#e8776a;font-weight:800;}
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+@media(max-width:760px){.ledger{grid-template-columns:1fr;}}
+.led{background:rgba(0,0,0,.26);border-radius:10px;padding:12px;}
+.led h4{font-size:.9em;color:#f7d794;margin-bottom:7px;}
+.led div{display:flex;justify-content:space-between;font-size:.83em;padding:3px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);gap:8px;}
+.led b{font-variant-numeric:tabular-nums;}
+.ovl{position:fixed;inset:0;background:rgba(10,18,14,.94);z-index:60;display:none;
+  align-items:center;justify-content:center;padding:20px;}
+.ovl.active{display:flex;}
+.ovl .in{max-width:600px;width:100%;text-align:center;}
+.ovl .yr{font-size:3.6em;font-weight:900;color:#f7d794;font-variant-numeric:tabular-nums;line-height:1;}
+.ovl .yl{font-size:.75em;letter-spacing:2px;color:#9fb89a;font-weight:800;}
+.tick{font-size:.85em;color:#d6e3d1;min-height:3.6em;line-height:1.55;margin-top:12px;}
+.predrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+.pd{background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:10px;
+  padding:10px 14px;cursor:pointer;font-size:.85em;font-weight:700;color:#f2f7ee;}
+.pd:hover{border-color:#f7d794;}
+.pd.picked{opacity:.35;pointer-events:none;}
+.pdslot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.ps{min-width:112px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.25);
+  border-radius:10px;padding:9px;font-size:.8em;}
+.ps b{display:block;color:#9fb89a;font-size:.82em;letter-spacing:.6px;margin-bottom:4px;}
+.chal{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;}
+.cc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:13px;cursor:pointer;}
+.cc:hover{border-color:#f7d794;background:rgba(247,215,148,.12);}
+.cc .cn{font-size:.7em;letter-spacing:1.3px;color:#9fb89a;font-weight:800;}
+.cc .ct{font-size:1.04em;font-weight:800;color:#f7d794;margin:3px 0 5px;}
+.cc .cd{font-size:.81em;color:#d6e3d1;line-height:1.45;}
+.cc .cb{font-size:.75em;color:#8fe0a5;font-weight:700;margin-top:6px;}
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.45;}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="errbar"></div>
+  <h1>🛣️ SEVERED</h1>
+  <div class="sub">Roads, forests, and the animals in between</div>
+
+  <div class="screen active" id="s-intro">
+    <div class="panel">
+      <div class="note" style="margin-bottom:11px;">
+        You have been hired by the province of <b>Kettle Range</b> — a little over 400 square
+        kilometres of forest, two towns, three timber blocks and a mountain ridge.
+      </div>
+      <div class="note" style="margin-bottom:11px;">
+        Nobody will ask you about the animals. There is no box on the form for animals.
+        You are paid on <b>construction cost</b> and <b>travel time</b> — so that is what you
+        should optimise for.
+      </div>
+      <div class="note">
+        Four species live here. They have been counted. We will count them again in thirty years.
+      </div>
+      <div class="spx" id="baseBox" style="margin-top:13px;"></div>
+      <div class="note" style="margin-top:11px;font-size:.8em;color:#a8bda3;">
+        <b>Road-effect zone</b> is how far an animal stays away from a road even when it could
+        physically cross. It is the number that decides everything, and it is the number nobody plots.
+      </div>
+      <button class="btn wide" id="bGo">📋 Read the contract →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-build">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;">
+        <div><div class="lab" id="phLab">PHASE</div>
+          <div style="font-size:1.15em;font-weight:800;color:#f7d794;" id="phName"></div></div>
+        <div class="note" style="max-width:660px;" id="phBrief"></div>
+      </div>
+    </div>
+    <div class="build">
+      <div class="panel" style="padding:11px;">
+        <div class="ovbar" id="ovBar"></div>
+        <canvas id="cv" width="728" height="448"></canvas>
+        <div class="note" style="margin-top:8px;font-size:.78em;color:#a8bda3;" id="mapHelp"></div>
+      </div>
+      <div>
+        <div class="panel" style="padding:12px;">
+          <div class="lab">OBJECTIVES</div>
+          <div class="obj" id="objBox"></div>
+          <div class="budget" id="budBox"></div>
+          <div class="lab">TOOLS</div>
+          <div class="tools" id="toolBox"></div>
+          <button class="btn wide" id="bRun">▶ RUN 30 YEARS</button>
+          <button class="btn ghost wide" id="bReset">↻ Clear my work</button>
+          <button class="btn ghost wide" id="bBack" style="display:none;">← Abandon, back to menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-pred">
+    <div class="panel" style="text-align:center;">
+      <div class="lab">BEFORE YOU LOOK</div>
+      <div style="font-size:1.1em;font-weight:800;color:#f7d794;margin-bottom:6px;">Commit to a prediction.</div>
+      <div class="note" style="max-width:640px;margin:0 auto 12px;">
+        Click the four species in order — <b>worst hit first</b>, <b>best off last</b>.
+        A simulation you watch teaches nothing; a simulation you <i>bet against</i> teaches a great deal.
+      </div>
+      <div class="pdslot" id="pdSlots"></div>
+      <div class="predrow" id="pdPool"></div>
+      <button class="btn" id="bPredGo" disabled="">▶ Lock it in and run 30 years</button>
+      <button class="btn ghost sm" id="bPredClear" style="margin-left:7px;">reset</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-rep">
+    <div class="panel">
+      <div class="lab">THIRTY YEARS LATER</div>
+      <div style="font-size:1.2em;font-weight:800;color:#f7d794;margin-bottom:10px;" id="repTitle"></div>
+      <div class="spx" id="repSpx"></div>
+      <div class="note" id="predScore" style="margin-top:11px;"></div>
+    </div>
+    <div class="panel">
+      <div class="lab">POPULATION, AS A PERCENTAGE OF WHAT WAS HERE BEFORE YOU</div>
+      <canvas id="gcv" width="1000" height="300"></canvas>
+      <div class="legend" id="gLeg"></div>
+    </div>
+    <div class="panel">
+      <div class="lab">THE FORM — BOTH COLUMNS THIS TIME</div>
+      <div class="ledger" id="ledBox"></div>
+      <div class="note" id="ledNote" style="margin-top:10px;"></div>
+    </div>
+    <div class="panel">
+      <div class="lab">WHAT ACTUALLY HAPPENED</div>
+      <div id="repCards"></div>
+    </div>
+    <div class="panel" id="cmpBox" style="display:none;">
+      <div class="lab">BEFORE MITIGATION vs AFTER</div>
+      <div id="cmpTbl"></div>
+    </div>
+    <div class="panel" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" id="bNextPhase"></button>
+      <button class="btn ghost" id="bRetry">↻ Try this phase again</button>
+      <button class="btn ghost" id="bCases">📁 Real case files</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-chal">
+    <div class="panel">
+      <div class="lab">CHALLENGE MODE · REALISTIC BUDGETS</div>
+      <div class="note" style="margin-bottom:12px;">
+        Somebody else built these roads. They are already there and you cannot remove them.
+        In Phase 2 you had unlimited money, which is not a thing that exists. Here you get
+        <b>what a real province would actually approve</b> — and you already know what each
+        structure does, so the only question left is <b>who gets the money</b>.
+      </div>
+      <div class="chal" id="chalBox"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;">
+        <button class="btn ghost" id="bBackMain">← Back to Kettle Range</button>
+        <button class="btn ghost" id="bCases2">📁 Real case files</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-cases">
+    <div class="panel">
+      <div class="lab">CASE FILE 01 · SHAANXI, CHINA</div>
+      <div style="font-size:1.08em;font-weight:800;color:#f7d794;margin:3px 0 7px;">
+        National Road 108 and the Qinling pandas</div>
+      <div class="note">
+        In the 1970s a highway was cut through continuous panda forest in the Qinling Mountains and
+        split the population in two: roughly <b>110 pandas</b> on the Xinglongling side and about
+        <b>20</b> on the Tianhuashan side. That is your Phase 1, with pandas.<br><br>
+        In 1999 a <b>tunnel</b> was completed beneath the ridge, a 13&nbsp;km stretch of the old surface
+        highway was abandoned, and forest was restored over the top. Pandas have since been recorded in
+        the restored corridor, the gap between the two subgroups is now shorter than a panda walks in a
+        day, and the number of mammal and pheasant species recorded there went from <b>zero to fifteen</b>.
+        <br><br>Severance, a stranded subpopulation, and a structural fix — one true story, about
+        1,200&nbsp;km from where you are sitting.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lab">CASE FILE 02 · BANFF, ALBERTA</div>
+      <div style="font-size:1.08em;font-weight:800;color:#f7d794;margin:3px 0 7px;">
+        The most-monitored wildlife crossings on Earth</div>
+      <div class="note">
+        The Trans-Canada Highway through Banff National Park now carries <b>6 overpasses</b>,
+        <b>38 underpasses</b> and about <b>82&nbsp;km of fencing</b>. Wildlife-vehicle collisions fell by
+        more than <b>80%</b> — over <b>96%</b> for elk and deer. More than <b>200,000</b> animal
+        crossings have been recorded.<br><br>
+        Two details worth more than the headline. First: grizzly crossings went from <b>7 in 1996</b> to
+        over <b>100 by 2006</b> — animals need <i>years</i> to learn a structure exists, so a
+        crossing that looks like a failure in year two can be a success by year ten. Second: the fencing
+        that nearly eliminated elk deaths <b>did not save the bears</b>; bear mortality roughly doubled
+        as traffic volume doubled.<br><br>
+        Which is the whole thesis of this game, confirmed by thirty years of monitoring, on exactly the
+        timescale you have been playing: <b>there is no such thing as a solution for "wildlife."</b>
+        Only solutions for particular animals.
+      </div>
+    </div>
+    <div class="panel"><button class="btn ghost wide" id="bCaseBack">← Back</button></div>
+  </div>
+</div>
+
+<div class="ovl" id="runOvl">
+  <div class="in">
+    <div class="yl">YEAR</div>
+    <div class="yr" id="oYear">0</div>
+    <div class="spx" id="oSpx" style="margin-top:14px;"></div>
+    <div class="tick" id="oTick"></div>
+  </div>
+</div>
+
+<script>
+window.onerror=function(m,src,line,col){
+  var b=document.getElementById("errbar");
+  if(b){b.style.display="block";
+    b.innerHTML="<b>SCRIPT ERROR &mdash; tell Claude this line:</b><br>"+m+"<br>line "+line+", col "+col;}
+  return false;
+};
+</script>
+<script>
+(function(){
+"use strict";
+
+function fail(where,e){
+  var b=document.getElementById("errbar");
+  if(b){b.style.display="block";
+    b.innerHTML="<b>BROKE IN: "+where+"</b><br>"+(e&&e.message?e.message:e)+
+      "<br><br>Tell Claude the two lines above.";}
+}
+function guard(where,fn){
+  return function(){ try{ fn.apply(null,arguments); }catch(e){ fail(where,e); } };
+}
+
+var W=26,H=16,CELL=28;
+
+var MAIN_TERRAIN=[
+"MMMMMMMMMMMMMMMMMMMMMMMMMM",
+"MMFFFFFFMMMMMMMMMMMMFFFFTM",
+"MFFFFFFFFMMMMMMMMMMFFFFFFF",
+"FFFFWFFFFFMMMMMMMMFFFFWFFF",
+"FFFFFFFFFFFMMMMMMFFFFFFFFF",
+"FFFFFFFFFFFFMMMMFFFFFFFFFF",
+"FFFFFFFFFFFFFFFFFFFFFFFFFF",
+"FFFFFFFFFFFFFFFFFFFFFFFFFF",
+"FFFFFFFFFFFFFFFFFFFFFFFFFF",
+"FFFFFFFFFFFFMMMFFFFFFFFFFF",
+"FFFFFFFFFFFMMMMMFFFFFFFFFF",
+"FFFWFFFFFFMMMMMMMFFFFFFFFF",
+"FFFFFFFFFFMMMMMMMMFFFWFFFF",
+"MFFFFFFFFFMMMMMMMMFFFFFFFF",
+"MTFFFFFFFFMMMMMMMMMFFFFFFM",
+"MMFFFFFFFFMMMMMMMMMFFFFFMM"];
+
+var BIGNIGHT_TERRAIN=[
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FWWFFMFFWWFFMFFWWFFMFFWWFF",
+"FWWFFMFFWWFFMFFWWFFMFFWWFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF",
+"FFFFFMFFFFFFMFFFFFFMFFFFFF"];
+
+var TRIAGE_TERRAIN=[
+"MMFFFFFFFMMFFFFFFMMFFFFFFM",
+"MFFFFFFFFFMFFFFFFMFFFFFFFM",
+"FFFFWFFFFFMFFFWFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFWFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFWFFFFFFMFFFFFFMFFFWFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFFFFFFFMFFFFFFMFFFFFFFF",
+"FFFFWFFFFFMFFFFFFMFFFFFFFF",
+"MFFFFFFFFFMFFFFFFMFFFFFFFM",
+"MMFFFFFFFFMMFFFFMMFFFFFFMM"];
+
+function emptyRoads(){var a=[],r,s;for(r=0;r<H;r++){s="";while(s.length<W)s+=".";a.push(s);}return a;}
+function mkRoads(fn){var a=[],r,c,s;for(r=0;r<H;r++){s="";for(c=0;c<W;c++)s+=fn(c,r);a.push(s);}return a;}
+
+var BOTTLENECK_ROADS=mkRoads(function(c,r){return (r===7)?"h":".";});
+var BIGNIGHT_ROADS=mkRoads(function(c,r){return (r===7)?"h":".";});
+var TRIAGE_ROADS=mkRoads(function(c,r){
+  if(r===5||r===10)return "h";
+  if(c===10||c===17)return "h";
+  return ".";});
+
+var E_BEAR="\uD83D\uDC3B",E_CAT="\uD83D\uDC06",E_DEER="\uD83E\uDD8C",E_SAL="\uD83E\uDD8E",
+    E_SKULL="\uD83D\uDC80",E_HOUSE="\u2302",E_LOG="\uD83E\uDEB5",E_BROOM="\uD83E\uDDF9",
+    SUP2="\u00B2",DEG="\u00B0";
+
+var SPECIES=[
+ {k:"bear",e:E_BEAR,n:"Grizzly Bear",col:"#c98b4b",
+  areaNeed:22,patchMin:100,avoid:2,killRate:0.02,uses:["over"],r:0.09,pond:false,edge:-0.25,gdRate:1.8},
+ {k:"cat",e:E_CAT,n:"Cougar",col:"#e0c060",
+  areaNeed:9,patchMin:40,avoid:1,killRate:0.07,uses:["over","under"],r:0.16,pond:false,edge:-0.1,gdRate:2.4},
+ {k:"deer",e:E_DEER,n:"Elk & Deer",col:"#9ecf7a",
+  areaNeed:0.5,patchMin:2,avoid:0,killRate:0.24,uses:["over","under"],r:0.34,pond:false,edge:0.55,gdRate:0.2},
+ {k:"sal",e:E_SAL,n:"Spotted Salamander",col:"#7ecfd6",
+  areaNeed:0.04,patchMin:1,avoid:0,killRate:0.72,uses:["culvert","under"],r:0.5,pond:true,edge:-0.15,gdRate:0.5}
+];
+function spec(k){var i;for(i=0;i<SPECIES.length;i++)if(SPECIES[i].k===k)return SPECIES[i];return null;}
+
+var ROADTYPE={
+ d:{n:"Logging road",barrier:0.20,traffic:0.14,base:1,col:"#8d7c5c",wide:0.30,hwy:false},
+ h:{n:"Two-lane highway",barrier:0.72,traffic:1.0,base:3,col:"#54544f",wide:0.62,hwy:true}
+};
+var TERRCOST={F:1,W:4,M:2.5,T:99};
+
+var STRUCT={
+ culvert:{n:"Wet culvert",cost:1,e:"\u2312",col:"#7ecfd6",serves:"salamanders &amp; small mammals only"},
+ under:{n:"Box underpass",cost:3,e:"\u25EB",col:"#e0c060",serves:"cougar, deer, elk, salamanders &mdash; NOT bears"},
+ over:{n:"Vegetated overpass",cost:8,e:"\u2302",col:"#9ecf7a",serves:"every species, and it shrinks the road-effect zone"},
+ fence:{n:"Wildlife fencing",cost:1,e:"\u256B",col:"#d8d8d8",serves:"kills roadkill dead &mdash; and movement with it, unless funnelled"},
+ slow:{n:"Traffic calming",cost:1,e:"\u2337",col:"#f7d794",serves:"fewer deaths, movement untouched"}
+};
+
+var PHASES={
+ contract:{
+  name:"Phase 1 \u2014 The Contract",
+  brief:"Connect Millbrook to Fenwick with a continuous highway, and get a road within reach of all three timber blocks. Cheap and straight scores best. Mountain rock costs 2.5x to build on; forest is cheap. Nobody is asking about animals.",
+  terrain:MAIN_TERRAIN,roads:null,budget:null,tools:["d","h","erase"],overlay:false,
+  towns:[[1,14],[24,1]],timber:[[5,3],[21,12],[8,10]]},
+ repair:{
+  name:"Phase 2 \u2014 Repair (unlimited budget)",
+  brief:"Same roads. You cannot remove them. Money is no object this once \u2014 build anything, anywhere, and find out what each structure actually does. Turn on the species overlays; that is the whole point of this phase.",
+  terrain:MAIN_TERRAIN,roads:"inherit",budget:null,tools:["culvert","under","over","fence","slow","erase"],
+  overlay:true,towns:[[1,14],[24,1]],timber:[[5,3],[21,12],[8,10]]},
+ c1:{
+  name:"Challenge \u2014 The Bottleneck",
+  brief:"A highway was pushed straight through the forested pass before you were hired. That pass is the only habitat linking east to west. Budget: 12 credits.",
+  terrain:MAIN_TERRAIN,roads:BOTTLENECK_ROADS,budget:12,
+  tools:["culvert","under","over","fence","slow","erase"],overlay:true,
+  towns:[[1,14],[24,1]],timber:[]},
+ c2:{
+  name:"Challenge \u2014 The Big Night",
+  brief:"Four separate valleys, each with its own pond. Every spring on the first warm wet night the salamanders walk downhill to breed, and this year a highway crosses all four. Budget: 9 credits. Cheap structures \u2014 but placement is everything.",
+  terrain:BIGNIGHT_TERRAIN,roads:BIGNIGHT_ROADS,budget:9,
+  tools:["culvert","under","over","fence","slow","erase"],overlay:true,
+  towns:[],timber:[]},
+ c3:{
+  name:"Challenge \u2014 Triage",
+  brief:"Four roads, nine fragments, 13 credits. This landscape cannot be fully saved. Use the overlays, read the patch sizes, and decide who you are going to abandon.",
+  terrain:TRIAGE_TERRAIN,roads:TRIAGE_ROADS,budget:13,
+  tools:["culvert","under","over","fence","slow","erase"],overlay:true,
+  towns:[],timber:[]}
+};
+
+var terrain=[],roads=[],structs=[],phase=null,phaseKey="",tool="h",painting=false,lastPaint=null;
+var baseline={},contractResult=null,contractCost=0,series=null,running=false;
+var overlaySp=null,prediction=[],done={c1:false,c2:false,c3:false};
+
+function $(i){return document.getElementById(i);}
+function T(x,y){return terrain[y].charAt(x);}
+function Rd(x,y){return roads[y].charAt(x);}
+function setRd(x,y,c){roads[y]=roads[y].substring(0,x)+c+roads[y].substring(x+1);}
+function St(x,y){return structs[y][x];}
+function inB(x,y){return x>=0&&y>=0&&x<W&&y<H;}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}return AC;}
+function tone(f,d,dur,ty,v){var a=ac();if(!a)return;
+  try{
+    var o=a.createOscillator(),g=a.createGain();
+    o.type=ty;o.frequency.value=f;o.connect(g);g.connect(a.destination);
+    g.gain.setValueAtTime(v,a.currentTime+d);
+    g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d+dur);
+    o.start(a.currentTime+d);o.stop(a.currentTime+d+dur+.04);
+  }catch(e){}
+}
+function sTick(){tone(560,0,.04,"square",.035);}
+function sYear(){tone(300,0,.05,"sine",.028);}
+function sDie(){tone(180,0,.5,"sawtooth",.13);tone(120,.14,.6,"sine",.1);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.14);}
+function sBad(){tone(150,0,.28,"sawtooth",.12);}
+function conf(n){var c=["#f7d794","#8fe0a5","#9ecf7a","#e0c060","#7ecfd6"],i,d;
+  for(i=0;i<n;i++){d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4000);})(d);}}
+
+function isHabitat(x,y){var c=T(x,y);return (c==="F"||c==="W")&&Rd(x,y)===".";}
+function isPond(x,y){return T(x,y)==="W"&&Rd(x,y)===".";}
+
+function crossHere(x,y,s){
+  var st=St(x,y);
+  if(!st)return null;
+  if(st.type==="fence"||st.type==="slow")return null;
+  if(st.type==="over")return "over";
+  if(s.uses.indexOf(st.type)>-1)return st.type;
+  return null;
+}
+function anyCrossHere(x,y){
+  var st=St(x,y);
+  if(!st)return false;
+  return st.type==="over"||st.type==="under"||st.type==="culvert";
+}
+
+function avoidMap(s){
+  var m=[],x,y,i,j,d=s.avoid,nx,ny,rad,st;
+  for(y=0;y<H;y++){m[y]=[];for(x=0;x<W;x++)m[y][x]=false;}
+  if(d<=0)return m;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    if(Rd(x,y)===".")continue;
+    for(j=-d;j<=d;j++)for(i=-d;i<=d;i++){
+      if(Math.abs(i)+Math.abs(j)>d)continue;
+      nx=x+i;ny=y+j;
+      if(!inB(nx,ny))continue;
+      m[ny][nx]=true;
+    }
+  }
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    if(!anyCrossHere(x,y))continue;
+    st=St(x,y);
+    rad=(st.type==="over")?d+1:1;
+    for(j=-rad;j<=rad;j++)for(i=-rad;i<=rad;i++){
+      if(Math.abs(i)+Math.abs(j)>rad)continue;
+      nx=x+i;ny=y+j;
+      if(!inB(nx,ny))continue;
+      m[ny][nx]=false;
+    }
+  }
+  return m;
+}
+
+function conductance(x,y,s){
+  var rt=Rd(x,y),st,base,fenced=false,i,d=[[1,0],[-1,0],[0,1],[0,-1]],nx,ny,s2;
+  if(rt===".")return 1;
+  if(!ROADTYPE[rt])return 1;
+  st=St(x,y);
+  if(st&&st.type==="fence")return 0.02;
+  if(crossHere(x,y,s)){
+    for(i=0;i<4;i++){nx=x+d[i][0];ny=y+d[i][1];
+      if(!inB(nx,ny))continue;
+      s2=St(nx,ny);if(s2&&s2.type==="fence")fenced=true;}
+    return fenced?0.99:0.9;
+  }
+  base=(1-ROADTYPE[rt].barrier)*(1-s.avoid*0.3);
+  return Math.max(0.02,base);
+}
+
+function patchesFor(s){
+  var av=avoidMap(s),seen=[],x,y,list=[],CUT=0.15,LEAK=0.5;
+  for(y=0;y<H;y++){seen[y]=[];for(x=0;x<W;x++)seen[y][x]=false;}
+  function livable(a,b){return isHabitat(a,b)&&!av[b][a];}
+  function walkable(a,b){return isHabitat(a,b);}
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    if(seen[y][x])continue;
+    if(!walkable(x,y))continue;
+    var q=[[x,y]],p={cells:[],ponds:0,edgeRoad:0,traffic:0,fenced:0,calm:0,cohesion:1,zoneLost:0};
+    seen[y][x]=true;
+    while(q.length){
+      var cur=q.pop(),cx=cur[0],cy=cur[1],k,dirs=[[1,0],[-1,0],[0,1],[0,-1]],nx,ny,cd,sf;
+      if(Rd(cx,cy)==="."){
+        if(livable(cx,cy)){p.cells.push([cx,cy]);if(isPond(cx,cy))p.ponds++;}
+        else p.zoneLost++;
+      }
+      for(k=0;k<4;k++){
+        nx=cx+dirs[k][0];ny=cy+dirs[k][1];
+        if(!inB(nx,ny))continue;
+        if(seen[ny][nx])continue;
+        if(Rd(nx,ny)!=="."){
+          cd=conductance(nx,ny,s);
+          if(Rd(cx,cy)==="."){
+            p.edgeRoad++;
+            if(ROADTYPE[Rd(nx,ny)])p.traffic+=ROADTYPE[Rd(nx,ny)].traffic;
+            sf=St(nx,ny);
+            if(sf&&sf.type==="fence")p.fenced++;
+            if(sf&&sf.type==="slow")p.calm++;
+          }
+          if(cd>=CUT){
+            if(cd<LEAK&&cd<p.cohesion)p.cohesion=cd;
+            seen[ny][nx]=true;q.push([nx,ny]);
+          }
+          continue;
+        }
+        if(!walkable(nx,ny))continue;
+        seen[ny][nx]=true;q.push([nx,ny]);
+      }
+    }
+    if(p.cells.length)list.push(p);
+  }
+  return list;
+}
+
+function capacity(s,p,devLoss,browse){
+  var area=p.cells.length,edgeFrac,K;
+  if(area<s.patchMin)return 0;
+  if(s.pond&&p.ponds===0)return 0;
+  edgeFrac=Math.min(1,p.edgeRoad/Math.max(1,area*1.4));
+  K=area/s.areaNeed*(1+s.edge*edgeFrac);
+  K*=(1-devLoss);
+  if(s.k!=="deer")K*=(1-browse);
+  return Math.max(0,K);
+}
+
+function crossingStats(s){
+  var x,y,st,n=0,funnel=0,tot=0,wasted=0,i,d=[[1,0],[-1,0],[0,1],[0,-1]],nx,ny,s2,f;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    st=St(x,y);
+    if(!st)continue;
+    if(st.type==="fence"||st.type==="slow")continue;
+    tot++;
+    if(crossHere(x,y,s)){
+      n++;f=0;
+      for(i=0;i<4;i++){nx=x+d[i][0];ny=y+d[i][1];
+        if(!inB(nx,ny))continue;
+        s2=St(nx,ny);if(s2&&s2.type==="fence")f++;}
+      if(f>0)funnel++;
+    }else wasted++;
+  }
+  return {usable:n,total:tot,funnel:funnel,wasted:wasted};
+}
+
+function developmentPressure(){
+  var x,y,i,d=[[1,0],[-1,0],[0,1],[0,-1]],nx,ny,n=0,tot=0,rt;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    if(!isHabitat(x,y))continue;
+    tot++;
+    for(i=0;i<4;i++){nx=x+d[i][0];ny=y+d[i][1];
+      if(!inB(nx,ny))continue;
+      rt=Rd(nx,ny);
+      if(rt!=="."&&ROADTYPE[rt]&&ROADTYPE[rt].hwy){n++;break;}}
+  }
+  return tot>0?n/tot:0;
+}
+
+function runSim(years){
+  var out={years:years,pop:{},kill:{},gd:{},patch:{},cross:{},dev:0,wvc:0,browse:0},
+      i,j,s,ps={},popn={},devP=developmentPressure(),yr,browse=0,browseYears=0,
+      gd={},cum={},catPop=0,wvcTot=0,areaSum;
+  out.dev=devP;
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];
+    ps[s.k]=patchesFor(s);
+    out.patch[s.k]=ps[s.k];
+    out.cross[s.k]=crossingStats(s);
+    out.pop[s.k]=[];out.kill[s.k]=[];out.gd[s.k]=[];
+    popn[s.k]=[];areaSum=0;
+    for(j=0;j<ps[s.k].length;j++)areaSum+=ps[s.k][j].cells.length;
+    for(j=0;j<ps[s.k].length;j++)
+      popn[s.k].push(areaSum>0?(baseline[s.k]||0)*ps[s.k][j].cells.length/areaSum:0);
+    gd[s.k]=100;cum[s.k]=0;
+  }
+  for(yr=0;yr<=years;yr++){
+    var devLoss=Math.min(0.34,devP*(yr/years)*0.9);
+    for(i=0;i<SPECIES.length;i++){
+      s=SPECIES[i];
+      var tot=0,yKill=0,big=0,minCoh=1;
+      for(j=0;j<ps[s.k].length;j++){
+        var p=ps[s.k][j],K=capacity(s,p,devLoss,browse);
+        if(K<=0){popn[s.k][j]*=0.78;}
+        else{
+          var g=s.r*popn[s.k][j]*(1-popn[s.k][j]/K);
+          var expo=Math.min(1,p.edgeRoad/Math.max(1,p.cells.length));
+          var trf=p.edgeRoad>0?p.traffic/p.edgeRoad:0;
+          var fenceCov=p.edgeRoad>0?Math.min(1,p.fenced/p.edgeRoad):0;
+          var calmCov=p.edgeRoad>0?Math.min(1,p.calm/p.edgeRoad):0;
+          var kill=popn[s.k][j]*s.killRate*expo*trf*(1-fenceCov*0.88)*(1-calmCov*0.45);
+          if(s.k==="deer"&&catPop>0)kill+=popn[s.k][j]*Math.min(0.16,catPop*0.012);
+          popn[s.k][j]=Math.max(0,popn[s.k][j]+g-kill);
+          yKill+=kill;
+        }
+        if(popn[s.k][j]<0.6)popn[s.k][j]=0;
+        if(popn[s.k][j]>big)big=popn[s.k][j];
+        if(p.cohesion<minCoh)minCoh=p.cohesion;
+        tot+=popn[s.k][j];
+      }
+      cum[s.k]+=yKill;
+      wvcTot+=yKill;
+      if(tot>0){
+        var loss=s.gdRate/Math.max(2,big)*100/8/Math.max(0.35,minCoh);
+        gd[s.k]=Math.max(6,gd[s.k]-Math.min(6,loss));
+      }
+      out.pop[s.k].push(tot);out.kill[s.k].push(cum[s.k]);out.gd[s.k].push(gd[s.k]);
+    }
+    catPop=out.pop.cat[yr];
+    if(baseline.deer>0&&out.pop.deer[yr]>baseline.deer*1.25){
+      browseYears++;browse=Math.min(0.3,browseYears*0.012);
+    }
+  }
+  out.wvc=wvcTot;out.browse=browse;
+  return out;
+}
+
+function computeBaseline(){
+  var saved=roads,savedS=structs,i,s,ps,j,tot,x,y;
+  roads=emptyRoads();
+  structs=[];
+  for(y=0;y<H;y++){structs[y]=[];for(x=0;x<W;x++)structs[y][x]=null;}
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];ps=patchesFor(s);tot=0;
+    for(j=0;j<ps.length;j++)tot+=capacity(s,ps[j],0,0);
+    baseline[s.k]=Math.round(tot);
+  }
+  roads=saved;structs=savedS;
+}
+
+function seg(g,a,b,c,d){g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.stroke();}
+function inCells(p,x,y){var i;for(i=0;i<p.cells.length;i++)if(p.cells[i][0]===x&&p.cells[i][1]===y)return true;return false;}
+
+function drawMap(){
+  var cv=$("cv"),g,x,y,c,i,av=null,ps=null;
+  if(!cv)return;
+  g=cv.getContext("2d");
+  cv.width=W*CELL;cv.height=H*CELL;
+  if(overlaySp){av=avoidMap(overlaySp);ps=patchesFor(overlaySp);}
+  g.fillStyle="#0e1611";g.fillRect(0,0,cv.width,cv.height);
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    c=T(x,y);
+    if(c==="F")g.fillStyle="#2f5233";
+    else if(c==="W")g.fillStyle="#2b5a6b";
+    else if(c==="T")g.fillStyle="#8a6a4a";
+    else g.fillStyle="#4d4d47";
+    g.fillRect(x*CELL,y*CELL,CELL,CELL);
+    if(c==="F"){
+      g.fillStyle="rgba(140,190,130,.16)";
+      g.beginPath();g.arc(x*CELL+CELL*0.34,y*CELL+CELL*0.36,2.1,0,6.3);g.fill();
+      g.beginPath();g.arc(x*CELL+CELL*0.66,y*CELL+CELL*0.62,2.1,0,6.3);g.fill();
+    }
+    if(c==="M"){
+      g.strokeStyle="rgba(255,255,255,.09)";g.lineWidth=1;
+      g.beginPath();g.moveTo(x*CELL+4,y*CELL+CELL-6);g.lineTo(x*CELL+CELL/2,y*CELL+6);
+      g.lineTo(x*CELL+CELL-4,y*CELL+CELL-6);g.stroke();
+    }
+    if(c==="W"){
+      g.fillStyle="rgba(150,220,235,.3)";
+      g.beginPath();g.arc(x*CELL+CELL/2,y*CELL+CELL/2,CELL*0.24,0,6.3);g.fill();
+    }
+  }
+  if(overlaySp&&av&&overlaySp.avoid>0){
+    g.fillStyle="rgba(232,119,106,.34)";
+    for(y=0;y<H;y++)for(x=0;x<W;x++){
+      if(!isHabitat(x,y))continue;
+      if(!av[y][x])continue;
+      g.fillRect(x*CELL,y*CELL,CELL,CELL);
+    }
+  }
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    var rt=Rd(x,y);
+    if(rt===".")continue;
+    if(!ROADTYPE[rt])continue;
+    var rd=ROADTYPE[rt],wd=CELL*rd.wide,mx=x*CELL+CELL/2,my=y*CELL+CELL/2,
+        up=inB(x,y-1)&&Rd(x,y-1)!==".",dn=inB(x,y+1)&&Rd(x,y+1)!==".",
+        lf=inB(x-1,y)&&Rd(x-1,y)!==".",rg=inB(x+1,y)&&Rd(x+1,y)!==".";
+    g.fillStyle=rd.col;
+    g.fillRect(mx-wd/2,my-wd/2,wd,wd);
+    if(up)g.fillRect(mx-wd/2,y*CELL,wd,CELL/2);
+    if(dn)g.fillRect(mx-wd/2,my,wd,CELL/2+1);
+    if(lf)g.fillRect(x*CELL,my-wd/2,CELL/2,wd);
+    if(rg)g.fillRect(mx,my-wd/2,CELL/2+1,wd);
+    if(rd.hwy){
+      g.strokeStyle="rgba(247,215,148,.7)";g.lineWidth=1.2;
+      g.setLineDash([4,4]);
+      if(up||dn){g.beginPath();g.moveTo(mx,up?y*CELL:my);g.lineTo(mx,dn?y*CELL+CELL:my);g.stroke();}
+      if(lf||rg){g.beginPath();g.moveTo(lf?x*CELL:mx,my);g.lineTo(rg?x*CELL+CELL:mx,my);g.stroke();}
+      g.setLineDash([]);
+    }
+  }
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    var st=St(x,y);
+    if(!st)continue;
+    var sd=STRUCT[st.type],usable=overlaySp?!!crossHere(x,y,overlaySp):true,
+        plain=(st.type==="fence"||st.type==="slow");
+    g.globalAlpha=(overlaySp&&!usable&&!plain)?0.34:0.92;
+    g.fillStyle=sd.col;
+    if(plain)g.fillRect(x*CELL+1,y*CELL+CELL*0.34,CELL-2,CELL*0.32);
+    else g.fillRect(x*CELL+2,y*CELL+2,CELL-4,CELL-4);
+    g.globalAlpha=1;
+    g.fillStyle="#132018";
+    g.font="bold "+Math.round(CELL*0.58)+"px serif";
+    g.textAlign="center";g.textBaseline="middle";
+    g.fillText(sd.e,x*CELL+CELL/2,y*CELL+CELL/2+1);
+    if(overlaySp&&!usable&&!plain){
+      g.strokeStyle="#e8776a";g.lineWidth=2;
+      g.beginPath();g.moveTo(x*CELL+5,y*CELL+5);g.lineTo(x*CELL+CELL-5,y*CELL+CELL-5);g.stroke();
+    }
+  }
+  if(overlaySp&&ps){
+    for(i=0;i<ps.length;i++){
+      var p=ps[i],K=capacity(overlaySp,p,0,0),ok=K>0,j,minx=99,miny=99,cxx,cyy,txt;
+      g.strokeStyle=ok?"rgba(143,224,165,.85)":"rgba(232,119,106,.85)";
+      g.lineWidth=2;
+      for(j=0;j<p.cells.length;j++){
+        cxx=p.cells[j][0];cyy=p.cells[j][1];
+        if(cyy<miny||(cyy===miny&&cxx<minx)){minx=cxx;miny=cyy;}
+        if(!inCells(p,cxx,cyy-1))seg(g,cxx*CELL,cyy*CELL,cxx*CELL+CELL,cyy*CELL);
+        if(!inCells(p,cxx,cyy+1))seg(g,cxx*CELL,cyy*CELL+CELL,cxx*CELL+CELL,cyy*CELL+CELL);
+        if(!inCells(p,cxx-1,cyy))seg(g,cxx*CELL,cyy*CELL,cxx*CELL,cyy*CELL+CELL);
+        if(!inCells(p,cxx+1,cyy))seg(g,cxx*CELL+CELL,cyy*CELL,cxx*CELL+CELL,cyy*CELL+CELL);
+      }
+      if(p.cells.length>=3&&minx<99){
+        txt=p.cells.length+" km"+SUP2+(ok?"":" too small");
+        g.font="bold 11px Segoe UI, sans-serif";g.textAlign="left";g.textBaseline="top";
+        g.fillStyle="rgba(10,18,14,.82)";
+        g.fillRect(minx*CELL+2,miny*CELL+2,g.measureText(txt).width+8,15);
+        g.fillStyle=ok?"#a8ecbb":"#ffb0a2";
+        g.fillText(txt,minx*CELL+6,miny*CELL+4);
+      }
+    }
+  }
+  if(phase&&phase.towns){
+    g.fillStyle="#f7d794";g.font="bold 16px Segoe UI, sans-serif";
+    g.textAlign="center";g.textBaseline="middle";
+    for(i=0;i<phase.towns.length;i++)
+      g.fillText(E_HOUSE,phase.towns[i][0]*CELL+CELL/2,phase.towns[i][1]*CELL+CELL/2);
+  }
+  if(phase&&phase.timber){
+    for(i=0;i<phase.timber.length;i++){
+      var tb=phase.timber[i],rch=timberReached(tb);
+      g.strokeStyle=rch?"#8fe0a5":"#e8776a";g.lineWidth=2.4;
+      g.strokeRect(tb[0]*CELL+2,tb[1]*CELL+2,CELL-4,CELL-4);
+      g.fillStyle=rch?"#8fe0a5":"#e8776a";
+      g.font="bold 13px Segoe UI, sans-serif";g.textAlign="center";g.textBaseline="middle";
+      g.fillText(E_LOG,tb[0]*CELL+CELL/2,tb[1]*CELL+CELL/2);
+    }
+  }
+  g.strokeStyle="rgba(0,0,0,.15)";g.lineWidth=1;
+  for(x=0;x<=W;x++){g.beginPath();g.moveTo(x*CELL,0);g.lineTo(x*CELL,H*CELL);g.stroke();}
+  for(y=0;y<=H;y++){g.beginPath();g.moveTo(0,y*CELL);g.lineTo(W*CELL,y*CELL);g.stroke();}
+}
+
+function timberReached(tb){
+  var d=[[0,0],[1,0],[-1,0],[0,1],[0,-1]],k,x,y;
+  for(k=0;k<5;k++){
+    x=tb[0]+d[k][0];y=tb[1]+d[k][1];
+    if(inB(x,y)&&Rd(x,y)!==".")return true;
+  }
+  return false;
+}
+function hwyPath(){
+  if(!phase.towns||phase.towns.length<2)return -1;
+  var a=phase.towns[0],b=phase.towns[1],dist=[],x,y,q=[],k,
+      d=[[1,0],[-1,0],[0,1],[0,-1]],ox=[0,1,-1,0,0],oy=[0,0,0,1,-1],sx,sy,cur,nx,ny;
+  for(y=0;y<H;y++){dist[y]=[];for(x=0;x<W;x++)dist[y][x]=-1;}
+  for(k=0;k<5;k++){
+    sx=a[0]+ox[k];sy=a[1]+oy[k];
+    if(!inB(sx,sy))continue;
+    if(Rd(sx,sy)==="h"&&dist[sy][sx]<0){dist[sy][sx]=1;q.push([sx,sy]);}
+  }
+  while(q.length){
+    cur=q.shift();
+    for(k=0;k<4;k++){
+      nx=cur[0]+d[k][0];ny=cur[1]+d[k][1];
+      if(!inB(nx,ny))continue;
+      if(Math.abs(nx-b[0])+Math.abs(ny-b[1])<=1)return dist[cur[1]][cur[0]];
+      if(dist[ny][nx]>=0)continue;
+      if(Rd(nx,ny)!=="h")continue;
+      dist[ny][nx]=dist[cur[1]][cur[0]]+1;q.push([nx,ny]);
+    }
+  }
+  return -1;
+}
+function roadCost(){
+  var x,y,c=0,rt;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){
+    rt=Rd(x,y);
+    if(rt!=="."&&ROADTYPE[rt])c+=ROADTYPE[rt].base*(TERRCOST[T(x,y)]||1);
+  }
+  return Math.round(c);
+}
+function structCost(){var x,y,c=0,st;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){st=St(x,y);if(st&&STRUCT[st.type])c+=STRUCT[st.type].cost;}
+  return c;}
+function roadCells(){var x,y,n=0;for(y=0;y<H;y++)for(x=0;x<W;x++)if(Rd(x,y)!==".")n++;return n;}
+function pavedPonds(){var x,y,n=0;
+  for(y=0;y<H;y++)for(x=0;x<W;x++)if(T(x,y)==="W"&&Rd(x,y)!==".")n++;return n;}
+
+function refreshObjectives(){
+  var h="",ok=true,i;
+  if(phaseKey==="contract"){
+    var pl=hwyPath(),cost=roadCost(),tr=0,eff,tt;
+    h+='<div class="'+(pl>0?"ok":"no")+'">'+(pl>0?"\u2713":"\u2717")+
+       ' Millbrook to Fenwick highway connected</div>';
+    if(pl<0)ok=false;
+    for(i=0;i<phase.timber.length;i++)if(timberReached(phase.timber[i]))tr++;
+    h+='<div class="'+(tr===3?"ok":"no")+'">'+(tr===3?"\u2713":"\u2717")+
+       ' Timber blocks reached: '+tr+' / 3</div>';
+    if(tr<3)ok=false;
+    if(pavedPonds()>0)
+      h+='<div class="no">\u26A0 '+pavedPonds()+' wetland cell(s) paved over &mdash; 4x cost, and breeding ponds destroyed</div>';
+    eff=Math.max(0,Math.round(340-cost*1.15));
+    tt=pl>0?Math.max(0,Math.round(160-pl*2.2)):0;
+    h+='<div style="color:#a8bda3;">'+roadCells()+' km built &middot; route length '+(pl>0?pl+" km":"&mdash;")+'</div>';
+    $("budBox").innerHTML='<div><span>construction cost</span><b>'+cost+'</b></div>'+
+      '<div><span>efficiency bonus</span><b class="free">'+eff+' pts</b></div>'+
+      '<div><span>travel-time bonus</span><b class="free">'+tt+' pts</b></div>'+
+      '<div><span>animals on the form</span><b>none</b></div>';
+  }else{
+    var sc=structCost(),bud=phase.budget,cs=[],j,st2;
+    h+='<div style="color:#d6e3d1;">Structures sit <b>on</b> road cells. Different animals use different ones.</div>';
+    for(j=0;j<SPECIES.length;j++){st2=crossingStats(SPECIES[j]);cs.push(SPECIES[j].e+' '+st2.usable);}
+    h+='<div style="color:#a8bda3;margin-top:4px;">usable by: '+cs.join(" &middot; ")+'</div>';
+    if(bud===null){
+      $("budBox").innerHTML='<div><span>budget</span><b class="free">UNLIMITED</b></div>'+
+        '<div><span>spent</span><b>'+sc+' credits</b></div>'+
+        '<div><span>structures built</span><b>'+crossingStats(SPECIES[0]).total+'</b></div>';
+    }else{
+      $("budBox").innerHTML='<div><span>budget</span><b>'+bud+' credits</b></div>'+
+        '<div><span>spent</span><b class="'+(sc>bud?"over":"")+'">'+sc+'</b></div>'+
+        '<div><span>remaining</span><b class="'+(sc>bud?"over":"")+'">'+(bud-sc)+'</b></div>';
+      if(sc>bud)ok=false;
+    }
+  }
+  $("objBox").innerHTML=h;
+  $("bRun").disabled=!ok;
+  $("bRun").innerHTML=ok?"&#9654; RUN 30 YEARS":
+    (phaseKey==="contract"?"&#9654; Contract not met yet":"&#9654; Over budget");
+}
+
+function buildTools(){
+  var box=$("toolBox"),h="",i,k,bs,j;
+  for(i=0;i<phase.tools.length;i++){
+    k=phase.tools[i];
+    if(k==="erase")
+      h+='<button class="tool" data-t="erase">'+E_BROOM+' Erase<i>remove road or structure</i></button>';
+    else if(ROADTYPE[k])
+      h+='<button class="tool" data-t="'+k+'">'+ROADTYPE[k].n+
+         '<i>cost x'+ROADTYPE[k].base+' &middot; barrier '+Math.round(ROADTYPE[k].barrier*100)+
+         '% &middot; traffic '+ROADTYPE[k].traffic+'</i></button>';
+    else
+      h+='<button class="tool" data-t="'+k+'">'+STRUCT[k].e+' '+STRUCT[k].n+
+         '<i>'+STRUCT[k].cost+' credit'+(STRUCT[k].cost>1?"s":"")+' &middot; '+STRUCT[k].serves+'</i></button>';
+  }
+  box.innerHTML=h;
+  bs=box.getElementsByClassName("tool");
+  for(j=0;j<bs.length;j++)(function(b){
+    b.onclick=guard("tool click",function(){
+      tool=b.getAttribute("data-t");
+      var a=box.getElementsByClassName("tool"),m;
+      for(m=0;m<a.length;m++)a[m].className="tool"+(a[m].getAttribute("data-t")===tool?" on":"");
+    });
+  })(bs[j]);
+  tool=phase.tools[0];
+  if(bs.length)bs[0].className="tool on";
+}
+
+function buildOverlayBar(){
+  var bar=$("ovBar"),h="",i,bs,j;
+  if(!phase.overlay){
+    bar.innerHTML='<div class="note" style="font-size:.78em;color:#a8bda3;">'+
+      'You are building blind. Nobody surveys a landscape before the road; they survey it after. '+
+      'Species overlays unlock in Phase 2.</div>';
+    overlaySp=null;
+    return;
+  }
+  h+='<button class="ovb'+(overlaySp?"":" on")+'" data-k="">plain map</button>';
+  for(i=0;i<SPECIES.length;i++)
+    h+='<button class="ovb'+(overlaySp&&overlaySp.k===SPECIES[i].k?" on":"")+'" data-k="'+
+       SPECIES[i].k+'">'+SPECIES[i].e+' what the '+
+       SPECIES[i].n.split(" ")[0].toLowerCase()+' sees</button>';
+  bar.innerHTML=h;
+  bs=bar.getElementsByClassName("ovb");
+  for(j=0;j<bs.length;j++)(function(b){
+    b.onclick=guard("overlay toggle",function(){
+      var k=b.getAttribute("data-k");
+      overlaySp=k?spec(k):null;
+      buildOverlayBar();drawMap();
+    });
+  })(bs[j]);
+}
+
+function paintAt(x,y){
+  if(!inB(x,y))return;
+  if(lastPaint&&lastPaint[0]===x&&lastPaint[1]===y)return;
+  lastPaint=[x,y];
+  if(tool==="erase"){
+    if(structs[y][x])structs[y][x]=null;
+    else if(phaseKey==="contract"&&Rd(x,y)!==".")setRd(x,y,".");
+    sTick();drawMap();refreshObjectives();return;
+  }
+  if(ROADTYPE[tool]){
+    if(T(x,y)==="T"){sBad();return;}
+    setRd(x,y,tool);structs[y][x]=null;
+    sTick();drawMap();refreshObjectives();return;
+  }
+  if(Rd(x,y)==="."){sBad();return;}
+  structs[y][x]={type:tool};
+  sTick();drawMap();refreshObjectives();
+}
+
+function openPredict(){prediction=[];renderPredict();show("s-pred");}
+function renderPredict(){
+  var h="",i,s,lbl=["WORST HIT","2nd","3rd","BEST OFF"],bs,j;
+  for(i=0;i<4;i++){
+    s=prediction[i]?spec(prediction[i]):null;
+    h+='<div class="ps"><b>'+lbl[i]+'</b>'+(s?s.e+" "+s.n:"&mdash;")+'</div>';
+  }
+  $("pdSlots").innerHTML=h;
+  h="";
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];
+    h+='<div class="pd'+(prediction.indexOf(s.k)>-1?" picked":"")+'" data-k="'+s.k+'">'+
+       s.e+' '+s.n+'</div>';
+  }
+  $("pdPool").innerHTML=h;
+  bs=$("pdPool").getElementsByClassName("pd");
+  for(j=0;j<bs.length;j++)(function(b){
+    b.onclick=guard("prediction pick",function(){
+      if(prediction.length>=4)return;
+      prediction.push(b.getAttribute("data-k"));sTick();renderPredict();
+    });
+  })(bs[j]);
+  $("bPredGo").disabled=(prediction.length<4);
+}
+
+function startRun(){
+  if(running)return;
+  running=true;
+  series=runSim(30);
+  $("runOvl").className="ovl active";
+  var yr=0;
+  function frame(){
+    try{
+      var h="",i,s,p,pct,cls,msg="";
+      for(i=0;i<SPECIES.length;i++){
+        s=SPECIES[i];p=series.pop[s.k][yr];
+        pct=baseline[s.k]>0?Math.round(p/baseline[s.k]*100):0;
+        cls=p<0.6?" gone":(pct>115?" up":"");
+        h+='<div class="sp'+cls+'"><div class="e">'+(p<0.6?E_SKULL:s.e)+'</div>'+
+           '<div class="n">'+s.n+'</div><div class="v" style="color:'+s.col+'">'+
+           (p<0.6?"0":Math.round(p))+'</div><div class="d">'+pct+'% of before</div></div>';
+      }
+      $("oSpx").innerHTML=h;
+      $("oYear").textContent=yr;
+      for(i=0;i<SPECIES.length;i++){
+        s=SPECIES[i];
+        if(series.pop[s.k][yr]<0.6&&(yr===0||series.pop[s.k][yr-1]>=0.6)){
+          msg=s.e+" <b style='color:#e8776a'>"+s.n+" is gone from Kettle Range.</b>";sDie();
+        }
+      }
+      if(!msg&&yr===7)msg="Seven years. Nothing looks wrong from the road.";
+      if(!msg&&yr===14)msg="Fourteen years. The road has not changed. The animals have.";
+      if(!msg&&yr===23&&series.dev>0.1)
+        msg="Houses and logging tracks are appearing along the highway. <b>The road delivered people.</b>";
+      if(!msg&&yr===28)msg="Twenty-eight years. Nothing dramatic is happening now. That is the point.";
+      if(msg)$("oTick").innerHTML=msg;
+      if(yr%3===0)sYear();
+      yr++;
+      if(yr<=30)setTimeout(frame,168);
+      else setTimeout(function(){
+        $("runOvl").className="ovl";running=false;
+        try{report();}catch(e){fail("report()",e);}
+      },900);
+    }catch(e){$("runOvl").className="ovl";running=false;fail("run animation",e);}
+  }
+  $("oTick").innerHTML="";
+  frame();
+}
+
+function drawGraph(){
+  var cv=$("gcv"),g,PL=52,PR=124,PT=18,PB=34,x0,x1,y0,y1,i,j,s,v,px,py,top=170,lg,k;
+  if(!cv)return;
+  g=cv.getContext("2d");
+  x0=PL;x1=cv.width-PR;y0=cv.height-PB;y1=PT;
+  g.fillStyle="#101a14";g.fillRect(0,0,cv.width,cv.height);
+  function X(t){return x0+t/30*(x1-x0);}
+  function Y(p){return y0-Math.min(top,p)/top*(y0-y1);}
+  g.font="11px Segoe UI, sans-serif";g.textAlign="right";g.textBaseline="middle";
+  for(i=0;i<=top;i+=20){
+    py=Y(i);
+    g.strokeStyle=(i===100)?"rgba(247,215,148,.45)":"rgba(255,255,255,.08)";
+    g.lineWidth=(i===100)?1.6:1;
+    g.beginPath();g.moveTo(x0,py);g.lineTo(x1,py);g.stroke();
+    g.fillStyle="#8fa389";g.fillText(i+"%",x0-8,py);
+  }
+  g.fillStyle="#f7d794";g.textAlign="left";g.font="bold 10px Segoe UI, sans-serif";
+  g.fillText("population before the roads",x0+6,Y(100)-9);
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];
+    g.strokeStyle=s.col;g.lineWidth=2.6;g.beginPath();
+    for(j=0;j<=30;j++){
+      v=baseline[s.k]>0?series.pop[s.k][j]/baseline[s.k]*100:0;
+      px=X(j);py=Y(v);
+      if(j===0)g.moveTo(px,py);else g.lineTo(px,py);
+    }
+    g.stroke();
+    v=baseline[s.k]>0?series.pop[s.k][30]/baseline[s.k]*100:0;
+    px=X(30);py=Y(v);
+    g.fillStyle=s.col;g.beginPath();g.arc(px,py,4,0,6.3);g.fill();
+    g.font="bold 11px Segoe UI, sans-serif";g.textAlign="left";g.textBaseline="middle";
+    g.fillText(s.e+" "+Math.round(v)+"%",px+9,py);
+  }
+  g.strokeStyle="rgba(255,255,255,.2)";g.lineWidth=1;
+  g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y0);g.stroke();
+  g.textAlign="center";g.textBaseline="alphabetic";g.fillStyle="#8fa389";
+  g.font="11px Segoe UI, sans-serif";
+  for(i=0;i<=30;i+=5)g.fillText("yr "+i,X(i),y0+16);
+  lg="";
+  for(k=0;k<SPECIES.length;k++)
+    lg+='<span><i style="background:'+SPECIES[k].col+'"></i>'+SPECIES[k].n+'</span>';
+  $("gLeg").innerHTML=lg;
+}
+
+function verdictFor(s){
+  var end=series.pop[s.k][30],pct=baseline[s.k]>0?end/baseline[s.k]*100:0,
+      kill=Math.round(series.kill[s.k][30]),gd=Math.round(series.gd[s.k][30]),
+      ps=series.patch[s.k],j,big=0,zone=0,cs=series.cross[s.k],h,cls,viable=0,coh=1;
+  for(j=0;j<ps.length;j++){
+    if(ps[j].cells.length>big)big=ps[j].cells.length;
+    zone+=ps[j].zoneLost;
+    if(capacity(s,ps[j],0,0)>0)viable++;
+    if(ps[j].cohesion<coh)coh=ps[j].cohesion;
+  }
+  cls=end<0.6?"bad":(pct>115?"good":(pct<70?"warn":"good"));
+  h='<div class="card '+cls+'"><h4>'+s.e+' '+s.n+' &mdash; '+
+    (end<0.6?"LOCALLY EXTINCT":(Math.round(pct)+"% of the original population"))+'</h4>';
+  if(end<0.6){
+    if(big<s.patchMin){
+      h+='Largest connected block of <i>livable</i> forest: <b>'+big+' km'+SUP2+'</b>. This animal needs '+
+        '<b>'+s.patchMin+' km'+SUP2+'</b> to hold a population at all &mdash; not out of greed, but because '+
+        'its food is scattered across the seasons, and half a range holds half a year of food. '+
+        'Roadkill deaths over thirty years: <b>'+kill+'</b>. Read that number again. You did not kill '+
+        'them with traffic. <b>You killed them with geometry.</b> The concept is '+
+        '<span class="kw">functional connectivity</span> &mdash; what matters is not how much forest '+
+        'exists but how much of it one animal can reach.';
+    }else if(s.pond){
+      h+='<b>'+kill+'</b> killed on the road. They were walking to the ponds because that is the only '+
+        'place they can breed, and they will not stop trying. A population that must cross a road every '+
+        'spring does not adapt to the road &mdash; it is simply subtracted, once a year, until there is nothing.';
+    }else{
+      h+='<b>'+kill+'</b> road deaths on a population never large enough to absorb them.';
+    }
+    if(zone>0)
+      h+='<div class="diag">road-effect zone deleted '+zone+' km'+SUP2+' of physically intact forest '+
+         '&mdash; habitat this animal will not enter even though it could</div>';
+  }else if(pct>115){
+    h+='You built them a <b>paradise</b>. Every road edge is a strip of sunlight, and sunlight at ground '+
+      'level means young shoots &mdash; deer food. <b>'+kill+'</b> were killed by vehicles and the '+
+      'population absorbed it without noticing. This is <span class="kw">edge-species release</span>, '+
+      'and it is why "the road damaged nature" is the wrong sentence. Fragmentation does not harm '+
+      '<i>nature</i>. It harms <b>particular species</b> and it rewards others.';
+    if(series.browse>0.05)
+      h+=' Worse: with the predator gone, browsing has stripped the understory ('+
+         Math.round(series.browse*100)+'% quality loss for everything else) &mdash; a '+
+         '<span class="kw">trophic cascade</span> that began when you severed the pass.';
+  }else{
+    h+='Surviving. Largest livable block: <b>'+big+' km'+SUP2+'</b> across <b>'+viable+'</b> viable patch'+
+      (viable===1?"":"es")+'. Road deaths: <b>'+kill+'</b>. ';
+    if(gd<58){
+      h+='But look at the genetics: <b>'+gd+'% of the original diversity left</b>. A small population that '+
+        'cannot reach any other population breeds with its own relatives, generation after generation '+
+        '&mdash; <span class="kw">inbreeding depression</span>. This is exactly what happened to the '+
+        'Florida panther: kinked tails, holes in the heart, males that could not reproduce. '+
+        '<b>They were not extinct. They were running out of ancestors.</b>';
+    }else h+='Genetic diversity holding at <b>'+gd+'%</b>.';
+    if(coh<0.5)
+      h+='<div class="diag">the weakest link holding this population together conducts at only '+
+         Math.round(coh*100)+'% &mdash; animals do get across, but rarely, so genes travel slower than they need to</div>';
+  }
+  if(cs.total>0){
+    h+='<br><br>Structures this species can actually use: <b>'+cs.usable+'</b> of '+cs.total+' built';
+    if(cs.wasted>0)h+=' &mdash; <b>'+cs.wasted+'</b> are the wrong type for it entirely';
+    h+=cs.funnel>0
+      ? ', and <b>'+cs.funnel+'</b> are funnelled by fencing. An animal meets the fence, walks along it, '+
+        'and finds the opening. A funnelled crossing gets used many times more than a bare one.'
+      : '. None are funnelled by fencing, so animals must find them by accident.';
+  }
+  h+='</div>';
+  return h;
+}
+
+function zoneTotal(){
+  var i,j,n,best=0,ps;
+  for(i=0;i<SPECIES.length;i++){
+    ps=series.patch[SPECIES[i].k];n=0;
+    for(j=0;j<ps.length;j++)n+=ps[j].zoneLost;
+    if(n>best)best=n;
+  }
+  return best;
+}
+
+function report(){
+  var i,h="",s,pl,cost,eff,tt,wvc,hurt,timber,maint,mit,actual,hits,gone=0,down=0,btn,anyGone=false;
+  drawGraph();
+  h="";
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];
+    var end=series.pop[s.k][30],pct=baseline[s.k]>0?Math.round(end/baseline[s.k]*100):0;
+    h+='<div class="sp'+(end<0.6?" gone":(pct>115?" up":""))+'"><div class="e">'+
+      (end<0.6?E_SKULL:s.e)+'</div><div class="n">'+s.n+'</div><div class="v" style="color:'+s.col+'">'+
+      (end<0.6?"0":Math.round(end))+'</div><div class="d">was '+baseline[s.k]+' &middot; now '+pct+
+      '%<br>genes '+Math.round(series.gd[s.k][30])+'%</div></div>';
+  }
+  $("repSpx").innerHTML=h;
+
+  actual=SPECIES.slice(0).sort(function(a,b){
+    var pa=baseline[a.k]>0?series.pop[a.k][30]/baseline[a.k]:0,
+        pb=baseline[b.k]>0?series.pop[b.k][30]/baseline[b.k]:0;
+    return pa-pb;});
+  hits=0;
+  for(i=0;i<4;i++)if(prediction[i]===actual[i].k)hits++;
+  h='<b>Your prediction:</b> ';
+  for(i=0;i<4;i++)h+=(i?" &rarr; ":"")+spec(prediction[i]).e;
+  h+=' &nbsp;&middot;&nbsp; <b>What happened:</b> ';
+  for(i=0;i<4;i++)h+=(i?" &rarr; ":"")+actual[i].e;
+  h+=' &nbsp;&middot;&nbsp; <b>'+hits+' of 4 in the right place.</b>';
+  if(hits<4)h+=' Whichever one you got wrong is the one worth explaining out loud.';
+  $("predScore").innerHTML=h;
+
+  pl=hwyPath();
+  cost=(phaseKey==="contract")?roadCost():(contractCost||roadCost());
+  eff=Math.max(0,Math.round(340-cost*1.15));
+  tt=pl>0?Math.max(0,Math.round(160-pl*2.2)):0;
+  wvc=Math.round(series.wvc);
+  hurt=Math.max(0,Math.round(wvc*0.03));
+  timber=(phase.timber?phase.timber.length:0)*40;
+  maint=Math.round(roadCells()*1.4);
+  mit=structCost();
+  h='<div class="led"><h4>THE HUMAN COLUMN</h4>'+
+    '<div><span>construction cost</span><b>'+cost+'</b></div>'+
+    '<div><span>efficiency bonus</span><b>'+eff+' pts</b></div>'+
+    '<div><span>travel-time bonus</span><b>'+tt+' pts</b></div>'+
+    '<div><span>timber revenue</span><b>'+timber+'</b></div>'+
+    '<div><span>30 yr maintenance</span><b>'+maint+'</b></div>'+
+    '<div><span>mitigation spend</span><b>'+mit+'</b></div>'+
+    '<div><span>animal-vehicle collisions</span><b>'+wvc+'</b></div>'+
+    '<div><span>people hurt in those crashes</span><b>'+hurt+'</b></div></div>';
+  for(i=0;i<SPECIES.length;i++){
+    if(series.pop[SPECIES[i].k][30]<0.6)gone++;
+    else if(series.pop[SPECIES[i].k][30]<baseline[SPECIES[i].k]*0.7)down++;
+  }
+  h+='<div class="led"><h4>THE COLUMN THAT WAS NOT ON THE FORM</h4>'+
+    '<div><span>species lost</span><b>'+gone+' of 4</b></div>'+
+    '<div><span>species badly reduced</span><b>'+down+'</b></div>'+
+    '<div><span>habitat paved</span><b>'+roadCells()+' km'+SUP2+'</b></div>'+
+    '<div><span>habitat lost to road-effect zone</span><b>'+zoneTotal()+' km'+SUP2+'</b></div>'+
+    '<div><span>habitat lost to induced development</span><b>'+Math.round(series.dev*34)+'%</b></div>'+
+    '<div><span>understory lost to over-browsing</span><b>'+Math.round(series.browse*100)+'%</b></div>'+
+    '<div><span>wetlands paved</span><b>'+pavedPonds()+'</b></div></div>';
+  $("ledBox").innerHTML=h;
+  $("ledNote").innerHTML='Notice the collision line. It sits in <b>both</b> columns &mdash; in the real '+
+    'world there are one to two million large-animal vehicle collisions a year in the United States alone, '+
+    'around 200 human deaths, and over eight billion dollars of cost. A well-placed overpass reduces human '+
+    'deaths as well as bear deaths. That is what makes <b>co-existence</b> an engineering result rather '+
+    'than a moral instruction: the mitigated landscape is better for both parties, and the unmitigated one '+
+    'was only ever cheaper on <i>one line</i> of the form.';
+
+  h="";
+  if(phaseKey==="contract"){
+    $("repTitle").textContent="PERFORMANCE REVIEW: EXCELLENT.";
+    h+='<div class="card good"><h4>\uD83D\uDCCB The province is delighted with you</h4>'+
+      'Highway delivered, all three timber blocks reached, <b>'+roadCells()+' km</b> of road, '+
+      'construction cost <b>'+cost+'</b>, efficiency bonus <b>'+eff+'</b>, travel-time bonus <b>'+tt+
+      '</b>. No complaints were filed. There was no box on the form for animals, so nobody read the '+
+      'next four cards for thirty years.';
+    if(series.dev>0.12)
+      h+='<br><br>One thing your contract never mentioned: the road did not only cut the forest, it '+
+         '<b>delivered people</b> &mdash; houses, logging access, cleared land. Roughly <b>'+
+         Math.round(series.dev*34)+'%</b> of remaining habitat quality went that way over thirty years. '+
+         'That is <span class="kw">induced development</span>, and it is often larger than the damage '+
+         'from the pavement itself.';
+    h+='</div>';
+    h+='<div class="card warn"><h4>\uD83D\uDCB0 The route you did not take</h4>'+
+      'Building over the northern ridge instead of through the forested pass would have cost roughly '+
+      '<b>250&ndash;280</b> instead of <b>'+cost+'</b>, because rock costs 2.5x to build on. It would '+
+      'also have left the pass intact, because rock is not habitat &mdash; nothing lives there to be cut '+
+      'in half.<br><br>You chose the cheap line. So does everybody: cheap roads follow valleys, and '+
+      'valleys are exactly where animals move. <b>Nobody would have approved the expensive route</b>, '+
+      'because the form has a line for construction cost and no line for bears.</div>';
+  }else{
+    $("repTitle").textContent="Mitigation results \u2014 thirty years on.";
+  }
+  for(i=0;i<SPECIES.length;i++)h+=verdictFor(SPECIES[i]);
+  $("repCards").innerHTML=h;
+
+  if(phaseKey==="contract"){
+    contractResult=series;contractCost=roadCost();
+    $("cmpBox").style.display="none";
+  }else if(contractResult&&phaseKey==="repair"){
+    var t='<table class="cmp"><tr><th>Species</th><th>Before roads</th><th>Phase 1</th>'+
+          '<th>Phase 2</th><th>Change</th></tr>',ka=0,kb=0;
+    for(i=0;i<SPECIES.length;i++){
+      s=SPECIES[i];
+      var a=Math.round(contractResult.pop[s.k][30]),b=Math.round(series.pop[s.k][30]),
+          dd=b-a,cl=dd>0?"up":(dd<0?"dn":"");
+      t+='<tr><td>'+s.e+' '+s.n+'</td><td>'+baseline[s.k]+'</td><td>'+a+'</td><td>'+b+'</td>'+
+        '<td class="'+cl+'">'+(dd>0?"+":"")+dd+'</td></tr>';
+    }
+    t+='</table>';
+    for(i=0;i<SPECIES.length;i++){
+      ka+=contractResult.kill[SPECIES[i].k][30];kb+=series.kill[SPECIES[i].k][30];
+    }
+    t+='<div class="note" style="margin-top:9px;">Animals killed on roads over thirty years: <b>'+
+      Math.round(ka)+'</b> before, <b>'+Math.round(kb)+'</b> after. <b>Watch this number against the '+
+      'population column.</b> If deaths fell a long way and populations did <i>not</i> recover, you '+
+      'built fencing without enough crossings &mdash; fewer deaths, and nothing getting through at all. '+
+      'A fence is a barrier that happens to also be safe. Put a crossing next to it and the same fence '+
+      'becomes a <b>funnel</b>.</div>'+
+      '<div class="note" style="margin-top:7px;">You spent <b>'+structCost()+' credits</b>. Real '+
+      'mitigation budgets run about 5&ndash;15% of construction cost &mdash; yours was <b>'+
+      Math.round(structCost()/Math.max(1,contractCost)*100)+'%</b>. Challenge mode gives you what a '+
+      'province would actually sign off, and by then you will know which structures earn their money.</div>';
+    $("cmpTbl").innerHTML=t;
+    $("cmpBox").style.display="block";
+  }else $("cmpBox").style.display="none";
+
+  btn=$("bNextPhase");
+  if(phaseKey==="contract"){
+    btn.innerHTML="\uD83D\uDEE0\uFE0F Now go and repair it &rarr;";
+    btn.onclick=guard("next phase",function(){loadPhase("repair");});
+  }else if(phaseKey==="repair"){
+    btn.innerHTML="\uD83C\uDFAF Challenge mode &mdash; realistic budgets &rarr;";
+    btn.onclick=guard("to challenges",showChal);
+  }else{
+    done[phaseKey]=true;
+    btn.innerHTML="&larr; Back to challenges";
+    btn.onclick=guard("to challenges",showChal);
+  }
+
+  for(i=0;i<SPECIES.length;i++)if(series.pop[SPECIES[i].k][30]<0.6)anyGone=true;
+  if(anyGone||phaseKey==="contract")sBad();
+  else{sWin();conf(90);}
+  show("s-rep");
+}
+
+function show(id){
+  var s=document.getElementsByClassName("screen"),i;
+  for(i=0;i<s.length;i++)s[i].className="screen";
+  $(id).className="screen active";
+  window.scrollTo(0,0);
+}
+
+function loadPhase(key){
+  var x,y;
+  phaseKey=key;phase=PHASES[key];
+  terrain=phase.terrain.slice(0);
+  if(phase.roads==="inherit"){/* keep whatever she built */}
+  else if(phase.roads)roads=phase.roads.slice(0);
+  else roads=emptyRoads();
+  if(key!=="repair"){
+    structs=[];
+    for(y=0;y<H;y++){structs[y]=[];for(x=0;x<W;x++)structs[y][x]=null;}
+  }
+  if(key==="contract"){contractResult=null;contractCost=0;}
+  overlaySp=null;
+  computeBaseline();
+  $("phLab").textContent=(key==="contract"||key==="repair")?"KETTLE RANGE":"CHALLENGE \u00B7 REALISTIC BUDGET";
+  $("phName").textContent=phase.name;
+  $("phBrief").textContent=phase.brief;
+  $("mapHelp").innerHTML=(key==="contract")
+    ? "Click and drag to lay road; roads join up on their own. "+E_HOUSE+" towns &middot; "+E_LOG+
+      " timber &middot; <b>grey rock = no habitat, 2.5x cost</b> &middot; blue = pond (4x cost, and paving it destroys breeding habitat)"
+    : "Structures sit <b>on a road cell</b>. Turn on a species overlay: <span style='color:#ffb0a2'>red tint</span> = road-effect zone (habitat it will not enter), outlines = its functional patches, a red cross = a structure it cannot use.";
+  $("bBack").style.display=(key==="c1"||key==="c2"||key==="c3")?"block":"none";
+  buildTools();buildOverlayBar();drawMap();refreshObjectives();
+  show("s-build");
+}
+
+function showChal(){
+  var h="",keys=["c1","c2","c3"],i,cs,j;
+  for(i=0;i<keys.length;i++)
+    h+='<div class="cc" data-k="'+keys[i]+'"><div class="cn">CHALLENGE '+(i+1)+' &middot; '+
+      PHASES[keys[i]].budget+' CREDITS</div><div class="ct">'+
+      PHASES[keys[i]].name.replace("Challenge \u2014 ","")+'</div><div class="cd">'+
+      PHASES[keys[i]].brief+'</div>'+(done[keys[i]]?'<div class="cb">\u2713 attempted</div>':'')+'</div>';
+  $("chalBox").innerHTML=h;
+  cs=$("chalBox").getElementsByClassName("cc");
+  for(j=0;j<cs.length;j++)(function(c){
+    c.onclick=guard("start challenge",function(){loadPhase(c.getAttribute("data-k"));});
+  })(cs[j]);
+  show("s-chal");
+}
+
+function init(){
+  var h="",i,s,x,y,cv;
+  terrain=MAIN_TERRAIN.slice(0);
+  roads=emptyRoads();
+  structs=[];
+  for(y=0;y<H;y++){structs[y]=[];for(x=0;x<W;x++)structs[y][x]=null;}
+  computeBaseline();
+  for(i=0;i<SPECIES.length;i++){
+    s=SPECIES[i];
+    h+='<div class="sp"><div class="e">'+s.e+'</div><div class="n">'+s.n+
+      '</div><div class="v" style="color:'+s.col+'">'+baseline[s.k]+'</div>'+
+      '<div class="d">needs '+s.patchMin+' km'+SUP2+' minimum<br>'+
+      (s.pond?"must reach a pond to breed":"home range "+s.areaNeed+" km"+SUP2)+'<br>'+
+      'road-effect zone '+s.avoid+' km</div></div>';
+  }
+  $("baseBox").innerHTML=h;
+
+  $("bGo").onclick=guard("Read the contract",function(){loadPhase("contract");});
+  $("bRun").onclick=guard("open prediction",openPredict);
+  $("bPredGo").onclick=guard("start run",startRun);
+  $("bPredClear").onclick=guard("clear prediction",function(){prediction=[];renderPredict();});
+  $("bReset").onclick=guard("clear work",function(){
+    var xx,yy;
+    if(phaseKey==="contract")roads=emptyRoads();
+    for(yy=0;yy<H;yy++)for(xx=0;xx<W;xx++)structs[yy][xx]=null;
+    drawMap();refreshObjectives();
+  });
+  $("bRetry").onclick=guard("retry phase",function(){loadPhase(phaseKey);});
+  $("bBack").onclick=guard("back to challenges",showChal);
+  $("bBackMain").onclick=guard("back to main",function(){loadPhase("contract");});
+  $("bCases").onclick=guard("cases",function(){show("s-cases");});
+  $("bCases2").onclick=guard("cases",function(){show("s-cases");});
+  $("bCaseBack").onclick=guard("cases back",function(){
+    show((phaseKey==="c1"||phaseKey==="c2"||phaseKey==="c3")?"s-chal":"s-rep");
+  });
+
+  cv=$("cv");
+  function cellFrom(cx,cy){
+    var r=cv.getBoundingClientRect();
+    return [Math.floor((cx-r.left)/r.width*W),Math.floor((cy-r.top)/r.height*H)];
+  }
+  cv.onmousedown=guard("paint",function(e){
+    painting=true;lastPaint=null;
+    var c=cellFrom(e.clientX,e.clientY);paintAt(c[0],c[1]);});
+  cv.onmousemove=guard("paint",function(e){
+    if(!painting)return;
+    var c=cellFrom(e.clientX,e.clientY);paintAt(c[0],c[1]);});
+  document.onmouseup=function(){painting=false;lastPaint=null;};
+  cv.ontouchstart=guard("paint",function(e){
+    e.preventDefault();painting=true;lastPaint=null;
+    var t=e.touches[0],c=cellFrom(t.clientX,t.clientY);paintAt(c[0],c[1]);});
+  cv.ontouchmove=guard("paint",function(e){
+    e.preventDefault();
+    if(!painting)return;
+    var t=e.touches[0],c=cellFrom(t.clientX,t.clientY);paintAt(c[0],c[1]);});
+  cv.ontouchend=function(){painting=false;lastPaint=null;};
+}
+
+if(document.readyState==="loading")
+  document.addEventListener("DOMContentLoaded",guard("init",init));
+else guard("init",init)();
+})();
+</script>
+
+
+</body></html>

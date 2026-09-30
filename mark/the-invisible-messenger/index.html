@@ -1,0 +1,947 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case File: The Invisible Messenger</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&amp;family=Special+Elite&amp;display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --cream:#f5ecd7;
+    --paper:#faf3e0;
+    --walnut:#5b3a1e;
+    --walnut-dark:#3e2712;
+    --brass:#e8a33d;
+    --brass-dark:#b87d1e;
+    --ink:#3a2c1a;
+    --green:#4a7c3a;
+    --red:#b0432f;
+  }
+
+  body {
+    font-family:'Merriweather', serif;
+    background: var(--cream);
+    background-image: radial-gradient(circle at 20% 30%, rgba(184,125,30,0.07) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, rgba(91,58,30,0.08) 0%, transparent 50%);
+    color: var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .particle {
+    position:fixed; font-size:22px; opacity:0.12; pointer-events:none; z-index:0;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform:translateY(105vh) rotate(0deg); }
+    100% { transform:translateY(-10vh) rotate(360deg); }
+  }
+
+  #app { position:relative; z-index:2; max-width:900px; margin:0 auto; padding:15px; }
+
+  header {
+    background: linear-gradient(180deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+    border-radius:14px; padding:14px 20px; color:var(--cream);
+    box-shadow:0 4px 15px rgba(62,39,18,0.4);
+    border: 3px solid var(--brass-dark);
+  }
+  header h1 {
+    font-family:'Special Elite', monospace; font-size:clamp(16px,3.5vw,26px);
+    text-align:center; color:var(--brass); letter-spacing:2px;
+    text-shadow:0 0 12px rgba(232,163,61,0.5);
+  }
+  .hud { display:flex; justify-content:space-between; align-items:center; margin-top:10px; gap:12px; }
+  .score-box {
+    font-family:'Special Elite', monospace; font-size:15px; color:var(--cream);
+    background:rgba(232,163,61,0.15); border:1px solid var(--brass-dark);
+    padding:4px 12px; border-radius:8px; white-space:nowrap;
+  }
+  .progress-track {
+    flex:1; height:14px; background:rgba(0,0,0,0.4); border-radius:8px; overflow:hidden;
+    border:1px solid var(--brass-dark);
+  }
+  .progress-fill {
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--brass-dark), var(--brass));
+    border-radius:8px; transition:width 0.6s ease;
+    box-shadow:0 0 10px rgba(232,163,61,0.7);
+  }
+  .restart-btn {
+    font-family:'Special Elite', monospace; font-size:13px;
+    background:transparent; color:var(--brass); border:1px solid var(--brass-dark);
+    padding:5px 10px; border-radius:8px; cursor:pointer; transition:all .2s;
+  }
+  .restart-btn:hover { background:var(--brass); color:var(--walnut-dark); }
+
+  .screen { display:none; animation:fadeIn .5s ease; margin-top:18px; }
+  .screen.active { display:block; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+
+  .panel {
+    background:var(--paper); border-radius:14px; padding:22px;
+    box-shadow:0 4px 12px rgba(91,58,30,0.25);
+    border:2px solid #d9c9a3;
+  }
+
+  h2 { font-family:'Special Elite', monospace; color:var(--walnut); font-size:clamp(18px,3vw,24px); margin-bottom:12px; text-align:center; }
+  p.lead { font-size:15px; line-height:1.7; text-align:center; max-width:640px; margin:0 auto 10px; }
+
+  .big-btn {
+    display:block; margin:18px auto 0; font-family:'Special Elite', monospace;
+    font-size:17px; letter-spacing:1px; padding:12px 34px; border:none; border-radius:10px;
+    background:linear-gradient(180deg, var(--brass) 0%, var(--brass-dark) 100%);
+    color:var(--walnut-dark); font-weight:bold; cursor:pointer;
+    box-shadow:0 4px 10px rgba(184,125,30,0.4); transition:all .2s;
+  }
+  .big-btn:hover { transform:translateY(-2px) scale(1.03); box-shadow:0 6px 16px rgba(184,125,30,0.6); }
+  .big-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+
+  /* ============ SUSPECT FLIP CARDS — 2x3 GRID ============ */
+  .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+  .flip-card { perspective:800px; height:200px; cursor:pointer; }
+  .flip-inner {
+    position:relative; width:100%; height:100%;
+    transition:transform .6s; transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner { transform:rotateY(180deg); }
+  .flip-face {
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:10px; text-align:center;
+  }
+  .flip-front {
+    background:linear-gradient(160deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+    color:var(--brass); border:2px solid var(--brass-dark);
+    box-shadow:0 3px 8px rgba(62,39,18,0.35);
+    transition: box-shadow .2s;
+  }
+  .flip-card:hover .flip-front { box-shadow:0 5px 16px rgba(232,163,61,0.5); }
+  .flip-front .emoji { font-size:42px; margin-bottom:6px; }
+  .flip-front .name { font-family:'Special Elite', monospace; font-size:14px; }
+  .flip-front .date-stamp {
+    font-family:'Special Elite', monospace; font-size:16px; color:var(--cream);
+    background:rgba(232,163,61,0.2); border:1px dashed var(--brass-dark);
+    padding:1px 10px; border-radius:6px; margin-top:6px;
+  }
+  .flip-front .stamp { font-family:'Special Elite', monospace; font-size:10px; opacity:.6; margin-top:5px; letter-spacing:1px; }
+  .flip-back {
+    background:var(--paper); border:2px solid var(--brass-dark);
+    transform:rotateY(180deg); font-size:12px; line-height:1.5;
+  }
+  .flip-back b { color:var(--walnut); font-family:'Special Elite', monospace; display:block; margin-bottom:4px; }
+
+  /* ============ CHAIN VISUAL ============ */
+  .chain-row {
+    display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
+    gap:2px; margin:14px 0 6px;
+  }
+  .chain-slot {
+    width:86px; height:96px; border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:11px; text-align:center; padding:4px; position:relative;
+  }
+  .chain-slot.empty { border:2px dashed #b89d6e; color:#b89d6e; font-family:'Special Elite',monospace; }
+  .chain-slot.filled {
+    background:linear-gradient(160deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+    color:var(--cream); border:2px solid var(--brass);
+    box-shadow:0 0 12px rgba(232,163,61,0.45);
+    animation:snapIn .5s ease;
+  }
+  .chain-slot.filled .emoji { font-size:26px; }
+  .chain-slot.broken {
+    background:#777; border:2px solid #444; color:#ccc; opacity:.55;
+    box-shadow:none; filter:grayscale(1);
+  }
+  .chain-slot.clickable { cursor:pointer; transition:transform .2s; }
+  .chain-slot.clickable:hover { transform:scale(1.08); }
+  @keyframes snapIn { 0%{transform:scale(0.3) rotate(-15deg); opacity:0;} 70%{transform:scale(1.15);} 100%{transform:scale(1) rotate(0);} }
+  .chain-link-icon { font-size:16px; color:var(--brass-dark); }
+
+  /* ============ TELEGRAM ============ */
+  .telegram {
+    background:#fdf6dd; border:1px solid #c9b280; max-width:560px; margin:16px auto;
+    padding:18px 22px; box-shadow:3px 4px 0 rgba(91,58,30,0.25);
+    font-family:'Special Elite', monospace; position:relative;
+    animation:slideIn .5s ease;
+  }
+  @keyframes slideIn { from{transform:translateX(-40px); opacity:0;} to{transform:translateX(0); opacity:1;} }
+  .telegram::before {
+    content:"⚡ CONTINENTAL TELEGRAPH CO. ⚡"; display:block; text-align:center;
+    font-size:11px; letter-spacing:2px; border-bottom:1px dashed #c9b280;
+    padding-bottom:6px; margin-bottom:10px; color:var(--brass-dark);
+  }
+  .telegram .msg { font-size:14px; line-height:1.8; letter-spacing:0.5px; min-height:44px; }
+  .telegram .msg::after {
+    content:"▌"; color:var(--brass-dark); animation:blinkCursor 0.8s infinite;
+  }
+  .telegram .msg.done::after { content:""; }
+  @keyframes blinkCursor { 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+  .suspect-btns { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:14px; }
+  .suspect-btn {
+    font-family:'Special Elite', monospace; font-size:14px; letter-spacing:1px;
+    background:var(--paper); border:2px solid var(--walnut); border-radius:12px;
+    padding:12px 18px; cursor:pointer; transition:all .2s; min-width:120px;
+  }
+  .suspect-btn:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 5px 12px rgba(91,58,30,0.3); border-color:var(--brass); }
+  .suspect-btn:disabled { opacity:0.35; cursor:not-allowed; filter:grayscale(1); }
+  .suspect-btn.correct { border-color:var(--green); background:#e5f0dc; box-shadow:0 0 14px rgba(74,124,58,0.5); }
+  .suspect-btn.wrong { border-color:var(--red); background:#f6e0da; }
+
+  /* ============ HINT SYSTEM ============ */
+  .hint-btn {
+    display:block; margin:14px auto 0; font-family:'Special Elite', monospace; font-size:13px;
+    background:transparent; color:var(--brass-dark); border:1px dashed var(--brass-dark);
+    padding:7px 16px; border-radius:8px; cursor:pointer; transition:all .2s; letter-spacing:1px;
+  }
+  .hint-btn:hover { background:rgba(232,163,61,0.15); }
+  .hint-panel {
+    display:none; margin-top:14px; padding:14px; border-radius:12px;
+    background:rgba(232,163,61,0.08); border:1px dashed var(--brass-dark);
+    animation:fadeIn .4s ease;
+  }
+  .hint-panel.open { display:block; }
+  .hint-panel .hint-title {
+    font-family:'Special Elite',monospace; text-align:center; font-size:12px;
+    letter-spacing:2px; color:var(--brass-dark); margin-bottom:10px;
+  }
+  .hint-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+  .hint-file {
+    background:var(--paper); border:1px solid #d9c9a3; border-radius:10px;
+    padding:10px 12px; font-size:12px; line-height:1.5;
+  }
+  .hint-file b { font-family:'Special Elite', monospace; color:var(--walnut); display:block; margin-bottom:3px; }
+
+  /* ============ DIAL ============ */
+  .radio-dial-box {
+    max-width:480px; margin:16px auto; padding:24px;
+    background:linear-gradient(180deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+    border-radius:16px; border:3px solid var(--brass-dark);
+    box-shadow:0 6px 18px rgba(62,39,18,0.5);
+  }
+  .dial-display {
+    font-family:'Special Elite', monospace; font-size:46px; text-align:center;
+    color:var(--brass); text-shadow:0 0 18px rgba(232,163,61,0.8);
+    background:rgba(0,0,0,0.45); border-radius:10px; padding:8px; margin-bottom:16px;
+    border:1px solid var(--brass-dark); letter-spacing:4px;
+  }
+  input[type=range] {
+    width:100%; -webkit-appearance:none; appearance:none; height:10px; border-radius:6px;
+    background:linear-gradient(90deg, #2a1a0c, var(--brass-dark), #2a1a0c); outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; appearance:none; width:30px; height:30px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #ffd98a, var(--brass) 60%, var(--brass-dark));
+    border:2px solid #fff3d6; box-shadow:0 0 12px rgba(232,163,61,0.9); cursor:grab;
+  }
+  input[type=range]::-moz-range-thumb {
+    width:30px; height:30px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #ffd98a, var(--brass) 60%, var(--brass-dark));
+    border:2px solid #fff3d6; box-shadow:0 0 12px rgba(232,163,61,0.9); cursor:grab;
+  }
+  .dial-ticks {
+    display:flex; justify-content:space-between; font-family:'Special Elite',monospace;
+    font-size:11px; color:var(--brass); margin-top:6px; opacity:.7;
+  }
+  .tries-left {
+    font-family:'Special Elite',monospace; text-align:center; font-size:12px;
+    color:var(--brass); margin-top:10px; letter-spacing:2px;
+  }
+
+  /* ============ RADIO (SABOTAGE) ============ */
+  .radio-set {
+    max-width:340px; margin:10px auto; padding:20px;
+    background:linear-gradient(180deg, #6b4423 0%, var(--walnut-dark) 100%);
+    border-radius:18px 18px 10px 10px; border:3px solid var(--brass-dark);
+    box-shadow:0 8px 20px rgba(62,39,18,0.5); text-align:center; position:relative;
+  }
+  .radio-screen-disp {
+    font-family:'Special Elite', monospace; font-size:20px; color:#7CFC90;
+    background:rgba(0,0,0,0.55); border-radius:8px; padding:10px; margin-bottom:12px;
+    border:1px solid var(--brass-dark); min-height:48px; display:flex; align-items:center; justify-content:center;
+    text-shadow:0 0 10px rgba(124,252,144,0.7);
+  }
+  .radio-screen-disp.static-mode { color:#ff6b5e; text-shadow:0 0 10px rgba(255,107,94,0.7); animation:jitter .1s infinite; }
+  @keyframes jitter { 0%{transform:translate(0,0);} 25%{transform:translate(1px,-1px);} 50%{transform:translate(-1px,1px);} 75%{transform:translate(1px,1px);} 100%{transform:translate(0,0);} }
+  .grille {
+    height:70px; border-radius:8px; margin-bottom:8px;
+    background:repeating-linear-gradient(90deg, #2a1a0c 0 6px, #4a2f16 6px 12px);
+    border:2px solid var(--brass-dark); position:relative; overflow:hidden;
+  }
+  .note-float {
+    position:absolute; bottom:-10px; font-size:20px; color:var(--brass);
+    animation:noteUp 2s linear infinite; opacity:0;
+  }
+  @keyframes noteUp { 0%{transform:translateY(0); opacity:0;} 20%{opacity:1;} 100%{transform:translateY(-80px); opacity:0;} }
+
+  /* ============ MC OPTIONS ============ */
+  .mc-opts { display:flex; flex-direction:column; gap:10px; max-width:560px; margin:16px auto 0; }
+  .mc-opt {
+    font-family:'Merriweather', serif; font-size:14px; text-align:left;
+    background:var(--paper); border:2px solid var(--walnut); border-radius:10px;
+    padding:12px 16px; cursor:pointer; transition:all .2s; line-height:1.5;
+  }
+  .mc-opt:hover:not(:disabled) { transform:translateX(6px); border-color:var(--brass); box-shadow:0 3px 10px rgba(91,58,30,0.25); }
+  .mc-opt:disabled { opacity:0.4; cursor:not-allowed; }
+  .mc-opt.correct { border-color:var(--green); background:#e5f0dc; }
+  .mc-opt.wrong { border-color:var(--red); background:#f6e0da; }
+
+  .result-big { font-size:60px; text-align:center; margin:10px 0; }
+  .result-score { font-family:'Special Elite', monospace; font-size:30px; text-align:center; color:var(--walnut); margin:10px 0; }
+  .result-msg { text-align:center; font-size:16px; max-width:520px; margin:0 auto; line-height:1.6; }
+
+  .shake { animation:shakeAnim .45s; }
+  @keyframes shakeAnim {
+    0%,100%{transform:translateX(0);} 15%{transform:translateX(-12px);} 30%{transform:translateX(12px);}
+    45%{transform:translateX(-9px);} 60%{transform:translateX(9px);} 75%{transform:translateX(-5px);} 90%{transform:translateX(5px);}
+  }
+  .confetti-piece { position:fixed; pointer-events:none; z-index:999; }
+
+  .feedback {
+    text-align:center; font-family:'Special Elite', monospace; font-size:15px;
+    min-height:26px; margin-top:12px;
+  }
+  .feedback.good { color:var(--green); }
+  .feedback.bad { color:var(--red); }
+
+  .hint-tag {
+    text-align:center; font-size:12px; font-style:italic; color:#8a7550; margin-top:10px;
+  }
+  .stage-tag {
+    font-family:'Special Elite',monospace; text-align:center; font-size:12px;
+    letter-spacing:3px; color:var(--brass-dark); margin-bottom:6px;
+  }
+
+  @media (max-width:600px) {
+    .card-grid { grid-template-columns:repeat(2,1fr); }
+    .chain-slot { width:70px; height:84px; font-size:9px; }
+    .flip-card { height:185px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <h1>📻 CASE FILE: THE INVISIBLE MESSENGER</h1>
+    <div class="hud">
+      <div class="score-box">SCORE: <span id="score">0</span>/10</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <button class="restart-btn" onclick="location.reload()">↻ RESTART</button>
+    </div>
+  </header>
+
+  <!-- ============ SCREEN 0: INTRO ============ -->
+  <div class="screen active" id="screen-intro">
+    <div class="panel">
+      <h2>DETECTIVE — THE CASE IS OPEN</h2>
+      <p class="lead">Somebody figured out how to send voices through thin air. But this crime has <b>no single culprit</b> — it took a chain of suspects, working for almost 100 years.</p>
+      <p class="lead">Your mission: study the suspect files, rebuild the chain, tune the dial to the key dates… and deliver the final verdict.</p>
+      <button class="big-btn" onclick="showScreen('screen-suspects')">OPEN THE SUSPECT FILES →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 1: SUSPECT FILES ============ -->
+  <div class="screen" id="screen-suspects">
+    <div class="panel">
+      <div class="stage-tag">STAGE 1 OF 4</div>
+      <h2>🗂️ THE SUSPECT FILES</h2>
+      <p class="lead">Six suspects. Click each card to read their secret file. Memorize what each one did — and <b>when</b>. You'll need both.</p>
+      <div class="card-grid" id="cardGrid"></div>
+      <div class="hint-tag" id="flipCounter">Files opened: 0 / 6</div>
+      <button class="big-btn" id="toChainBtn" disabled="" onclick="showScreen('screen-chain'); startChainRound();">BUILD THE CHAIN →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: CHAIN BUILDING ============ -->
+  <div class="screen" id="screen-chain">
+    <div class="panel">
+      <div class="stage-tag">STAGE 2 OF 4</div>
+      <h2>⛓️ REBUILD THE CHAIN</h2>
+      <div class="chain-row" id="chainRow"></div>
+      <div class="telegram"><div class="msg" id="telegramMsg"></div></div>
+      <p class="lead" style="font-size:13px;">Which suspect does this telegram describe? Click to add them as the next link.</p>
+      <div class="suspect-btns" id="suspectBtns"></div>
+      <div class="feedback" id="chainFeedback"></div>
+      <button class="hint-btn" id="hintBtn" onclick="toggleHint()">🔍 SHOW HINT — REOPEN THE FILES</button>
+      <div class="hint-panel" id="hintPanel">
+        <div class="hint-title">— RECOVERED FILES · ORDER UNKNOWN · DATES REDACTED —</div>
+        <div class="hint-grid" id="hintGrid"></div>
+      </div>
+      <button class="big-btn" id="chainNextBtn" style="display:none;" onclick="nextChainRound()">NEXT TELEGRAM →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3: DIAL ============ -->
+  <div class="screen" id="screen-dial">
+    <div class="panel">
+      <div class="stage-tag">STAGE 3 OF 4</div>
+      <h2>🎛️ TUNE THE DIAL</h2>
+      <p class="lead" id="dialQuestion"></p>
+      <div class="radio-dial-box">
+        <div class="dial-display" id="dialDisplay">1860</div>
+        <input type="range" min="1800" max="1920" value="1860" id="dialSlider" oninput="updateDial()">
+        <div class="dial-ticks"><span>1800</span><span>1830</span><span>1860</span><span>1890</span><span>1920</span></div>
+        <div class="tries-left" id="triesLeft"></div>
+      </div>
+      <div class="feedback" id="dialFeedback"></div>
+      <button class="big-btn" id="dialCheckBtn" onclick="checkDial()">CHECK FREQUENCY</button>
+      <button class="big-btn" id="dialNextBtn" style="display:none;" onclick="nextDial()">NEXT →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4: SABOTAGE ============ -->
+  <div class="screen" id="screen-sabotage">
+    <div class="panel">
+      <div class="stage-tag">STAGE 4 OF 4</div>
+      <h2>🔨 THE SABOTAGE TEST</h2>
+      <p class="lead">The chain is complete and the radio is singing. But is EVERY link really needed?<br><b>Click any inventor to erase them from history</b> — and see (and hear!) what happens.</p>
+      <div class="chain-row" id="sabotageRow"></div>
+      <div class="radio-set">
+        <div class="radio-screen-disp" id="radioDisp">♪ ON AIR ♪</div>
+        <div class="grille" id="grille">
+          <span class="note-float" style="left:20%; animation-delay:0s;">♪</span>
+          <span class="note-float" style="left:45%; animation-delay:0.7s;">♫</span>
+          <span class="note-float" style="left:70%; animation-delay:1.3s;">♪</span>
+        </div>
+      </div>
+      <div class="feedback" id="sabotageFeedback" style="min-height:44px;"></div>
+      <button class="big-btn" id="restoreBtn" style="display:none;" onclick="restoreChain()">⏪ RESTORE HISTORY</button>
+      <button class="big-btn" onclick="stopStatic(); showScreen('screen-verdict')">DELIVER THE VERDICT →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 5: VERDICT ============ -->
+  <div class="screen" id="screen-verdict">
+    <div class="panel">
+      <h2>⚖️ THE FINAL VERDICT</h2>
+      <p class="lead"><b>So, Detective — who invented the radio?</b></p>
+      <div class="mc-opts" id="verdictOpts"></div>
+      <div class="feedback" id="verdictFeedback"></div>
+      <button class="big-btn" id="verdictNextBtn" style="display:none;" onclick="showResults()">CLOSE THE CASE →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 6: RESULTS ============ -->
+  <div class="screen" id="screen-results">
+    <div class="panel">
+      <h2>🏆 CASE CLOSED</h2>
+      <div class="result-big" id="resultEmoji"></div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="big-btn" onclick="location.reload()">↻ REOPEN THE CASE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const suspects = [
+  { id:'orsted',   emoji:'🧲', name:'Orsted',          country:'Denmark',  date:'1820',
+    file:'<b>HANS CHRISTIAN ORSTED</b>In 1820 his experiment showed that an electrical current in a wire acts like a MAGNET. The very first clue.',
+    hint:'Noticed that an electric current in a wire makes a compass needle jump — electricity acts like a MAGNET. The very first clue.' },
+  { id:'maxwell',  emoji:'🌊', name:'Maxwell',         country:'Scotland', date:'1865',
+    file:'<b>JAMES CLERK MAXWELL</b>In 1865 he proved WHY electricity and magnets are related: both move through the air as INVISIBLE WAVES.',
+    hint:'Proved WHY electricity and magnets are related: both move through the air as INVISIBLE WAVES.' },
+  { id:'loomis',   emoji:'🪁', name:'Loomis',          country:'USA',      date:'1872',
+    file:'<b>MAHLON LOOMIS</b>In 1872 flew metal KITES on two mountaintops 14 miles apart. One kite\'s electricity was detected by the other!',
+    hint:'Flew metal KITES on two mountaintops 14 miles apart. One kite\'s electricity was detected by the other!' },
+  { id:'hughes',   emoji:'📞', name:'Hughes',          country:'Britain',  date:'1879',
+    file:'<b>DAVID HUGHES</b>In 1879 heard mysterious STATIC on his telephone line. Used the discovery to build a wireless telegraph.',
+    hint:'Heard mysterious STATIC on his telephone line. Used the discovery to build a wireless telegraph.' },
+  { id:'teslamarconi', emoji:'⚡', name:'Tesla & Marconi', country:'The Rivals', date:'1890s',
+    file:'<b>TESLA & MARCONI</b>In the 1890s raced to use the SPECTRUM to send messages — and fought bitterly over who should get the credit.',
+    hint:'Raced to use the SPECTRUM to send messages — and fought bitterly over who should get the credit.' },
+  { id:'fessenden', emoji:'🎻', name:'Fessenden',      country:'Canada',   date:'1906',
+    file:'<b>REGINALD FESSENDEN</b>First to send a human VOICE across radio waves. On Dec 24, 1906 he played violin for ships at sea.',
+    hint:'First to send a human VOICE across radio waves. Played violin for ships in the middle of the ocean.' }
+];
+
+const chainRounds = [
+  { answer:'orsted',   telegram:'SUSPECT PASSED ELECTRIC CURRENT THROUGH A WIRE STOP NEARBY COMPASS NEEDLE JUMPED STOP ELECTRICITY ACTS LIKE A MAGNET STOP FIND THE FIRST LINK STOP' },
+  { answer:'maxwell',  telegram:'SUSPECT PROVED ELECTRICITY AND MAGNETS ARE RELATED STOP BOTH TRAVEL THROUGH AIR AS INVISIBLE WAVES STOP IDENTIFY IMMEDIATELY STOP' },
+  { answer:'loomis',   telegram:'SUSPECT SEEN FLYING METAL KITES ON TWO MOUNTAINS 14 MILES APART STOP ELECTRIC CURRENT JUMPED FROM ONE TO THE OTHER STOP' },
+  { answer:'hughes',   telegram:'SUSPECT HEARD STRANGE STATIC ON HIS TELEPHONE LINE STOP TURNED THE MYSTERY INTO A WIRELESS TELEGRAPH STOP' },
+  { answer:'teslamarconi', telegram:'SUSPECTS RACED TO SEND MESSAGES WITH THE SPECTRUM STOP NOW FIGHTING OVER WHO GETS THE CREDIT STOP SCANDALOUS STOP' },
+  { answer:'fessenden', telegram:'SUSPECT SENT HUMAN VOICE ACROSS THE RADIO WAVES STOP PLAYED VIOLIN TO SAILORS IN THE MIDDLE OF THE OCEAN STOP' }
+];
+
+const dialQuestions = [
+  { q:'Tune the dial to the year Orsted discovered that electricity in a wire acts like a magnet.', answer:1820 },
+  { q:'Tune the dial to the year Loomis flew his metal kites on two mountaintops — the first wireless signal across 14 miles.', answer:1872 },
+  { q:'Tune the dial to the year Fessenden played his violin for ships at sea — the first radio ENTERTAINMENT ever.', answer:1906 }
+];
+const DIAL_TRIES = 4;
+
+const sabotageMsgs = {
+  orsted:  'Nobody ever notices that electricity and magnets are connected. Maxwell has nothing to explain. The chain never even STARTS. ☠️ NO RADIO.',
+  maxwell: 'Nobody knows invisible waves exist. The kites and the static stay unsolved mysteries forever. ☠️ NO RADIO.',
+  loomis:  'Nobody proves a message can fly between two mountains with no wires. Why would anyone even try to build a wireless machine? ☠️ NO RADIO.',
+  hughes:  'The static stays just an annoying noise. No wireless telegraph — the race never gets its starting gun. ☠️ NO RADIO.',
+  teslamarconi: 'No race, no rivals, no working wireless systems for others to improve. Progress freezes. ☠️ NO RADIO.',
+  fessenden: 'Radios can only send BEEPS forever. No voices. No music. Ever tried dancing to beeps? ☠️ NO MUSIC, NO SHOWS.'
+};
+
+const verdictOptions = [
+  { text:'Marconi — he won the fight for the credit, so it counts as his.', correct:false },
+  { text:'Dozens of people — each one added a new link to the chain over 100 years.', correct:true },
+  { text:'Fessenden — he was the first to send a real voice, and that\'s what radio is.', correct:false },
+  { text:'Nobody — radio waves already existed in nature, so it was discovered, not invented.', correct:false }
+];
+
+/* ================= STATE ================= */
+let score = 0;
+let questionsDone = 0;
+const TOTAL_Q = 10;
+let flippedCount = 0;
+let chainIndex = 0;
+let chainAttempts = 0;
+let placed = [];
+let dialIndex = 0;
+let dialAttempts = 0;
+let verdictAttempts = 0;
+let typingDone = false;
+
+/* ================= AUDIO ================= */
+let audioCtx = null;
+let staticSrc = null, staticGain = null;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function morseBeep(long) {
+  try {
+    ensureAudio();
+    const t = audioCtx.currentTime;
+    const dur = long ? 0.13 : 0.045;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 620;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.07, t + 0.005);
+    g.gain.setValueAtTime(0.07, t + dur - 0.01);
+    g.gain.linearRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  } catch(e) {}
+}
+function startStatic() {
+  try {
+    ensureAudio();
+    if (staticSrc) return;
+    const len = audioCtx.sampleRate * 2;
+    const buffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    staticSrc = audioCtx.createBufferSource();
+    staticSrc.buffer = buffer;
+    staticSrc.loop = true;
+    staticGain = audioCtx.createGain();
+    staticGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    staticGain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.15);
+    staticSrc.connect(staticGain); staticGain.connect(audioCtx.destination);
+    staticSrc.start();
+  } catch(e) {}
+}
+function stopStatic() {
+  try {
+    if (!staticSrc) return;
+    staticGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+    const s = staticSrc;
+    setTimeout(() => { try { s.stop(); } catch(e){} }, 250);
+    staticSrc = null; staticGain = null;
+  } catch(e) {}
+}
+
+/* ================= HELPERS ================= */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function updateHUD() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('progressFill').style.width = (questionsDone / TOTAL_Q * 100) + '%';
+}
+function shakeScreen() {
+  const app = document.getElementById('app');
+  app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
+}
+function confetti() {
+  const colors = ['#e8a33d','#b87d1e','#4a7c3a','#b0432f','#5b3a1e','#ffd98a'];
+  const shapes = ['50%','0%','0% 50% 50% 50%'];
+  for (let i=0; i<60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const size = 6 + Math.random()*10;
+    p.style.width = size+'px'; p.style.height = size+'px';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.borderRadius = shapes[Math.floor(Math.random()*shapes.length)];
+    p.style.left = '50%'; p.style.top = '40%';
+    document.body.appendChild(p);
+    const angle = Math.random()*Math.PI*2;
+    const velocity = 5 + Math.random()*12;
+    let vx = Math.cos(angle)*velocity, vy = Math.sin(angle)*velocity - 6;
+    let x=0, y=0, rot=0, life=0;
+    const spin = (Math.random()-0.5)*20;
+    const tick = () => {
+      life++; x+=vx; y+=vy; vy+=0.45; rot+=spin;
+      p.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
+      p.style.opacity = 1 - life/70;
+      if (life < 70) requestAnimationFrame(tick); else p.remove();
+    };
+    requestAnimationFrame(tick);
+  }
+}
+function suspectById(id){ return suspects.find(s=>s.id===id); }
+
+/* ================= STAGE 1: FLIP CARDS ================= */
+function buildCards() {
+  const grid = document.getElementById('cardGrid');
+  suspects.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'flip-card';
+    card.innerHTML = `<div class="flip-inner">
+      <div class="flip-face flip-front">
+        <div class="emoji">${s.emoji}</div>
+        <div class="name">${s.name}</div>
+        <div class="date-stamp">${s.date}</div>
+        <div class="stamp">— ${s.country} —<br>TOP SECRET</div>
+      </div>
+      <div class="flip-face flip-back">${s.file}</div>
+    </div>`;
+    card.onclick = () => {
+      if (!card.classList.contains('was-flipped')) {
+        card.classList.add('was-flipped');
+        flippedCount++;
+        document.getElementById('flipCounter').textContent = `Files opened: ${flippedCount} / 6`;
+        if (flippedCount === 6) {
+          document.getElementById('toChainBtn').disabled = false;
+          document.getElementById('flipCounter').textContent = 'All files opened. Ready, Detective.';
+        }
+      }
+      card.classList.toggle('flipped');
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ================= STAGE 2: CHAIN ================= */
+function renderChain(containerId, brokenId=null, clickable=false) {
+  const row = document.getElementById(containerId);
+  row.innerHTML = '';
+  suspects.forEach((s, i) => {
+    if (i > 0) {
+      const link = document.createElement('span');
+      link.className = 'chain-link-icon';
+      link.textContent = '🔗';
+      row.appendChild(link);
+    }
+    const slot = document.createElement('div');
+    if (placed.includes(s.id)) {
+      slot.className = 'chain-slot filled';
+      if (brokenId === s.id) slot.className = 'chain-slot broken';
+      if (clickable) {
+        slot.classList.add('clickable');
+        slot.onclick = () => sabotage(s.id);
+      }
+      slot.innerHTML = `<div class="emoji">${s.emoji}</div><div>${s.name}</div>`;
+    } else {
+      slot.className = 'chain-slot empty';
+      slot.textContent = '?';
+    }
+    row.appendChild(slot);
+  });
+}
+
+function typeTelegram(text, onDone) {
+  const el = document.getElementById('telegramMsg');
+  el.textContent = '';
+  el.classList.remove('done');
+  typingDone = false;
+  let i = 0;
+  function step() {
+    if (i >= text.length) {
+      el.classList.add('done');
+      typingDone = true;
+      onDone();
+      return;
+    }
+    const ch = text[i];
+    el.textContent += ch;
+    i++;
+    let delay = 35 + Math.random() * 45;
+    if (ch !== ' ' && Math.random() < 0.55) {
+      const long = Math.random() < 0.3;
+      morseBeep(long);
+      if (long) delay += 55;
+    }
+    setTimeout(step, delay);
+  }
+  step();
+}
+
+function startChainRound() {
+  chainAttempts = 0;
+  renderChain('chainRow');
+  document.getElementById('chainFeedback').textContent = '';
+  document.getElementById('chainFeedback').className = 'feedback';
+  document.getElementById('chainNextBtn').style.display = 'none';
+  document.getElementById('hintPanel').classList.remove('open');
+  document.getElementById('hintBtn').textContent = '🔍 SHOW HINT — REOPEN THE FILES';
+
+  const btns = document.getElementById('suspectBtns');
+  btns.innerHTML = '';
+  const remaining = suspects.filter(s => !placed.includes(s.id));
+  remaining.sort(() => Math.random() - 0.5);
+  remaining.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'suspect-btn';
+    b.dataset.id = s.id;
+    b.textContent = s.name;
+    b.disabled = true; // locked until the telegram finishes typing
+    b.onclick = () => pickSuspect(s.id, b);
+    btns.appendChild(b);
+  });
+
+  typeTelegram(chainRounds[chainIndex].telegram, () => {
+    document.querySelectorAll('.suspect-btn').forEach(b => b.disabled = false);
+  });
+}
+
+function toggleHint() {
+  const panel = document.getElementById('hintPanel');
+  const btn = document.getElementById('hintBtn');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    btn.textContent = '🔍 SHOW HINT — REOPEN THE FILES';
+  } else {
+    const grid = document.getElementById('hintGrid');
+    grid.innerHTML = '';
+    const shuffled = [...suspects].sort(() => Math.random() - 0.5);
+    shuffled.forEach(s => {
+      const d = document.createElement('div');
+      d.className = 'hint-file';
+      d.innerHTML = `<b>${s.name}</b>${s.hint}`;
+      grid.appendChild(d);
+    });
+    panel.classList.add('open');
+    btn.textContent = '🙈 HIDE HINT';
+  }
+}
+
+function pickSuspect(id, btn) {
+  if (!typingDone) return;
+  const round = chainRounds[chainIndex];
+  chainAttempts++;
+  if (id === round.answer) {
+    placed.push(id);
+    renderChain('chainRow');
+    btn.classList.add('correct');
+    document.querySelectorAll('.suspect-btn').forEach(b => b.disabled = true);
+    const fb = document.getElementById('chainFeedback');
+    if (chainAttempts <= 2) {
+      score++; confetti();
+      fb.textContent = '✔ LINK SECURED. +1 POINT';
+      fb.className = 'feedback good';
+    } else {
+      fb.textContent = '✔ Link secured — but the trail went cold. No point this time.';
+      fb.className = 'feedback good';
+    }
+    questionsDone++;
+    updateHUD();
+    document.getElementById('chainNextBtn').style.display = 'block';
+    if (chainIndex === chainRounds.length - 1) {
+      document.getElementById('chainNextBtn').textContent = 'CHAIN COMPLETE — TO THE DIAL →';
+    }
+  } else {
+    shakeScreen();
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    const fb = document.getElementById('chainFeedback');
+    fb.textContent = '✘ Wrong suspect. Read the telegram again…';
+    fb.className = 'feedback bad';
+  }
+}
+
+function nextChainRound() {
+  chainIndex++;
+  if (chainIndex < chainRounds.length) {
+    startChainRound();
+  } else {
+    showScreen('screen-dial');
+    loadDial();
+  }
+}
+
+/* ================= STAGE 3: DIAL ================= */
+function loadDial() {
+  dialAttempts = 0;
+  document.getElementById('dialQuestion').innerHTML = '<b>' + dialQuestions[dialIndex].q + '</b>';
+  document.getElementById('dialSlider').value = 1860;
+  document.getElementById('dialDisplay').textContent = 1860;
+  document.getElementById('dialFeedback').textContent = '';
+  document.getElementById('dialFeedback').className = 'feedback';
+  document.getElementById('triesLeft').textContent = `SIGNAL ATTEMPTS: ${DIAL_TRIES}`;
+  document.getElementById('dialCheckBtn').style.display = 'block';
+  document.getElementById('dialNextBtn').style.display = 'none';
+}
+function updateDial() {
+  document.getElementById('dialDisplay').textContent = document.getElementById('dialSlider').value;
+}
+function checkDial() {
+  const val = parseInt(document.getElementById('dialSlider').value);
+  const target = dialQuestions[dialIndex].answer;
+  const fb = document.getElementById('dialFeedback');
+  dialAttempts++;
+  const remaining = DIAL_TRIES - dialAttempts;
+  if (Math.abs(val - target) <= 2) {
+    // point only if solved within first 2 attempts
+    if (dialAttempts <= 2) {
+      score++; confetti();
+      fb.textContent = `📡 SIGNAL LOCKED: ${target}. +1 POINT`;
+    } else {
+      confetti();
+      fb.textContent = `📡 SIGNAL LOCKED: ${target}. Found it — but too much static for a point.`;
+    }
+    fb.className = 'feedback good';
+    questionsDone++; updateHUD();
+    document.getElementById('triesLeft').textContent = '';
+    document.getElementById('dialCheckBtn').style.display = 'none';
+    document.getElementById('dialNextBtn').style.display = 'block';
+    if (dialIndex === dialQuestions.length - 1)
+      document.getElementById('dialNextBtn').textContent = 'TO THE SABOTAGE TEST →';
+  } else {
+    shakeScreen();
+    if (dialAttempts >= DIAL_TRIES) {
+      questionsDone++; updateHUD();
+      fb.textContent = `✘ SHHHH… static. The signal was at ${target}.`;
+      fb.className = 'feedback bad';
+      document.getElementById('triesLeft').textContent = '';
+      document.getElementById('dialCheckBtn').style.display = 'none';
+      document.getElementById('dialNextBtn').style.display = 'block';
+      if (dialIndex === dialQuestions.length - 1)
+        document.getElementById('dialNextBtn').textContent = 'TO THE SABOTAGE TEST →';
+    } else {
+      fb.textContent = val < target ? '✘ Static… tune HIGHER.' : '✘ Static… tune LOWER.';
+      fb.className = 'feedback bad';
+      document.getElementById('triesLeft').textContent = `SIGNAL ATTEMPTS: ${remaining}`;
+    }
+  }
+}
+function nextDial() {
+  dialIndex++;
+  if (dialIndex < dialQuestions.length) {
+    loadDial();
+  } else {
+    showScreen('screen-sabotage');
+    renderChain('sabotageRow', null, true);
+  }
+}
+
+/* ================= STAGE 4: SABOTAGE ================= */
+function sabotage(id) {
+  renderChain('sabotageRow', id, false);
+  const disp = document.getElementById('radioDisp');
+  disp.textContent = 'SHHHHHHH…';
+  disp.classList.add('static-mode');
+  document.querySelectorAll('.note-float').forEach(n => n.style.display = 'none');
+  startStatic();
+  const fb = document.getElementById('sabotageFeedback');
+  fb.innerHTML = `<b>${suspectById(id).emoji} ${suspectById(id).name} erased from history…</b><br>${sabotageMsgs[id]}`;
+  fb.className = 'feedback bad';
+  document.getElementById('restoreBtn').style.display = 'block';
+}
+function restoreChain() {
+  renderChain('sabotageRow', null, true);
+  const disp = document.getElementById('radioDisp');
+  disp.textContent = '♪ ON AIR ♪';
+  disp.classList.remove('static-mode');
+  document.querySelectorAll('.note-float').forEach(n => n.style.display = 'block');
+  stopStatic();
+  const fb = document.getElementById('sabotageFeedback');
+  fb.textContent = 'History restored. The radio sings again. Try erasing someone else!';
+  fb.className = 'feedback good';
+}
+
+/* ================= STAGE 5: VERDICT ================= */
+function buildVerdict() {
+  const box = document.getElementById('verdictOpts');
+  const opts = [...verdictOptions].sort(() => Math.random() - 0.5);
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'mc-opt';
+    b.textContent = o.text;
+    b.onclick = () => {
+      verdictAttempts++;
+      if (o.correct) {
+        b.classList.add('correct');
+        document.querySelectorAll('.mc-opt').forEach(x => x.disabled = true);
+        const fb = document.getElementById('verdictFeedback');
+        if (verdictAttempts <= 2) {
+          score++; confetti();
+          fb.textContent = '✔ VERDICT ACCEPTED. +1 POINT';
+        } else {
+          fb.textContent = '✔ Verdict accepted — third attempt, no point.';
+        }
+        fb.className = 'feedback good';
+        questionsDone++; updateHUD();
+        document.getElementById('verdictNextBtn').style.display = 'block';
+      } else {
+        shakeScreen();
+        b.classList.add('wrong');
+        b.disabled = true;
+        const fb = document.getElementById('verdictFeedback');
+        fb.textContent = '✘ Objection! Think about the CHAIN, Detective…';
+        fb.className = 'feedback bad';
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ================= RESULTS ================= */
+function showResults() {
+  showScreen('screen-results');
+  document.getElementById('resultScore').textContent = `SCORE: ${score} / 10`;
+  const emoji = document.getElementById('resultEmoji');
+  const msg = document.getElementById('resultMsg');
+  if (score >= 9) {
+    emoji.textContent = '🕵️📻🏆';
+    msg.innerHTML = '<b>MASTER DETECTIVE!</b> You cracked the case: the radio had no single inventor — it was a 100-year relay race, and you identified every runner. The Invisible Messenger has no secrets from you.';
+    confetti(); setTimeout(confetti, 400);
+  } else if (score >= 6) {
+    emoji.textContent = '🕵️📻';
+    msg.innerHTML = '<b>SOLID DETECTIVE WORK.</b> The case is closed — a chain of inventors, not one genius. A couple of clues slipped past you, but the verdict stands.';
+  } else {
+    emoji.textContent = '🔍📻';
+    msg.innerHTML = '<b>THE TRAIL WENT COLD…</b> but every detective reopens tough cases. Hit "Reopen the Case" and interrogate those suspects again!';
+  }
+}
+
+/* ================= PARTICLES ================= */
+function spawnParticles() {
+  const symbols = ['♪','♫','📻','〰️','⚡'];
+  for (let i=0; i<14; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.animationDuration = (12 + Math.random()*18) + 's';
+    p.style.animationDelay = -(Math.random()*20) + 's';
+    p.style.fontSize = (14 + Math.random()*18) + 'px';
+    document.body.appendChild(p);
+  }
+}
+
+/* ================= INIT ================= */
+buildCards();
+buildVerdict();
+spawnParticles();
+updateHUD();
+</script>
+
+
+</body></html>

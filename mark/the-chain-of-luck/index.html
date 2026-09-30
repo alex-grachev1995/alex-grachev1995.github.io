@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Chain of Luck</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #1a1611;
+    color:#e8dcc4;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .spore {
+    position:fixed; border-radius:50%;
+    background:radial-gradient(circle, rgba(140,160,90,.5), rgba(140,160,90,0));
+    pointer-events:none; z-index:0;
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    0% { transform:translateY(105vh) translateX(0) rotate(0deg); }
+    100% { transform:translateY(-10vh) translateX(60px) rotate(360deg); }
+  }
+  .wrap { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:20px 15px 60px; }
+  header { text-align:center; padding:10px 0 20px; border-bottom:2px dashed #6b5d3f; margin-bottom:20px; }
+  .stamp {
+    display:inline-block; border:3px solid #a33; color:#c55;
+    padding:2px 14px; font-size:.8em; letter-spacing:3px;
+    transform:rotate(-4deg); text-transform:uppercase; font-weight:bold; margin-bottom:10px;
+  }
+  h1 { font-size:1.7em; color:#f0e3c0; letter-spacing:1px; }
+  .sub { color:#a99a75; font-style:italic; margin-top:6px; font-size:.95em; }
+  .board { display:flex; flex-wrap:wrap; gap:24px; }
+  .chain-col { flex:1 1 320px; }
+  .pool-col { flex:1 1 320px; }
+  .col-title {
+    font-size:.85em; letter-spacing:2px; text-transform:uppercase;
+    color:#a99a75; border-bottom:1px solid #6b5d3f; padding-bottom:6px; margin-bottom:12px;
+  }
+  .slot {
+    background:#241f16; border:1px dashed #5a4d33; border-radius:6px;
+    min-height:52px; margin-bottom:4px; display:flex; align-items:center;
+    padding:10px 12px; color:#5a4d33; font-style:italic; font-size:.9em;
+    transition: all .3s;
+  }
+  .slot.filled {
+    background:#3a3020; border:1px solid #8a7648; color:#f0e3c0;
+    font-style:normal; animation: snapIn .4s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  }
+  .slot.filled .num {
+    background:#8a7648; color:#1a1611; border-radius:50%;
+    min-width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    font-weight:bold; margin-right:10px; font-size:.85em; font-family:sans-serif;
+  }
+  @keyframes snapIn {
+    0% { transform:scale(.8) translateX(30px); opacity:0; }
+    70% { transform:scale(1.05); }
+    100% { transform:scale(1); opacity:1; }
+  }
+  .link-joint { text-align:center; color:#6b5d3f; font-size:1.1em; line-height:1; margin:-2px 0; user-select:none; }
+  .card {
+    background:#efe4c8; color:#2b2416; border-radius:6px;
+    padding:12px 14px; margin-bottom:10px; cursor:pointer;
+    border-left:5px solid #8a7648; font-size:.95em; line-height:1.35;
+    box-shadow: 0 3px 6px rgba(0,0,0,.5);
+    transition: transform .15s, opacity .3s;
+    user-select:none;
+  }
+  .card:hover { transform: translateX(-4px); background:#f7ecce; }
+  .card.gone { opacity:0; transform:scale(.7); pointer-events:none; height:0; padding:0 14px; margin:0; overflow:hidden; }
+  .card.shake { animation: shake .4s; border-left-color:#a33; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(6px);}
+  }
+  .slot.broken { background:#2e1414; border:1px solid #a33; color:#c99; text-decoration:line-through; opacity:.75; }
+  .slot.breakable { cursor:pointer; }
+  .slot.breakable:not(.broken):hover { border-color:#c55; box-shadow:0 0 10px rgba(200,60,60,.3); }
+  .alt-history {
+    background:#2e1414; border-left:4px solid #a33; color:#e8b8b8;
+    padding:10px 14px; margin:2px 0 8px; font-size:.9em; font-style:italic;
+    border-radius:0 6px 6px 0; animation: snapIn .3s ease;
+  }
+  #verdict {
+    display:none; text-align:center; margin-top:24px; padding:20px;
+    background:#241f16; border:2px solid #8a7648; border-radius:10px;
+    animation: snapIn .5s ease;
+  }
+  #verdict h2 { color:#f0e3c0; margin-bottom:10px; }
+  #verdict p { color:#c9ba95; line-height:1.5; }
+  .quote { font-style:italic; color:#e8dcc4; margin-top:12px; font-size:1.05em; }
+  #breakBtn {
+    display:none; margin:18px auto 0; padding:12px 26px; font-size:1em;
+    background:#7a1f1f; color:#f0d8d8; border:2px solid #a33; border-radius:8px;
+    cursor:pointer; font-family:inherit; letter-spacing:1px;
+  }
+  #breakBtn:hover { background:#8f2525; }
+  .break-hint { display:none; text-align:center; color:#c99; font-style:italic; margin-top:10px; font-size:.9em; }
+  .confetti-bit { position:fixed; width:9px; height:9px; z-index:99; pointer-events:none; }
+  #progress { text-align:center; color:#a99a75; font-size:.9em; margin-bottom:14px; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stamp">Case Evidence · 1928</div>
+    <h1>⛓️ The Chain of Luck</h1>
+    <div class="sub">Rebuild the seven events that led to penicillin — in the exact order they happened.</div>
+  </header>
+
+  <div id="progress">Links forged: <span id="count">0</span> / 7</div>
+
+  <div class="board">
+    <div class="chain-col">
+      <div class="col-title">🔗 The Chain</div>
+      <div id="chain"></div>
+    </div>
+    <div class="pool-col">
+      <div class="col-title">🗂️ Evidence Cards — pick what comes NEXT</div>
+      <div id="pool"></div>
+    </div>
+  </div>
+
+  <button id="breakBtn">💥 BREAK THE CHAIN</button>
+  <div class="break-hint" id="breakHint">Click any link to break it — and see what history would look like without it. Click again to repair.</div>
+
+  <div id="verdict">
+    <h2>⛓️ CHAIN COMPLETE, DETECTIVE</h2>
+    <p>Seven links. Break <b>any single one</b> — and there is no penicillin in 1928.</p>
+    <p class="quote">"Chance favors the prepared mind." — Louis Pasteur</p>
+    <p style="margin-top:10px;">The luck happened to lots of people. Moldy dishes existed everywhere.<br>Only Fleming asked <b>WHY</b>.</p>
+  </div>
+</div>
+
+<script>
+const EVENTS = [
+  { text:"Fleming was messy — he left dirty petri dishes with bacteria on his bench instead of cleaning them.",
+    alt:"Alternate history: Fleming cleans up like a tidy scientist. No dish left out. Nothing to discover. History erased." },
+  { text:"He left the laboratory for a two-week vacation.",
+    alt:"Alternate history: Fleming stays and works. The dish gets used or washed within a day. The mold never gets its two quiet weeks." },
+  { text:"A RARE mold spore — Penicillium — drifted in, likely from a mold lab one floor below.",
+    alt:"Alternate history: an ordinary bread mold lands instead. It grows… and does absolutely nothing to the bacteria. Just a gross dish." },
+  { text:"The weather turned COOL — perfect for the mold to grow first.",
+    alt:"Alternate history: a warm week. The bacteria grow fast and smother the dish before the mold can even wake up." },
+  { text:"Then the weather turned WARM — perfect for the bacteria to grow all around the mold.",
+    alt:"Alternate history: it stays cold. No bacterial lawn grows — so there's no visible clear ring. Nothing to notice." },
+  { text:"Back from vacation, Fleming glanced at the dish before washing it — and NOTICED a clear ring around the mold where bacteria had died.",
+    alt:"Alternate history: the dish slides into the sink with the others. The greatest medicine of the century goes down the drain." },
+  { text:"Instead of saying 'gross' and throwing it away — he asked 'WHY?'",
+    alt:"Alternate history: 'Ugh, moldy.' Penicillin waits years for someone else. Thousands more die of simple infections. This link was the ONLY one Fleming controlled." }
+];
+
+const chainEl = document.getElementById('chain');
+const poolEl = document.getElementById('pool');
+let placed = 0;
+let breakMode = false;
+
+// build slots
+EVENTS.forEach((e,i)=>{
+  const s = document.createElement('div');
+  s.className='slot'; s.id='slot'+i;
+  s.textContent = 'link #'+(i+1)+' — waiting…';
+  chainEl.appendChild(s);
+  if(i < EVENTS.length-1){
+    const j = document.createElement('div');
+    j.className='link-joint'; j.textContent='⛓'; j.id='joint'+i;
+    chainEl.appendChild(j);
+  }
+});
+
+// shuffled pool
+const order = EVENTS.map((_,i)=>i).sort(()=>Math.random()-.5);
+order.forEach(i=>{
+  const c = document.createElement('div');
+  c.className='card'; c.textContent = EVENTS[i].text; c.dataset.idx=i;
+  c.onclick = ()=>pick(c);
+  poolEl.appendChild(c);
+});
+
+function pick(card){
+  if(breakMode) return;
+  const idx = +card.dataset.idx;
+  if(idx === placed){
+    card.classList.add('gone');
+    const slot = document.getElementById('slot'+idx);
+    slot.classList.add('filled');
+    slot.innerHTML = '<span class="num">'+(idx+1)+'</span><span>'+EVENTS[idx].text+'</span>';
+    placed++;
+    document.getElementById('count').textContent = placed;
+    if(placed === EVENTS.length) complete();
+  } else {
+    card.classList.remove('shake'); void card.offsetWidth;
+    card.classList.add('shake');
+  }
+}
+
+function complete(){
+  confetti();
+  document.getElementById('verdict').style.display='block';
+  document.getElementById('breakBtn').style.display='block';
+}
+
+document.getElementById('breakBtn').onclick = ()=>{
+  breakMode = true;
+  document.getElementById('breakHint').style.display='block';
+  document.getElementById('breakBtn').style.display='none';
+  EVENTS.forEach((e,i)=>{
+    const slot = document.getElementById('slot'+i);
+    slot.classList.add('breakable');
+    slot.onclick = ()=>toggleBreak(i);
+  });
+};
+
+function toggleBreak(i){
+  const slot = document.getElementById('slot'+i);
+  const existing = document.getElementById('alt'+i);
+  if(existing){
+    existing.remove();
+    slot.classList.remove('broken');
+    const j = document.getElementById('joint'+i); if(j) j.textContent='⛓';
+    return;
+  }
+  slot.classList.add('broken');
+  const alt = document.createElement('div');
+  alt.className='alt-history'; alt.id='alt'+i;
+  alt.textContent = '💥 ' + EVENTS[i].alt;
+  slot.after(alt);
+  const j = document.getElementById('joint'+i); if(j) j.textContent='✂️';
+}
+
+function confetti(){
+  const colors=['#e6c860','#8a7648','#c55','#7a9a4a','#f0e3c0'];
+  for(let i=0;i<80;i++){
+    const b=document.createElement('div');
+    b.className='confetti-bit';
+    b.style.background=colors[Math.floor(Math.random()*colors.length)];
+    b.style.left=Math.random()*100+'vw';
+    b.style.top='-12px';
+    b.style.borderRadius = Math.random()>.5?'50%':'0';
+    document.body.appendChild(b);
+    const fall = b.animate([
+      { transform:'translateY(0) rotate(0deg)', opacity:1 },
+      { transform:'translateY(105vh) rotate('+(Math.random()*720-360)+'deg)', opacity:.6 }
+    ], { duration:2200+Math.random()*2000, easing:'ease-in', delay:Math.random()*400 });
+    fall.onfinish=()=>b.remove();
+  }
+}
+
+// floating spores
+for(let i=0;i<14;i++){
+  const s=document.createElement('div');
+  s.className='spore';
+  const size = 6+Math.random()*18;
+  s.style.width=s.style.height=size+'px';
+  s.style.left=Math.random()*100+'vw';
+  s.style.animationDuration=(14+Math.random()*20)+'s';
+  s.style.animationDelay=(-Math.random()*20)+'s';
+  document.body.appendChild(s);
+}
+</script>
+
+
+</body></html>

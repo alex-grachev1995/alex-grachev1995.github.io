@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suspect Profile: MOLD</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: Georgia, serif; background:#151a12; color:#dfe8d0;
+    min-height:100vh; padding:20px 12px 60px;
+  }
+  .wrap { max-width:800px; margin:0 auto; }
+  header { text-align:center; margin-bottom:8px; }
+  .stamp {
+    display:inline-block; border:3px solid #7a9a4a; color:#9ec46a;
+    padding:2px 14px; font-size:.8em; letter-spacing:3px;
+    transform:rotate(3deg); text-transform:uppercase; font-weight:bold; margin-bottom:10px;
+  }
+  h1 { color:#eef5e0; font-size:1.6em; }
+  .sub { color:#93a67e; font-style:italic; margin:6px 0 14px; font-size:.95em; }
+  #score {
+    text-align:center; background:#1e2618; border:1px solid #46583a;
+    border-radius:8px; padding:8px; margin-bottom:18px; letter-spacing:1px; font-size:.95em;
+  }
+  .card {
+    background:#f2eed9; color:#26301c; border-radius:10px;
+    padding:16px; margin-bottom:14px;
+    border-left:6px solid #7a9a4a;
+    box-shadow:0 3px 8px rgba(0,0,0,.5);
+  }
+  .card .tag { font-size:.72em; letter-spacing:2px; color:#7a8a5e; text-transform:uppercase; font-family:sans-serif; }
+  .card .stmt { font-size:1.05em; line-height:1.4; margin:8px 0 12px; }
+  .btns { display:flex; gap:10px; }
+  .btns button {
+    flex:1; padding:10px; font-size:1em; font-family:inherit; font-weight:bold;
+    border:2px solid; border-radius:8px; cursor:pointer; letter-spacing:1px;
+    transition: transform .1s;
+  }
+  .btns button:hover { transform:scale(1.03); }
+  .bt { background:#e3efd3; border-color:#5d7a3a; color:#3d5522; }
+  .bf { background:#f3ddd3; border-color:#a05535; color:#7a3a1e; }
+  .reveal {
+    margin-top:12px; padding:12px; border-radius:8px; font-size:.95em;
+    line-height:1.45; animation:pop .35s ease;
+  }
+  @keyframes pop { 0%{transform:scale(.9);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+  .reveal.ok { background:#dcecc8; border:1px solid #7a9a4a; }
+  .reveal.no { background:#f0d5cb; border:1px solid #a05535; }
+  .reveal b { display:block; margin-bottom:4px; }
+  .card.done .btns button { pointer-events:none; opacity:.45; }
+  .card.done .btns button.chosen { opacity:1; outline:3px solid #26301c; }
+  .card.shakeit { animation:shk .4s; }
+  @keyframes shk { 0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}50%{transform:translateX(7px);}75%{transform:translateX(-5px);} }
+  #final {
+    display:none; text-align:center; background:#1e2618; border:2px solid #7a9a4a;
+    border-radius:12px; padding:22px; margin-top:10px; animation:pop .5s ease;
+  }
+  #final h2 { color:#cfe6a8; margin-bottom:8px; }
+  #final p { color:#aabf90; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stamp">Classified · Suspect File</div>
+    <h1>🍄 Suspect Profile: MOLD</h1>
+    <div class="sub">Ten statements from the case file. Some are true. Some are lies. Vote on every card, Detective.</div>
+  </header>
+  <div id="score">Verdicts: <span id="done">0</span>/10 &nbsp;·&nbsp; Correct: <span id="pts">0</span> 🔎</div>
+  <div id="cards"></div>
+  <div id="final">
+    <h2 id="finalTitle"></h2>
+    <p id="finalText"></p>
+  </div>
+</div>
+
+<script>
+const FACTS = [
+  { s:"Mold is a tiny plant — that's why it grows on old bread.", a:false,
+    e:"Mold is a FUNGUS. Not a plant, not an animal — a whole third kingdom of life. Plants make food from sunlight; mold 'eats' its food from outside, like a stomach turned inside out." },
+  { s:"You breathe in mold spores with almost every breath you take.", a:true,
+    e:"They're floating around you right now. In small numbers they're harmless — your body handles them without you ever noticing. That's exactly how one drifted onto Fleming's dish." },
+  { s:"'Penicillium' means 'little poison' in Latin.", a:false,
+    e:"It means 'little PAINTBRUSH' — under a microscope, its spore stalks look exactly like tiny brushes. Watch for that shape in the timelapse!" },
+  { s:"Blue cheese is safe to eat because all the mold is removed before it's sold.", a:false,
+    e:"You EAT the mold — those blue veins ARE it. And here's the twist: it's from the Penicillium family. The same family as the medicine." },
+  { s:"Soy sauce is made with the help of mold.", a:true,
+    e:"A mold called koji spends months breaking down soybeans to create that flavor. No mold, no soy sauce. It also helps make miso soup." },
+  { s:"The largest living organism on Earth is the blue whale.", a:false,
+    e:"It's a FUNGUS. One single honey fungus in Oregon spreads underground across an area bigger than 1,600 football fields — and it's thousands of years old." },
+  { s:"Black fungi found at Chernobyl grow better BECAUSE of the radiation.", a:true,
+    e:"They appear to use radiation as an energy source — a bit like plants use sunlight. Scientists are studying them for protecting astronauts in space." },
+  { s:"Mold has been found growing on the International Space Station.", a:true,
+    e:"Astronauts have to scrub the walls. Mold spores can survive radiation levels that would be deadly to humans. It is genuinely hard to kill." },
+  { s:"A slime mold with no brain can solve a maze to find food.", a:true,
+    e:"No brain, no eyes — and it still finds the shortest path to the food. Scientists in Japan even used one to redesign a railway map." },
+  { s:"Fleming's mold was ordinary — any moldy bread from any kitchen would have made penicillin.", a:false,
+    e:"It was a RARE strain. For years, scientists hunted worldwide for a stronger one — the winner was finally found on a moldy cantaloupe from a market in Illinois, USA." }
+];
+
+let done=0, pts=0;
+const cardsEl = document.getElementById('cards');
+
+FACTS.forEach((f,i)=>{
+  const c = document.createElement('div');
+  c.className='card';
+  c.innerHTML = '<div class="tag">Evidence card '+(i+1)+' of 10</div>'
+    + '<div class="stmt">'+f.s+'</div>'
+    + '<div class="btns">'
+    + '<button class="bt">✔ TRUE</button>'
+    + '<button class="bf">✘ FALSE</button>'
+    + '</div>';
+  const [bt,bf] = c.querySelectorAll('button');
+  bt.onclick = ()=>vote(c,f,true,bt);
+  bf.onclick = ()=>vote(c,f,false,bf);
+  cardsEl.appendChild(c);
+});
+
+function vote(card, f, guess, btn){
+  if(card.classList.contains('done')) return;
+  card.classList.add('done');
+  btn.classList.add('chosen');
+  const correct = guess === f.a;
+  if(correct) pts++; else { card.classList.add('shakeit'); }
+  done++;
+  const r = document.createElement('div');
+  r.className = 'reveal ' + (correct?'ok':'no');
+  r.innerHTML = '<b>'+(correct?'✔ Correct, Detective!':'✘ The card fooled you!')
+    + ' This statement is '+(f.a?'TRUE':'FALSE')+'.</b>' + f.e;
+  card.appendChild(r);
+  document.getElementById('done').textContent = done;
+  document.getElementById('pts').textContent = pts;
+  if(done === FACTS.length) finish();
+}
+
+function finish(){
+  const t = document.getElementById('finalTitle');
+  const x = document.getElementById('finalText');
+  if(pts >= 9){ t.textContent='🏆 MASTER MYCOLOGIST'; x.textContent='A mycologist is a fungus scientist — and you just out-detected the mold itself. '+pts+'/10.'; }
+  else if(pts >= 6){ t.textContent='🔎 SHARP-EYED DETECTIVE'; x.textContent=pts+'/10 — the mold fooled you a couple of times, but it fools almost everyone. Solid casework.'; }
+  else { t.textContent='🍄 THE MOLD WINS THIS ROUND'; x.textContent=pts+'/10 — this suspect is trickier than it looks. Even scientists underestimated it for centuries.'; }
+  document.getElementById('final').style.display='block';
+  document.getElementById('final').scrollIntoView({behavior:'smooth'});
+}
+</script>
+
+
+</body></html>

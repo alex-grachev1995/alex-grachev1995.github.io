@@ -1,0 +1,777 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Race</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(165deg,#26364f 0%,#1c2739 60%,#151d2b 100%);
+  color:#eef4ff;min-height:100vh;padding:14px}
+#wrap{max-width:1000px;margin:0 auto}
+h1{font-size:1.45em;text-align:center;color:#f7d794;letter-spacing:.4px}
+.sub{text-align:center;color:#b7c8e0;font-size:.85em;margin:4px 0 12px}
+#err{display:none;background:#7a1f1f;border:2px solid #ff8a72;border-radius:9px;
+  padding:10px;margin-bottom:10px;font-family:monospace;font-size:.79em;line-height:1.5}
+.sec{display:none}
+.sec.on{display:block}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;padding:15px;margin-bottom:11px}
+.lab{font-size:.69em;letter-spacing:1.2px;color:#96abc9;font-weight:800;margin-bottom:6px}
+.note{font-size:.88em;color:#d2e0f2;line-height:1.6}
+.note b{color:#f7d794}
+.btn{border:none;border-radius:9px;padding:10px 20px;font-size:.92em;font-weight:800;
+  cursor:pointer;color:#22314a;background:#f7d794;margin:4px 4px 0 0}
+.btn:hover{filter:brightness(1.08)}
+.btn.g{background:rgba(255,255,255,.13);color:#eef4ff;border:1px solid rgba(255,255,255,.3)}
+.btn.w{width:100%}
+.btn:disabled{opacity:.32;cursor:not-allowed;filter:none}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.18)}
+.dot.done{background:#f7d794}
+.dot.now{background:#fff;transform:scale(1.3)}
+
+/* choice cards */
+.qh{font-size:1.05em;font-weight:800;color:#f7d794;margin-bottom:4px}
+.qs{font-size:.85em;color:#b7c8e0;line-height:1.5;margin-bottom:12px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:720px){.opts{grid-template-columns:1fr}}
+.opt{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.2);
+  border-radius:11px;padding:14px;cursor:pointer;transition:all .14s;text-align:left}
+.opt:hover{border-color:#f7d794;background:rgba(247,215,148,.12);transform:translateY(-2px)}
+.opt .ot{font-weight:800;font-size:.95em;margin-bottom:5px;color:#eef4ff}
+.opt .od{font-size:.83em;color:#b7c8e0;line-height:1.5}
+
+/* reveal table */
+table.rv{width:100%;border-collapse:collapse;font-size:.84em}
+table.rv th,table.rv td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.1);
+  text-align:left;vertical-align:top}
+table.rv th{color:#96abc9;font-size:.82em;text-transform:uppercase;letter-spacing:.5px}
+table.rv td.pick{background:rgba(247,215,148,.16);border-left:3px solid #f7d794}
+table.rv .who{font-size:.76em;font-weight:800;letter-spacing:.4px;display:block;margin-top:3px}
+.wS{color:#ff9c8a}.wA{color:#8fe0a5}
+.yours{display:inline-block;font-size:.68em;font-weight:800;background:#f7d794;color:#22314a;
+  border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+.tally{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}
+@media(max-width:600px){.tally{grid-template-columns:1fr}}
+.tal{background:rgba(0,0,0,.26);border-radius:10px;padding:12px;text-align:center}
+.tal .n{font-size:2em;font-weight:900}
+.tal .l{font-size:.79em;color:#b7c8e0;margin-top:2px}
+
+/* votes */
+.vote{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
+@media(max-width:600px){.vote{grid-template-columns:1fr}}
+.vc{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.2);border-radius:11px;
+  padding:16px;cursor:pointer;text-align:center;transition:all .14s}
+.vc:hover{border-color:#f7d794;background:rgba(247,215,148,.13)}
+.vc .vn{font-size:1.05em;font-weight:800;color:#f7d794}
+.vc .vd2{font-size:.8em;color:#b7c8e0;margin-top:4px}
+.vres{border-radius:10px;padding:13px;font-size:.88em;line-height:1.6;margin-top:6px;
+  background:rgba(255,255,255,.07);border-left:4px solid #f7d794}
+
+/* video screen */
+.vidbox{text-align:center;padding:8px}
+.vidbox a{display:inline-block;background:#f7d794;color:#22314a;text-decoration:none;
+  font-weight:800;padding:13px 26px;border-radius:10px;font-size:1em;margin-top:10px}
+
+/* ordering */
+.slots{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.slot{background:rgba(0,0,0,.24);border:1px dashed rgba(255,255,255,.25);border-radius:9px;
+  padding:10px 12px;font-size:.85em;min-height:44px;display:flex;align-items:center;gap:9px}
+.slot b{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.14);
+  color:#eef4ff;font-size:.78em;display:flex;align-items:center;justify-content:center}
+.slot.filled{border-style:solid;border-color:rgba(143,224,165,.5);background:rgba(143,224,165,.1)}
+.pool{display:flex;flex-direction:column;gap:7px}
+.ev{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:9px;
+  padding:10px 12px;font-size:.85em;cursor:pointer;line-height:1.45}
+.ev:hover{border-color:#f7d794;background:rgba(247,215,148,.12)}
+.ev.sel{border-color:#f7d794;background:rgba(247,215,148,.2)}
+.ev.used{display:none}
+.shake{animation:shk .45s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* chart */
+svg{width:100%;height:auto;display:block;background:#101a2b;border-radius:10px}
+.pline{cursor:pointer}
+.hit{stroke:transparent;stroke-width:18;fill:none;cursor:pointer}
+
+/* multi-select */
+.ms{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
+.mi{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.2);border-radius:9px;
+  padding:10px 12px;font-size:.85em;cursor:pointer;line-height:1.5;display:flex;gap:9px;align-items:flex-start}
+.mi:hover{border-color:#f7d794}
+.mi .bx{flex:0 0 auto;width:17px;height:17px;border-radius:4px;border:2px solid rgba(255,255,255,.4);
+  margin-top:2px}
+.mi.on .bx{background:#f7d794;border-color:#f7d794}
+.mi.right{border-color:#8fe0a5;background:rgba(143,224,165,.13)}
+.mi.wrong{border-color:#ff9c8a;background:rgba(255,156,138,.11)}
+.mi .why{display:block;font-size:.85em;color:#b7c8e0;margin-top:4px}
+.fb{border-radius:10px;padding:12px;font-size:.87em;line-height:1.6;margin-top:8px}
+.fb.ok{background:rgba(143,224,165,.15);border:1px solid rgba(143,224,165,.5)}
+.fb.no{background:rgba(255,156,138,.13);border:1px solid rgba(255,156,138,.45)}
+.fb b{color:#f7d794}
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;
+  animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.4}}
+.big{font-size:1.15em;font-weight:800;color:#f7d794;text-align:center;margin:10px 0}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="err"></div>
+  <h1>🏁 THE RACE</h1>
+  <div class="sub">Antarctica, 1911. Two teams. Roughly 1,450 km to the South Pole and back.</div>
+
+  <!-- INTRO -->
+  <div class="sec on" id="s0">
+    <div class="panel">
+      <div class="note" style="margin-bottom:11px">
+        Two expeditions are camped on the edge of Antarctica, both aiming for the same spot: the
+        geographic South Pole, which no human being has ever stood on.
+      </div>
+      <div class="note" style="margin-bottom:11px">
+        One is British, led by <b>Robert Falcon Scott</b>. One is Norwegian, led by
+        <b>Roald Amundsen</b>. Neither knows exactly what the other is doing.
+      </div>
+      <div class="note" style="margin-bottom:11px">
+        You are going to make <b>eight decisions</b> about how to run an expedition like this.
+        Every one is a real choice one of these two men actually made. There are no right answers
+        marked anywhere — just decisions, and consequences you cannot see yet.
+      </div>
+      <div class="note" style="color:#96abc9;font-size:.83em">
+        Distances: about <b>685 km</b> across a flat ice shelf, then a <b>200 km</b> climb up a
+        glacier, then <b>560 km</b> across a high plateau to the pole. Then all of it again,
+        backwards.
+      </div>
+      <button class="btn w" id="b0">Start planning →</button>
+    </div>
+  </div>
+
+  <!-- CHOICES -->
+  <div class="sec" id="s1">
+    <div class="dots" id="dots"></div>
+    <div class="panel">
+      <div class="lab" id="qn">DECISION</div>
+      <div class="qh" id="qh"></div>
+      <div class="qs" id="qs"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+  </div>
+
+  <!-- REVEAL -->
+  <div class="sec" id="s2">
+    <div class="panel">
+      <div class="lab">YOUR EXPEDITION, SIDE BY SIDE WITH THEIRS</div>
+      <div class="note" style="margin-bottom:10px">
+        Here is what each man actually chose. Your own picks are <span class="yours">highlighted</span>.
+      </div>
+      <table class="rv" id="rvTbl"></table>
+      <div class="tally" id="tally"></div>
+      <button class="btn w" id="b2">So — who won? →</button>
+    </div>
+  </div>
+
+  <!-- VOTE 1 -->
+  <div class="sec" id="s3">
+    <div class="panel">
+      <div class="lab">VOTE 1 OF 2</div>
+      <div class="qh">Who reached the South Pole first?</div>
+      <div class="qs">Commit before you find out. You have seen all sixteen decisions.</div>
+      <div class="vote" id="v1"></div>
+      <div id="v1res"></div>
+    </div>
+  </div>
+
+  <!-- VOTE 2 -->
+  <div class="sec" id="s4">
+    <div class="panel">
+      <div class="lab">VOTE 2 OF 2</div>
+      <div class="qh">Different question. Which team made it home?</div>
+      <div class="qs">Reaching the pole is the halfway point. The return journey is the same distance again,
+        and the season is closing.</div>
+      <div class="vote" id="v2"></div>
+      <div id="v2res"></div>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="sec" id="s5">
+    <div class="panel vidbox">
+      <div class="lab" style="text-align:center">NOW WATCH THIS</div>
+      <div class="note" style="margin-bottom:6px">
+        There is a photograph of the British team standing at the South Pole in January 1912.
+        Watch what happened next, and pay attention to <b>the chart</b> — the video shows Scott's own
+        temperature predictions against what his team actually walked through.
+      </div>
+      <a href="https://www.youtube.com/watch?v=hpcZmuz2LGY" target="_blank" rel="noopener">
+        ▶&nbsp; Open the video</a>
+      <div style="margin-top:16px">
+        <button class="btn g" id="b5">I've watched it — continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-VIDEO PART 1: ORDER -->
+  <div class="sec" id="s6">
+    <div class="panel">
+      <div class="lab">PART 1 · PUT IT IN ORDER</div>
+      <div class="qs">Click an event, then click the slot you want it in. Five events, in the order they happened.</div>
+      <div class="slots" id="slots"></div>
+      <div class="lab">EVENTS</div>
+      <div class="pool" id="pool"></div>
+      <div id="ordFb"></div>
+    </div>
+  </div>
+
+  <!-- POST-VIDEO PART 2: CHART -->
+  <div class="sec" id="s7">
+    <div class="panel">
+      <div class="lab">PART 2 · READ THE CHART</div>
+      <div class="qs">Two temperature lines for the same Antarctic summer. One is the average Scott's own
+        research predicted. One is what his team actually endured. <b>Click the line you think is 1912.</b></div>
+      <div id="chart"></div>
+      <div id="chFb"></div>
+      <div id="freqBox" style="display:none;margin-top:12px">
+        <div class="lab">HOW UNLUCKY WAS THAT?</div>
+        <div class="qs">The video gives a number. Roughly how often do temperatures like the ones
+          Scott's party walked through actually occur on that route?</div>
+        <div class="opts" id="freqOpts"></div>
+        <div id="freqFb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-VIDEO PART 3: MULTI -->
+  <div class="sec" id="s8">
+    <div class="panel">
+      <div class="lab">PART 3 · WHAT ACTUALLY WENT WRONG?</div>
+      <div class="qs">Pick everything you think contributed, then check your answer.</div>
+      <div class="ms" id="msBox"></div>
+      <button class="btn" id="bMs">Check my answer</button>
+      <div id="msFb"></div>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="sec" id="s9">
+    <div class="panel">
+      <div class="lab">THE UNCOMFORTABLE CONCLUSION</div>
+      <div class="big">Amundsen wasn't braver. He was boring.</div>
+      <div class="note" style="margin-bottom:11px">
+        Read back through the reveal table and notice the pattern in the Norwegian column. Dogs,
+        because dogs work. Fur, because the people who live in the Arctic wear fur. Skis, because
+        everyone on the team had used them since childhood. Flags stretching kilometres either side
+        of every depot, because a single marker can be missed. Eat the dogs, because it was in the
+        plan from the first day. Take exactly the number of men the food was packed for.
+      </div>
+      <div class="note" style="margin-bottom:11px">
+        Not one of those is heroic. Not one would make a good painting. Amundsen's expedition is
+        genuinely a bit dull to read about, and that is <b>precisely why it worked</b>. He removed
+        every place where courage might be required, because courage is what you need when the
+        planning has failed.
+      </div>
+      <div class="note" style="margin-bottom:11px">
+        And Scott was not a fool. His temperature predictions were <b>impressively accurate</b> —
+        modern weather stations along his route confirm it. He did the research. The plan should have
+        worked. What killed his team was a season that turns up roughly once every fifteen years,
+        landing on the one attempt they had.
+      </div>
+      <div class="note" style="margin-bottom:11px">
+        Which is the real lesson, and it is the same one you have met before: <b>you cannot judge a
+        decision by its outcome.</b> Scott made some genuinely poor choices — the fifth man, the
+        single cairns, man-hauling — and he also got catastrophically unlucky. Amundsen made better
+        choices <i>and</i> got an ordinary season. Untangling those two things is the whole job.
+      </div>
+      <div class="note" style="color:#96abc9;font-size:.84em">
+        One last detail. Scott's team hauled roughly <b>14 kg of rock samples</b> with them off the
+        glacier — fossil plant remains, collected for science, dragged across a plateau by exhausted
+        men. Those fossils were <i>Glossopteris</i>: leaves from a temperate forest. They are part of
+        how we know Antarctica used to be green.
+      </div>
+      <button class="btn w" onclick="location.reload()">↻ Run it again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.onerror=function(m,s,l,c){
+  var e=document.getElementById("err");
+  if(e){e.style.display="block";
+    e.innerHTML="<b>SCRIPT ERROR</b><br>"+m+"<br>line "+l+" col "+c;}
+  return false;
+};
+</script>
+<script>
+(function(){
+"use strict";
+
+function fail(w,e){
+  var b=document.getElementById("err");
+  if(b){b.style.display="block";
+    b.innerHTML="<b>BROKE IN: "+w+"</b><br>"+(e&&e.message?e.message:e);}
+}
+function run(w,fn){return function(ev){try{fn(ev);}catch(e){fail(w,e);}};}
+function $(i){return document.getElementById(i);}
+
+/* ---------- audio ---------- */
+var AC=null;
+function tone(f,d,du,ty,v){
+  try{
+    if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type=ty;o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+    g.gain.setValueAtTime(v,AC.currentTime+d);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+du);
+    o.start(AC.currentTime+d);o.stop(AC.currentTime+d+du+.04);
+  }catch(e){}
+}
+function sTick(){tone(540,0,.05,"square",.04);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.14);}
+function sBad(){tone(150,0,.28,"sawtooth",.12);tone(104,.1,.3,"square",.1);}
+function sDark(){tone(196,0,.5,"sine",.1);tone(131,.18,.7,"sine",.09);}
+function conf(n){
+  var c=["#f7d794","#8fe0a5","#82ccdd","#e8b95f","#ffffff"],i,d;
+  for(i=0;i<n;i++){
+    d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4000);})(d);
+  }
+}
+
+/* ---------- the eight decisions ---------- */
+/* a = the choice Amundsen actually made, b = the choice Scott actually made */
+var Q=[
+ {t:"How do you move 900 kg of supplies across an ice shelf?",
+  s:"Everything you eat for four months has to travel with you.",
+  a:{ot:"Dogs, and a lot of them",
+     od:"Around a hundred Greenland dogs, driven by men who have handled dog teams before."},
+  b:{ot:"A mix: motor sledges, ponies, and men in harness",
+     od:"Three experimental motor sledges, nineteen Siberian ponies, and men hauling the sledges themselves."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"About 100 dogs.",
+  nb:"Motor sledges (which broke down early), ponies, and man-hauling."},
+
+ {t:"How much do you rely on skis?",
+  s:"Skiing is a skill that takes years. It is also enormously faster than walking.",
+  a:{ot:"Every man is an expert skier",
+     od:"Pick the team partly for skiing ability. One member is a champion. Ski the whole way."},
+  b:{ot:"Carry skis, but mostly walk",
+     od:"Bring skis, use them inconsistently, and rely on stamina and boots for the hard sections."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"All Norwegians, skiing since childhood.",
+  nb:"Skis carried, used unevenly."},
+
+ {t:"What do you wear?",
+  s:"You will sweat while hauling, and sweat freezes.",
+  a:{ot:"Loose fur, copied from Arctic peoples",
+     od:"Study how the Netsilik Inuit dress and copy it: loose fur that lets moisture escape."},
+  b:{ot:"Layered wool and windproof gabardine",
+     od:"Custom-made modern outdoor clothing, tightly woven, designed by British outfitters."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Inuit-style fur.",
+  nb:"Wool layers and gabardine."},
+
+ {t:"Which route up onto the plateau?",
+  s:"The pole sits on a high plateau. You have to get up there somehow.",
+  a:{ot:"An unexplored glacier, about 95 km closer",
+     od:"Start from a bay nobody has launched from, and climb a glacier no one has ever seen. Shorter, unknown."},
+  b:{ot:"The glacier a previous expedition already climbed",
+     od:"Use the route proven passable a few years earlier. Longer, but somebody has done it."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Unknown route, and it worked.",
+  nb:"The proven glacier route."},
+
+ {t:"How do you mark your supply depots?",
+  s:"On the way home, missing a depot means no food. Everything is white.",
+  a:{ot:"A line of flags kilometres wide",
+     od:"Plant flags in a long line at right angles to your route, so you cannot help crossing one."},
+  b:{ot:"A single cairn on the line of march",
+     od:"One marker where the depot is. Navigate accurately and you will find it."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Flag lines several km across.",
+  nb:"Single cairns."},
+
+ {t:"What happens to the animals?",
+  s:"Animals eat food you had to carry. They are also made of food.",
+  a:{ot:"Plan from day one to eat them",
+     od:"Schedule which dogs get shot on which day, and feed them to the remaining dogs and the men."},
+  b:{ot:"Shoot them at the glacier and haul from there",
+     od:"The animals get you to the foot of the climb. After that, men pull everything themselves."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Written into the plan before leaving.",
+  nb:"Ponies shot at the glacier; men hauled the rest."},
+
+ {t:"Do you do science on the way?",
+  s:"You are the first humans ever to cross this ground.",
+  a:{ot:"Travel light &mdash; the pole is the objective",
+     od:"Minimal scientific programme on the polar journey. Speed is the whole strategy."},
+  b:{ot:"Run a full scientific programme",
+     od:"Geology, meteorology, biology. Collect rock samples and haul them home for study."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Focused almost entirely on getting there and back.",
+  nb:"A serious science expedition that also wanted the pole."},
+
+ {t:"How many men make the final push?",
+  s:"Your rations, tent and fuel were all calculated for a specific number.",
+  a:{ot:"Exactly the number you packed for",
+     od:"The plan says a set number of men. Do not change it late."},
+  b:{ot:"Add one more at the last moment",
+     od:"A man looks strong and useful. Take him too, and divide the same food differently."},
+  ra:"Roald Amundsen",rb:"Robert Falcon Scott",
+  na:"Stuck to the planned number.",
+  nb:"Took a fifth man on the final leg, with rations packed for four."}
+];
+
+var qi=0,picks=[];
+
+function buildDots(){
+  var h="",i;
+  for(i=0;i<Q.length;i++)h+='<div class="dot" id="d'+i+'"></div>';
+  $("dots").innerHTML=h;
+}
+function markDots(){
+  var i,e;
+  for(i=0;i<Q.length;i++){
+    e=$("d"+i);
+    e.className="dot"+(i<qi?" done":(i===qi?" now":""));
+  }
+}
+function showQ(){
+  var q=Q[qi],h="";
+  $("qn").textContent="DECISION "+(qi+1)+" OF "+Q.length;
+  $("qh").textContent=q.t;
+  $("qs").textContent=q.s;
+  h+='<button class="opt" data-p="a"><div class="ot">'+q.a.ot+'</div><div class="od">'+q.a.od+'</div></button>';
+  h+='<button class="opt" data-p="b"><div class="ot">'+q.b.ot+'</div><div class="od">'+q.b.od+'</div></button>';
+  /* randomise which side each appears on so position never gives it away */
+  if(Math.random()<0.5){
+    h='<button class="opt" data-p="b"><div class="ot">'+q.b.ot+'</div><div class="od">'+q.b.od+'</div></button>'+
+      '<button class="opt" data-p="a"><div class="ot">'+q.a.ot+'</div><div class="od">'+q.a.od+'</div></button>';
+  }
+  $("opts").innerHTML=h;
+  var bs=$("opts").getElementsByClassName("opt"),i;
+  for(i=0;i<bs.length;i++)(function(el){
+    el.onclick=run("pick",function(){
+      picks[qi]=el.getAttribute("data-p");
+      sTick();qi++;
+      if(qi>=Q.length){buildReveal();show("s2");}
+      else{markDots();showQ();}
+    });
+  })(bs[i]);
+  markDots();
+}
+
+/* ---------- reveal ---------- */
+function buildReveal(){
+  var t="<tr><th>Decision</th><th>Norwegian expedition</th><th>British expedition</th></tr>",
+      i,q,na,nb,ca,cb;
+  for(i=0;i<Q.length;i++){
+    q=Q[i];
+    ca=(picks[i]==="a")?' class="pick"':'';
+    cb=(picks[i]==="b")?' class="pick"':'';
+    na=q.a.ot+(picks[i]==="a"?'<span class="yours">YOU</span>':'')+
+       '<span class="who wA">'+q.ra+'</span><span class="who" style="color:#96abc9;font-weight:600">'+q.na+'</span>';
+    nb=q.b.ot+(picks[i]==="b"?'<span class="yours">YOU</span>':'')+
+       '<span class="who wS">'+q.rb+'</span><span class="who" style="color:#96abc9;font-weight:600">'+q.nb+'</span>';
+    t+='<tr><td>'+q.t+'</td><td'+ca+'>'+na+'</td><td'+cb+'>'+nb+'</td></tr>';
+  }
+  $("rvTbl").innerHTML=t;
+  var a=0,b=0;
+  for(i=0;i<Q.length;i++){if(picks[i]==="a")a++;else b++;}
+  $("tally").innerHTML=
+    '<div class="tal"><div class="n" style="color:#8fe0a5">'+a+' / 8</div>'+
+    '<div class="l">decisions matching the <b>Norwegian</b> expedition</div></div>'+
+    '<div class="tal"><div class="n" style="color:#ff9c8a">'+b+' / 8</div>'+
+    '<div class="l">decisions matching the <b>British</b> expedition</div></div>';
+}
+
+/* ---------- votes ---------- */
+function buildVote(box,resBox,after){
+  var h='<div class="vc" data-v="a"><div class="vn">The Norwegians</div>'+
+        '<div class="vd2">Amundsen&rsquo;s team</div></div>'+
+        '<div class="vc" data-v="b"><div class="vn">The British</div>'+
+        '<div class="vd2">Scott&rsquo;s team</div></div>';
+  $(box).innerHTML=h;
+  var cs=$(box).getElementsByClassName("vc"),i;
+  for(i=0;i<cs.length;i++)(function(el){
+    el.onclick=run("vote",function(){
+      after(el.getAttribute("data-v"),resBox);
+    });
+  })(cs[i]);
+}
+function vote1(v,resBox){
+  var h;
+  if(v==="a"){sWin();conf(60);
+    h='<div class="vres"><b>Correct.</b> The Norwegians reached the South Pole on 14 December 1911 &mdash; '+
+      '<b>five weeks</b> before the British got there. By the time Scott&rsquo;s party arrived in January 1912, '+
+      'Amundsen&rsquo;s team was almost back at their starting point.</div>';
+  }else{sBad();
+    h='<div class="vres"><b>No.</b> The Norwegians got there first, on 14 December 1911 &mdash; <b>five weeks</b> '+
+      'ahead. When Scott&rsquo;s party reached the pole in January 1912, there was already a tent there, with a '+
+      'Norwegian flag on it. Amundsen&rsquo;s team was nearly home by then.</div>';
+  }
+  h+='<button class="btn w" id="b3">Next question &rarr;</button>';
+  $(resBox).innerHTML=h;
+  $("b3").onclick=run("to v2",function(){show("s4");});
+}
+function vote2(v,resBox){
+  sDark();
+  var h='<div class="vres">Hold that answer. Watch what happened, and then we will talk about '+
+        'whether you were right for the right reasons.</div>'+
+        '<button class="btn w" id="b4">Continue &rarr;</button>';
+  $(resBox).innerHTML=h;
+  $("b4").onclick=run("to video",function(){show("s5");});
+}
+
+/* ---------- ordering ---------- */
+var EV=[
+ {i:0,t:"Reach the South Pole and find a tent already standing there, with a Norwegian flag on it."},
+ {i:1,t:"Turn around and start the return journey &mdash; roughly the same distance again, on foot."},
+ {i:2,t:"One man collapses on the glacier after several falls, and does not recover."},
+ {i:3,t:"A second man, badly frostbitten in the hands and feet, walks out of the tent into a snowstorm."},
+ {i:4,t:"The last three are pinned in their tent by a blizzard, about 18 km short of a supply depot."}
+];
+var evSel=null,ordFilled=[];
+
+function buildOrder(){
+  var h="",i;
+  ordFilled=[null,null,null,null,null];
+  evSel=null;
+  for(i=0;i<5;i++)
+    h+='<div class="slot" id="sl'+i+'" data-s="'+i+'"><b>'+(i+1)+'</b><span>&mdash;</span></div>';
+  $("slots").innerHTML=h;
+  var pool=EV.slice(0);
+  pool.sort(function(){return Math.random()-0.5;});
+  h="";
+  for(i=0;i<pool.length;i++)
+    h+='<div class="ev" id="ev'+pool[i].i+'" data-i="'+pool[i].i+'">'+pool[i].t+'</div>';
+  $("pool").innerHTML=h;
+  var es=$("pool").getElementsByClassName("ev"),j;
+  for(j=0;j<es.length;j++)(function(el){
+    el.onclick=run("ev pick",function(){
+      var k,all=$("pool").getElementsByClassName("ev");
+      for(k=0;k<all.length;k++)all[k].className="ev";
+      el.className="ev sel";
+      evSel=parseInt(el.getAttribute("data-i"),10);
+      sTick();
+    });
+  })(es[j]);
+  var ss=$("slots").getElementsByClassName("slot"),m;
+  for(m=0;m<ss.length;m++)(function(el){
+    el.onclick=run("slot",function(){
+      if(evSel===null)return;
+      var s=parseInt(el.getAttribute("data-s"),10);
+      if(s===evSel){
+        ordFilled[s]=evSel;
+        el.className="slot filled";
+        el.innerHTML='<b>'+(s+1)+'</b><span>'+EV[evSel].t+'</span>';
+        $("ev"+evSel).className="ev used";
+        evSel=null;sTick();checkOrder();
+      }else{
+        el.className="slot shake";
+        sBad();
+        (function(x,c){setTimeout(function(){x.className=c;},480);})(el,"slot");
+      }
+    });
+  })(ss[m]);
+  $("ordFb").innerHTML="";
+}
+function checkOrder(){
+  var i,done=true;
+  for(i=0;i<5;i++)if(ordFilled[i]===null)done=false;
+  if(!done)return;
+  sWin();conf(70);
+  $("ordFb").innerHTML='<div class="fb ok">All five, in order. Notice where the timeline sits: '+
+    'they reached the pole in <b>mid-January</b>, at the height of the Antarctic summer, with about '+
+    'three months of survivable weather left according to their own research. That should have been '+
+    'enough.</div><button class="btn w" id="b6">On to the chart &rarr;</button>';
+  $("b6").onclick=run("to chart",function(){buildChart();show("s7");});
+}
+
+/* ---------- chart ---------- */
+var MON=["Nov","Dec","Jan","Feb","Mar","Apr"];
+var AVG=[-18,-8,-2,-10,-24,-33];
+var ACT=[-20,-11,-4,-25,-40,-42];
+var chDone=false;
+
+function buildChart(){
+  var W=920,H=330,pl=54,pr=120,pt=20,pb=40,i,g="",x,y,pa="",pb2="";
+  function X(k){return pl+k/(MON.length-1)*(W-pl-pr);}
+  function Y(t){return (H-pb)-((t+50)/52)*(H-pb-pt);}
+  for(i=-50;i<=0;i+=10){
+    y=Y(i);
+    g+='<line x1="'+pl+'" y1="'+y+'" x2="'+(W-pr)+'" y2="'+y+'" stroke="rgba(255,255,255,.09)" stroke-width="1"/>';
+    g+='<text x="'+(pl-8)+'" y="'+(y+4)+'" fill="#8fa3c0" font-size="12" text-anchor="end">'+i+' &#176;C</text>';
+  }
+  for(i=0;i<MON.length;i++){
+    g+='<text x="'+X(i)+'" y="'+(H-14)+'" fill="#8fa3c0" font-size="12" text-anchor="middle">'+MON[i]+'</text>';
+  }
+  /* survivability band */
+  g+='<rect x="'+pl+'" y="'+Y(-30)+'" width="'+(W-pl-pr)+'" height="'+(Y(-50)-Y(-30))+
+     '" fill="rgba(255,120,100,.10)"/>';
+  g+='<text x="'+(pl+8)+'" y="'+(Y(-33)+14)+'" fill="#ff9c8a" font-size="11" font-weight="bold">'+
+     'prolonged exposure here is not survivable</text>';
+  for(i=0;i<MON.length;i++){
+    pa+=X(i).toFixed(1)+","+Y(AVG[i]).toFixed(1)+" ";
+    pb2+=X(i).toFixed(1)+","+Y(ACT[i]).toFixed(1)+" ";
+  }
+  g+='<polyline points="'+pa+'" fill="none" stroke="#82ccdd" stroke-width="3" class="pline"/>';
+  g+='<polyline points="'+pb2+'" fill="none" stroke="#c9a4dd" stroke-width="3" class="pline"/>';
+  g+='<polyline points="'+pa+'" class="hit" data-l="avg"/>';
+  g+='<polyline points="'+pb2+'" class="hit" data-l="act"/>';
+  g+='<text x="'+(X(5)+10)+'" y="'+(Y(AVG[5])+4)+'" fill="#82ccdd" font-size="12" font-weight="bold">line A</text>';
+  g+='<text x="'+(X(5)+10)+'" y="'+(Y(ACT[5])+4)+'" fill="#c9a4dd" font-size="12" font-weight="bold">line B</text>';
+  $("chart").innerHTML='<svg viewBox="0 0 '+W+' '+H+'">'+g+'</svg>';
+  chDone=false;
+  $("chFb").innerHTML="";
+  $("freqBox").style.display="none";
+  var hs=$("chart").getElementsByClassName("hit"),j;
+  for(j=0;j<hs.length;j++)(function(el){
+    el.onclick=run("chart pick",function(){
+      if(chDone)return;
+      var which=el.getAttribute("data-l");
+      if(which==="act"){
+        chDone=true;sWin();conf(60);
+        $("chFb").innerHTML='<div class="fb ok"><b>Line B, correct.</b> That is what they actually walked '+
+          'through: stretches of around <b>minus forty degrees</b>, weeks earlier in the season than anything '+
+          'in their data. Line A is the average their own years of research predicted &mdash; and it was a '+
+          '<i>good</i> prediction. It simply was not the weather they got.</div>';
+        $("freqBox").style.display="block";
+      }else{
+        sBad();
+        $("chFb").innerHTML='<div class="fb no">That is line A &mdash; the <b>prediction</b>. Look for the line '+
+          'that dives into the red band a month early. That is the one they lived in.</div>';
+      }
+    });
+  })(hs[j]);
+}
+var FREQ=[
+ {t:"Roughly once every 15 years",ok:true},
+ {t:"Every second or third summer",ok:false},
+ {t:"Roughly once a century",ok:false},
+ {t:"1912 was the only time on record",ok:false}
+];
+function buildFreq(){
+  var h="",i,mix=FREQ.slice(0);
+  mix.sort(function(){return Math.random()-0.5;});
+  for(i=0;i<mix.length;i++)
+    h+='<button class="opt" data-ok="'+(mix[i].ok?"1":"0")+'"><div class="ot">'+mix[i].t+'</div></button>';
+  $("freqOpts").innerHTML=h;
+  var bs=$("freqOpts").getElementsByClassName("opt"),j;
+  for(j=0;j<bs.length;j++)(function(el){
+    el.onclick=run("freq",function(){
+      if(el.getAttribute("data-ok")==="1"){
+        sWin();conf(50);
+        $("freqFb").innerHTML='<div class="fb ok"><b>About one summer in fifteen.</b> Which means his plan '+
+          'was not stupid &mdash; it was a plan with a roughly one-in-fifteen failure mode, and he only ever got '+
+          'to run it once.</div><button class="btn w" id="b7">Last part &rarr;</button>';
+        $("b7").onclick=run("to ms",function(){show("s8");});
+      }else{
+        sBad();el.className="opt shake";
+        (function(x){setTimeout(function(){x.className="opt";},480);})(el);
+        $("freqFb").innerHTML='<div class="fb no">Not that. The video gives the figure directly &mdash; and it '+
+          'is the number that decides whether Scott was careless or unlucky.</div>';
+      }
+    });
+  })(bs[j]);
+}
+
+/* ---------- multi-select ---------- */
+var MS=[
+ {t:"Temperatures around minus forty for days on end &mdash; far below anything in their data",ok:true,
+  w:"The central factor. Prolonged exposure at those temperatures is not survivable, and it arrived a month early."},
+ {t:"Taking a fifth man on the final leg when the rations were packed for four",ok:true,
+  w:"Same food, more mouths, one more man in a tent built for four. A planning decision made late."},
+ {t:"Depots marked with a single cairn, easy to walk past in poor light",ok:true,
+  w:"Compare with flag lines kilometres wide. On the way home, a missed depot is fatal."},
+ {t:"Man-hauling burns an enormous number of calories, and their rations did not cover it",ok:true,
+  w:"Pulling hundreds of kilos at altitude is brutal work. Slow starvation makes everything else worse."},
+ {t:"The last supply depot was only about 18 km away when the blizzard pinned them down",ok:true,
+  w:"Eighteen kilometres. On a good day, one march."},
+ {t:"Using ponies was a ridiculous idea that doomed the expedition from the start",ok:false,
+  w:"This is the popular answer and it is the weakest one. The ponies did their job across the ice shelf and were shot at the glacier, as planned, roughly 685 km in. The expedition failed on the return leg, long after the ponies were gone."},
+ {t:"Scott was a careless planner who had not done his research",ok:false,
+  w:"The opposite. His temperature predictions were confirmed as accurate by modern weather stations on the same route. He had years of data. The data was right; the season was not."}
+];
+var msPick=[],msDone=false;
+
+function buildMs(){
+  var h="",i;
+  msPick=[];msDone=false;
+  for(i=0;i<MS.length;i++){msPick[i]=false;}
+  for(i=0;i<MS.length;i++)
+    h+='<div class="mi" id="mi'+i+'" data-i="'+i+'"><div class="bx"></div><div>'+MS[i].t+'</div></div>';
+  $("msBox").innerHTML=h;
+  var is=$("msBox").getElementsByClassName("mi"),j;
+  for(j=0;j<is.length;j++)(function(el){
+    el.onclick=run("ms toggle",function(){
+      if(msDone)return;
+      var k=parseInt(el.getAttribute("data-i"),10);
+      msPick[k]=!msPick[k];
+      el.className="mi"+(msPick[k]?" on":"");
+      sTick();
+    });
+  })(is[j]);
+  $("msFb").innerHTML="";
+}
+function checkMs(){
+  var i,hit=0,miss=0,fp=0,el;
+  if(msDone)return;
+  msDone=true;
+  for(i=0;i<MS.length;i++){
+    el=$("mi"+i);
+    if(MS[i].ok&&msPick[i])hit++;
+    if(MS[i].ok&&!msPick[i])miss++;
+    if(!MS[i].ok&&msPick[i])fp++;
+    el.className="mi "+(MS[i].ok?"right":"wrong")+(msPick[i]?" on":"");
+    el.innerHTML='<div class="bx"></div><div>'+MS[i].t+
+      '<span class="why">'+(MS[i].ok?"&#10003; ":"&#10007; ")+MS[i].w+'</span></div>';
+  }
+  var h;
+  if(hit>=4&&fp===0){sWin();conf(90);
+    h='<div class="fb ok"><b>'+hit+' of 5 real factors, and you avoided both traps.</b> That is genuinely '+
+      'good reasoning &mdash; the ponies are the answer almost everyone gives, and they are the one thing on '+
+      'that list that did not matter.</div>';
+  }else{
+    sBad();
+    h='<div class="fb no"><b>'+hit+' of 5 real factors'+(fp>0?', and '+fp+' trap'+(fp>1?"s":"")+'':'')+'.</b> '+
+      'Read the two crossed-out ones carefully. Both are the <i>story</i> people tell about Scott, and '+
+      'neither survives contact with the evidence.</div>';
+  }
+  h+='<button class="btn w" id="b8">One more thing &rarr;</button>';
+  $("msFb").innerHTML=h;
+  $("b8").onclick=run("to close",function(){show("s9");});
+}
+
+/* ---------- nav ---------- */
+function show(id){
+  var a=document.getElementsByClassName("sec"),i;
+  for(i=0;i<a.length;i++)a[i].className="sec";
+  $(id).className="sec on";
+  window.scrollTo(0,0);
+}
+function init(){
+  buildDots();
+  $("b0").onclick=run("start",function(){qi=0;picks=[];showQ();show("s1");});
+  $("b2").onclick=run("to v1",function(){show("s3");});
+  buildVote("v1","v1res",vote1);
+  buildVote("v2","v2res",vote2);
+  $("b5").onclick=run("post video",function(){buildOrder();show("s6");});
+  $("bMs").onclick=run("check ms",checkMs);
+  buildFreq();
+  buildMs();
+}
+try{
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",function(){try{init();}catch(e){fail("init",e);}});
+  else init();
+}catch(e){fail("init",e);}
+})();
+</script>
+
+
+</body></html>

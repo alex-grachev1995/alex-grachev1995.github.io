@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen Fire Triage</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#7a3b1e 0%,#4a2413 55%,#2c160c 100%);
+  color:#fdf3e6;min-height:100vh;padding:16px;}
+#wrap{max-width:920px;margin:0 auto;}
+h1{font-size:1.55em;text-align:center;color:#f7d794;}
+.sub{text-align:center;color:#e0c3a6;font-size:.88em;margin:4px 0 12px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;font-size:.85em;color:#f7d794;font-weight:800;margin-bottom:10px;}
+.dots{display:flex;gap:6px;}
+.dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18);}
+.dot.ok{background:#8fe0a5;}.dot.help{background:#e8a33a;}.dot.now{background:#fff;transform:scale(1.3);}
+.fire{background:#1b0f08;border-radius:14px;padding:20px;text-align:center;position:relative;overflow:hidden;}
+.fire .fe{font-size:3.4em;line-height:1;display:inline-block;animation:flick 1.1s infinite;}
+@keyframes flick{0%,100%{transform:scale(1) rotate(-2deg);}50%{transform:scale(1.09) rotate(2deg);}}
+.fire h2{font-size:1.35em;color:#ffb56b;margin:6px 0;}
+.fire p{font-size:.92em;color:#e5d3c1;line-height:1.55;max-width:600px;margin:0 auto;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:12px;}
+.opt{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:10px;
+  padding:11px 13px;color:#fdf3e6;font-size:.88em;font-weight:700;cursor:pointer;text-align:left;transition:all .15s;}
+.opt:hover{border-color:#f7d794;background:rgba(247,215,148,.16);}
+.opt.dead{opacity:.3;text-decoration:line-through;pointer-events:none;}
+.opt.right{border-color:#8fe0a5;background:rgba(143,224,165,.2);}
+.opt.wrong{border-color:#e55039;background:rgba(229,80,57,.18);animation:shk .45s;}
+@keyframes shk{0%,100%{transform:translateX(0);}20%{transform:translateX(-9px);}40%{transform:translateX(9px);}60%{transform:translateX(-6px);}80%{transform:translateX(6px);}}
+.res{margin-top:12px;border-radius:12px;padding:14px;}
+.res.win{background:rgba(143,224,165,.14);border:1px solid rgba(143,224,165,.5);}
+.res.lose{background:rgba(229,80,57,.14);border:1px solid rgba(229,80,57,.5);}
+.res h3{font-size:1.1em;margin-bottom:7px;}
+.res.win h3{color:#8fe0a5;}.res.lose h3{color:#ff9c8a;}
+.res p{font-size:.9em;line-height:1.6;color:#f0e2d4;}
+.corner{display:inline-block;font-size:.74em;font-weight:800;padding:4px 10px;border-radius:99px;
+  background:rgba(247,215,148,.18);border:1px solid rgba(247,215,148,.5);color:#ffe0a3;margin:8px 6px 0 0;}
+.corner.none{background:rgba(229,80,57,.18);border-color:rgba(229,80,57,.5);color:#ffc0b4;}
+.boom{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:5em;opacity:0;pointer-events:none;}
+.boom.go{animation:boom .9s ease-out;}
+@keyframes boom{0%{opacity:0;transform:scale(.3);}30%{opacity:1;transform:scale(1.5);}100%{opacity:0;transform:scale(2.6);}}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.96em;font-weight:800;cursor:pointer;
+  color:#3a1d0e;background:linear-gradient(90deg,#f7d794,#f0a24f);}
+.btn.wide{width:100%;margin-top:11px;}
+.btn.ghost{background:rgba(255,255,255,.13);color:#fdf3e6;border:1px solid rgba(255,255,255,.3);}
+.tetra{background:rgba(0,0,0,.28);border-radius:12px;padding:13px;font-size:.85em;line-height:1.6;margin-bottom:12px;}
+.tetra b{color:#f7d794;}
+.endbox{text-align:center;}
+.endbox h2{color:#f7d794;font-size:1.5em;margin-bottom:8px;}
+.endbox p{font-size:.92em;line-height:1.6;color:#f0e2d4;margin-bottom:10px;text-align:left;}
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.45;}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>🔥 KITCHEN FIRE TRIAGE</h1>
+  <div class="sub">Five fires. Nine things within reach. You have seconds.</div>
+
+  <div class="screen active" id="scr-intro">
+    <div class="panel">
+      <div class="tetra">
+        Fire needs four things, and putting one out means taking one away:
+        <b>heat</b> · <b>fuel</b> · <b>oxygen</b> · <b>the chain reaction</b> that keeps it feeding itself.
+        After every choice you will be told which corner you attacked — or that you attacked none of them
+        and made things considerably worse.
+      </div>
+      <div style="font-size:.9em;line-height:1.6;color:#f0e2d4;">
+        Two tries per fire. Some fires have more than one right answer. One of the nine options
+        looks almost identical to a correct one and will nearly take your eyebrows off.
+      </div>
+      <button class="btn wide" id="bStart">🚨 First call →</button>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="topbar">
+      <span id="prog"></span>
+      <div class="dots" id="dots"></div>
+      <span id="score">Solved first try: 0</span>
+    </div>
+    <div class="panel">
+      <div class="fire" id="firebox">
+        <div class="boom" id="boom"></div>
+        <div class="fe" id="fe"></div>
+        <h2 id="fname"></h2>
+        <p id="fdesc"></p>
+      </div>
+      <div class="opts" id="opts"></div>
+      <div id="resbox"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel endbox">
+      <h2 id="endTitle"></h2>
+      <p id="endScore" style="text-align:center;color:#f7d794;font-weight:800;"></p>
+      <p><b>The pattern:</b> nearly everything that works on a kitchen fire removes <b>oxygen</b> or
+      <b>heat</b>. Almost nothing you own removes the <b>fuel</b> — which is why "turn the heat off and
+      cover it" beats every heroic option.</p>
+      <p><b>And the one that nearly killed you:</b> water is <i>denser than oil</i>, so it sinks under the
+      flames before it flashes to steam — expanding roughly <b>1700×</b> underneath a pan of burning fat.
+      One tablespoon becomes about <b>25 litres</b> of steam in a fraction of a second, and it takes the
+      burning oil with it, upwards, into the room.</p>
+      <p><b>Flour is not baking soda.</b> Same box, same colour, opposite outcome: finely divided starch
+      suspended in air is a <b>combustible dust</b>. Grain silos explode for this reason.</p>
+      <button class="btn wide" onclick="location.reload()">↻ Run the shift again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var RESP=[
+ {id:"water",lab:"💧 Throw a jug of water on it",corner:"none",
+  gen:"Water cools most fires beautifully — but only when it can actually reach the fuel and stay there."},
+ {id:"towel",lab:"🧺 Smother it with a damp tea towel",corner:"oxygen",
+  gen:"Smothering starves the fire of oxygen. Damp cloth also soaks up heat — as long as it fully covers the fire and you leave it alone."},
+ {id:"lid",lab:"🍳 Slide a metal lid over it",corner:"oxygen",
+  gen:"A lid or fire blanket seals the oxygen off completely, and metal does not burn. Slide it on from the side, do not drop it from above."},
+ {id:"soda",lab:"🧂 Dump baking soda on it",corner:"heat+oxygen",
+  gen:"Sodium bicarbonate decomposes endothermically — it steals heat — and releases CO₂, which pushes oxygen away. Two corners at once."},
+ {id:"flour",lab:"🌾 Dump flour on it",corner:"none",
+  gen:"It looks exactly like baking soda in the cupboard and behaves like gunpowder in the air. Finely divided starch suspended above a flame is a combustible dust."},
+ {id:"sand",lab:"🪣 Throw sand or soil on it",corner:"oxygen",
+  gen:"Sand smothers and does not react — genuinely useful outdoors, rarely within arm's reach of a hob."},
+ {id:"co2",lab:"🧯 CO₂ extinguisher",corner:"oxygen",
+  gen:"CO₂ displaces oxygen and leaves no residue, which makes it the right tool around electronics."},
+ {id:"wet",lab:"🧯 Wet-chemical (Class K) extinguisher",corner:"chain+heat",
+  gen:"The alkaline agent reacts with the hot fat and turns the surface of the fire into soap — a sealing layer that stops it reigniting. The extinguisher literally makes soap."},
+ {id:"power",lab:"🔌 Kill the power / heat, and close the door",corner:"heat",
+  gen:"Removing the energy source is unglamorous and almost always step one."}
+];
+
+var FIRES=[
+ {emo:"🍳",name:"The chip pan",best:["lid","soda","wet"],
+  desc:"A pan of oil on the hob has caught. Flames are about 30 cm high and the oil is somewhere around 350 °C. The extractor fan above is starting to blacken.",
+  notes:{
+   water:"BOOM|<b>You have just made a fireball.</b> Water is denser than oil, so it sank straight under the flames — then flashed to steam and expanded about <b>1700 times</b>. One tablespoon became roughly 25 litres of steam, in an instant, underneath burning fat. It threw the oil up into the room and across the ceiling. This is the single most dangerous thing you can do in a kitchen.",
+   flour:"BOOM|You reached for the white powder and got the wrong box. Suspended starch is a <b>combustible dust</b> — it flashed above the pan. Grain silos explode this way.",
+   towel:"A damp towel <i>can</i> work, but over a deep pan of 350 °C oil it is a poor bet: the water in it boils on contact and it can be blown aside or wick the oil. A metal lid is the move.",
+   co2:"CO₂ smothers, but the blast is powerful enough to splash burning oil out of the pan. Wrong tool for a deep liquid fire."}},
+ {emo:"🍞",name:"The toaster",best:["power","co2"],
+  desc:"Flames are curling out of the toaster slots. It is still plugged in and the socket is right behind it.",
+  notes:{
+   water:"BOOM|Water plus a live mains appliance. The water conducts, and you are holding the jug. Pull the plug first — always.",
+   lid:"Nothing here to put a lid on, and reaching over the flames to a live appliance is not a plan.",
+   soda:"Baking soda would fight the flame, but you have left it energised — it will simply relight. Cut the power first.",
+   wet:"Wet chemical is designed for burning fat, not for an energised electrical appliance."}},
+ {emo:"🔥",name:"Fire inside the oven",best:["power"],
+  desc:"You can see flames through the glass door. The fat that dripped off last Sunday's roast has ignited on the floor of the oven.",
+  notes:{
+   water:"You opened the oven door to do it. That single act fed the fire a rush of fresh oxygen — which is exactly what it was short of.",
+   lid:"To place anything you must open the door, and opening the door hands the fire the one thing it lacks.",
+   soda:"Same problem: opening the door supplies oxygen faster than the powder removes it.",
+   co2:"Opening the door to aim the nozzle undoes the extinguisher's work before you have squeezed it.",
+   towel:"Opening the door lets in air. The oven is already a sealed box — use that."},
+  win:"Turn the heat off, keep the door <b>shut</b>, and watch it. An oven is an almost airtight steel box: with the power gone and no fresh air, the fire eats its remaining oxygen and dies. Doing nothing, deliberately, is the skill here."},
+ {emo:"🧻",name:"A tea towel on the hob",best:["water","lid","towel","sand","power"],
+  desc:"You left a dry tea towel next to a lit gas ring and it is burning merrily on the worktop. No oil involved — just cloth.",
+  notes:{
+   flour:"Even on an ordinary cloth fire, throwing a cloud of starch over an open flame is how you turn a small problem into a flash.",
+   wet:"It would work, but it is overkill and you will be scrubbing saponified gunk off the worktop all evening.",
+   co2:"Works fine. Slightly absurd for a tea towel, but no harm done."},
+  win:"This is the one fire in the set where <b>water is correct</b>. Burning cloth is an ordinary solid fuel with no oil and no electricity, so water cools it and soaks the fuel. Notice how much depends on <i>what is burning</i> — the response is never about the flames."},
+ {emo:"📡",name:"Fire in the microwave",best:["power"],
+  desc:"Somebody microwaved a takeaway container with a metal rim. There was arcing, then a small flame, and the inside is now full of black smoke. The oven is still running.",
+  notes:{
+   water:"You opened the door and threw water into a live appliance full of electronics. Two hazards for the price of one.",
+   lid:"The microwave already <i>is</i> the metal box. Opening it to add another one only lets air in.",
+   soda:"You would have to open the door to apply it, and the fire wants air more than it wants anything else.",
+   co2:"Not wrong in principle for electronics — but you must open the door to use it, and that feeds the fire. Leave it shut.",
+   flour:"Into a sealed cavity with an active flame. No."},
+  win:"Stop it, unplug it, and <b>keep the door closed</b>. The cavity is a sealed steel box designed to contain radiation — it contains a small fire just as well. The metal rim arced because charge concentrates at sharp edges until the air itself breaks down."}
+];
+
+var idx=0,tries=0,firstTry=0,solved=0,done=false;
+
+function $(i){return document.getElementById(i);}
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}return AC;}
+function tone(f,d,dur,ty,v){var a=ac();if(!a)return;
+  var o=a.createOscillator(),g=a.createGain();
+  o.type=ty;o.frequency.value=f;o.connect(g);g.connect(a.destination);
+  g.gain.setValueAtTime(v,a.currentTime+d);
+  g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d+dur);
+  o.start(a.currentTime+d);o.stop(a.currentTime+d+dur+.04);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.15);}
+function sBad(){tone(150,0,.3,"sawtooth",.14);tone(98,.1,.32,"square",.11);}
+function sBoom(){tone(70,0,.6,"sawtooth",.22);tone(45,.05,.7,"square",.18);tone(200,0,.25,"sawtooth",.1);}
+function conf(n){var c=["#f7d794","#8fe0a5","#f0a24f","#e55039","#ffd9a8"],i,d;
+  for(i=0;i<n;i++){d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4000);})(d);}}
+
+function show(id){var s=document.getElementsByClassName("screen"),i;
+  for(i=0;i<s.length;i++)s[i].className="screen";$(id).className="screen active";window.scrollTo(0,0);}
+
+function cornerTag(c){
+  if(c==="none")return '<span class="corner none">attacked no corner of the tetrahedron</span>';
+  var parts=c.split("+"),map={heat:"🌡️ removed HEAT",oxygen:"💨 removed OXYGEN",
+    fuel:"🪵 removed FUEL",chain:"⛓️ broke the CHAIN REACTION"},i,h="";
+  for(i=0;i<parts.length;i++)h+='<span class="corner">'+map[parts[i]]+'</span>';
+  return h;
+}
+function respById(id){var i;for(i=0;i<RESP.length;i++)if(RESP[i].id===id)return RESP[i];return null;}
+
+function buildDots(){
+  var d=$("dots"),i,s;d.innerHTML="";
+  for(i=0;i<FIRES.length;i++){s=document.createElement("div");s.className="dot";s.id="d"+i;d.appendChild(s);}
+}
+function render(){
+  var F=FIRES[idx],i,html,b,bs;
+  tries=0;done=false;
+  $("prog").textContent="Fire "+(idx+1)+" of "+FIRES.length;
+  $("fe").textContent=F.emo;$("fname").textContent=F.name;$("fdesc").innerHTML=F.desc;
+  $("resbox").innerHTML="";
+  html="";
+  for(i=0;i<RESP.length;i++)html+='<button class="opt" data-id="'+RESP[i].id+'">'+RESP[i].lab+'</button>';
+  $("opts").innerHTML=html;
+  bs=$("opts").getElementsByClassName("opt");
+  for(i=0;i<bs.length;i++){(function(bb){bb.onclick=function(){pick(bb);};})(bs[i]);}
+  for(i=0;i<FIRES.length;i++){var el=$("d"+i);if(el.className==="dot"&&i===idx)el.className="dot now";}
+}
+function reveal(clean){
+  var F=FIRES[idx],i,bs=$("opts").getElementsByClassName("opt");
+  done=true;
+  for(i=0;i<bs.length;i++){
+    var id=bs[i].getAttribute("data-id");
+    bs[i].className="opt"+(F.best.indexOf(id)>-1?" right":" dead");
+  }
+  $("d"+idx).className="dot "+(clean?"ok":"help");
+  if(clean)firstTry++;
+  solved++;
+  $("score").textContent="Solved first try: "+firstTry;
+}
+function pick(btn){
+  var F=FIRES[idx],id=btn.getAttribute("data-id"),r=respById(id),txt,boom=false,body,h;
+  if(done)return;
+  if(F.best.indexOf(id)>-1){
+    btn.className="opt right";sWin();conf(45);
+    h='<div class="res win"><h3>✅ Fire out.</h3><p>'+(F.win?F.win:r.gen)+'</p>'+cornerTag(r.corner)+'</div>';
+    $("resbox").innerHTML=h+'<button class="btn wide" id="bNext">'+
+      (idx===FIRES.length-1?"See the debrief 🧯":"Next fire →")+'</button>';
+    $("bNext").onclick=next;
+    reveal(tries===0);
+    return;
+  }
+  tries++;
+  txt=F.notes&&F.notes[id]?F.notes[id]:r.gen;
+  if(txt.indexOf("BOOM|")===0){boom=true;txt=txt.slice(5);}
+  btn.className="opt wrong";
+  setTimeout(function(){if(!done)btn.className="opt dead";},480);
+  if(boom){
+    $("boom").textContent="💥";$("boom").className="boom go";
+    setTimeout(function(){$("boom").className="boom";},950);
+    sBoom();
+  }else sBad();
+  body='<div class="res lose"><h3>'+(boom?"💥 That went very badly":"❌ Not that")+'</h3><p>'+txt+'</p>'+
+    cornerTag(r.corner)+'</div>';
+  if(tries>=2){
+    body+='<div class="res lose" style="margin-top:8px;"><p>Out of tries. The correct options are '+
+      'highlighted — read what they have in common.</p></div>';
+    $("resbox").innerHTML=body+'<button class="btn wide" id="bNext">'+
+      (idx===FIRES.length-1?"See the debrief 🧯":"Next fire →")+'</button>';
+    $("bNext").onclick=next;
+    reveal(false);
+  }else{
+    $("resbox").innerHTML=body;
+  }
+}
+function next(){
+  idx++;
+  if(idx>=FIRES.length){
+    var t=firstTry>=4?"🏅 Kitchen Fire Marshal":firstTry>=3?"🧯 Competent Under Pressure":"📖 Still Reading the Manual";
+    $("endTitle").textContent=t;
+    $("endScore").textContent="Fires handled first try: "+firstTry+" / "+FIRES.length;
+    show("scr-end");sWin();conf(140);
+    return;
+  }
+  render();show("scr-play");
+}
+document.addEventListener("DOMContentLoaded",function(){
+  buildDots();
+  $("bStart").onclick=function(){render();show("scr-play");};
+});
+})();
+</script>
+
+
+</body></html>

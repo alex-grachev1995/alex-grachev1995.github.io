@@ -1,0 +1,364 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roman Water: True or False</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #1a1423;
+    color: #f5ead7;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .screen { max-width: 900px; width: 92%; text-align: center; padding: 30px; display: none; }
+  .screen.active { display: block; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: none;} }
+
+  h1 { font-size: 3em; color: #e8b64c; letter-spacing: 3px; text-shadow: 0 0 30px rgba(232,182,76,.35); }
+  .subtitle { font-size: 1.3em; color: #7fd4d4; margin: 18px 0 30px; }
+  .brief { font-size: 1.15em; line-height: 1.6; background: rgba(232,182,76,.08); border: 1px solid rgba(232,182,76,.3);
+           border-radius: 14px; padding: 22px; margin-bottom: 30px; }
+  .brief b { color: #e8b64c; }
+
+  .btn-main {
+    font-family: inherit; font-size: 1.5em; padding: 18px 55px; cursor: pointer;
+    background: linear-gradient(180deg, #e8b64c, #c68f2a); color: #241a08;
+    border: none; border-radius: 12px; font-weight: bold; letter-spacing: 2px;
+    box-shadow: 0 6px 0 #8a6118, 0 10px 25px rgba(0,0,0,.5); transition: transform .1s;
+  }
+  .btn-main:hover { transform: translateY(-3px); }
+  .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #8a6118; }
+
+  /* HUD */
+  .hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 1.1em; }
+  .hud .score { color: #e8b64c; font-weight: bold; font-size: 1.3em; }
+  .hud .qnum { color: #9a8fb0; }
+
+  /* Timer */
+  .timer-wrap { height: 22px; background: #2e2440; border-radius: 11px; overflow: hidden; margin-bottom: 8px;
+                border: 1px solid #453a5e; }
+  .timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #4ecdc4, #7fd4d4); border-radius: 11px;
+               transition: width .1s linear; }
+  .timer-bar.warning { background: linear-gradient(90deg, #e85c5c, #ff8f6b); }
+  .timer-label { font-size: 1.05em; color: #7fd4d4; margin-bottom: 20px; min-height: 1.3em; }
+
+  .question {
+    font-size: 1.75em; line-height: 1.45; min-height: 3.2em; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.04); border-radius: 16px; padding: 28px 24px; margin-bottom: 28px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .tf-row { display: flex; gap: 24px; justify-content: center; }
+  .tf-btn {
+    font-family: inherit; flex: 1; max-width: 280px; font-size: 2em; font-weight: bold; letter-spacing: 3px;
+    padding: 26px 10px; border-radius: 16px; cursor: pointer; border: none; color: #fff; transition: transform .1s;
+  }
+  .tf-btn:hover:not(:disabled) { transform: scale(1.05); }
+  .tf-btn:disabled { cursor: default; opacity: .85; }
+  .tf-true  { background: linear-gradient(180deg, #3fae62, #2b7d45); box-shadow: 0 6px 0 #1d5730, 0 10px 22px rgba(0,0,0,.45); }
+  .tf-false { background: linear-gradient(180deg, #d9534f, #a93835); box-shadow: 0 6px 0 #7c2624, 0 10px 22px rgba(0,0,0,.45); }
+  .key-hint { font-size: .45em; letter-spacing: 1px; display: block; margin-top: 6px; opacity: .75; font-weight: normal; }
+
+  /* Feedback */
+  .feedback { margin-top: 26px; min-height: 130px; }
+  .verdict { font-size: 2em; font-weight: bold; margin-bottom: 8px; }
+  .verdict.good { color: #4ecdc4; } .verdict.bad { color: #ff8f6b; }
+  .points-earned { font-size: 1.4em; color: #e8b64c; margin-bottom: 10px; }
+  .explain { font-size: 1.15em; line-height: 1.5; color: #d8cfe8; max-width: 720px; margin: 0 auto 18px; }
+  .btn-next { font-family: inherit; font-size: 1.2em; padding: 12px 40px; cursor: pointer; background: #453a5e;
+              color: #f5ead7; border: 1px solid #6b5c93; border-radius: 10px; }
+  .btn-next:hover { background: #57487a; }
+  .hidden { visibility: hidden; }
+
+  /* Results */
+  .final-score { font-size: 4.5em; color: #e8b64c; font-weight: bold; margin: 12px 0; text-shadow: 0 0 40px rgba(232,182,76,.4); }
+  .rank { font-size: 2.2em; color: #7fd4d4; margin-bottom: 8px; }
+  .rank-note { font-size: 1.15em; color: #9a8fb0; margin-bottom: 12px; }
+  .stats { font-size: 1.2em; color: #d8cfe8; margin-bottom: 28px; }
+
+  #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
+
+  .flash-correct { animation: flashGreen .5s; }
+  .flash-wrong { animation: flashRed .5s; }
+  @keyframes flashGreen { 0% { background: rgba(78,205,196,.25);} 100% { background: #1a1423;} }
+  @keyframes flashRed   { 0% { background: rgba(217,83,79,.25);}  100% { background: #1a1423;} }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- START -->
+<div class="screen active" id="screen-start">
+  <h1>ROMAN WATER</h1>
+  <div class="subtitle">⚡ TRUE or FALSE — Speed Trial ⚡</div>
+  <div class="brief">
+    Engineer, the Emperor tests not only your <b>knowledge</b> but your <b>speed of decision</b>.<br><br>
+    <b>8 statements</b> about Roman water. You have <b>10 seconds</b> for each.<br>
+    Correct answer = <b>100 points</b> + <b>10 points for every second left</b> on the clock.<br>
+    Wrong answer or too slow = <b>0 points</b>.<br><br>
+    Tip: keys <b>T</b> and <b>F</b> work too. Maximum score: <b>1600</b>.
+  </div>
+  <button class="btn-main" onclick="startGame()">BEGIN TRIAL</button>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="screen-game">
+  <div class="hud">
+    <div class="qnum" id="qnum">Question 1 / 8</div>
+    <div class="score">⭐ <span id="score">0</span></div>
+  </div>
+  <div class="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+  <div class="timer-label" id="timer-label">10.0 s</div>
+  <div class="question" id="question-text"></div>
+  <div class="tf-row">
+    <button class="tf-btn tf-true" id="btn-true" onclick="answer(true)">TRUE<span class="key-hint">[ T ]</span></button>
+    <button class="tf-btn tf-false" id="btn-false" onclick="answer(false)">FALSE<span class="key-hint">[ F ]</span></button>
+  </div>
+  <div class="feedback">
+    <div class="verdict hidden" id="verdict"></div>
+    <div class="points-earned hidden" id="points-earned"></div>
+    <div class="explain hidden" id="explain"></div>
+    <button class="btn-next hidden" id="btn-next" onclick="nextQuestion()">NEXT ➜</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="screen-end">
+  <h1>TRIAL COMPLETE</h1>
+  <div class="final-score" id="final-score">0</div>
+  <div class="rank" id="rank"></div>
+  <div class="rank-note" id="rank-note"></div>
+  <div class="stats" id="stats"></div>
+  <button class="btn-main" onclick="location.reload()">TRY AGAIN</button>
+</div>
+
+<script>
+// ---------- QUESTIONS (from the video + Spectrum text) ----------
+const QUESTIONS = [
+  { q: "Roman aqueducts used pumps and machines to move the water.",
+    a: false,
+    ex: "No pumps existed! The water moved by GRAVITY alone — the channels had a very slight downward slope." },
+  { q: "Most of the aqueduct channels were underground.",
+    a: true,
+    ex: "The famous bridges are just the show-off parts. Underground channels kept the water clean, cool — and hidden from enemies." },
+  { q: "If the slope was too steep, the water moved too SLOWLY.",
+    a: false,
+    ex: "Backwards! Too steep = water rushes TOO FAST. Too flat = it stops moving. Engineers needed the perfect in-between." },
+  { q: "The city of Rome ended up with 11 major aqueducts.",
+    a: true,
+    ex: "Eleven aqueducts, over 250 miles of channels — millions of gallons flowing into Rome every single day." },
+  { q: "Aqueduct water flowed straight into every Roman's house.",
+    a: false,
+    ex: "It flowed into RESERVOIRS first, then to public fountains and baths. Only rich families who paid special taxes had home pipes." },
+  { q: "The Romans invented a special waterproof cement to line the channels.",
+    a: true,
+    ex: "Opus caementicium! Waterproof Roman cement — some of it has survived for 2,000 years." },
+  { q: "The Pont du Gard in France collapsed centuries ago.",
+    a: false,
+    ex: "It's STILL STANDING — a three-tiered giant, 2,000 years old. You flew over it today, Engineer!" },
+  { q: "Engineers climbed into the channels through inspection shafts to clean them.",
+    a: true,
+    ex: "True! Dirt, leaves, and mineral buildup could slow down or contaminate the water — so the channels needed regular cleaning." },
+];
+
+const TIME_LIMIT = 10.0;   // seconds
+const BASE_POINTS = 100;
+const BONUS_PER_SEC = 10;
+
+let current = 0, score = 0, correctCount = 0, totalBonus = 0;
+let timeLeft = TIME_LIMIT, timerInterval = null, answering = false;
+
+// ---------- SOUND (WebAudio, no files) ----------
+let audioCtx = null;
+function beep(freq, dur, type = "sine", vol = 0.15) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function soundCorrect() { beep(660, .12); setTimeout(() => beep(880, .18), 110); }
+function soundWrong()   { beep(220, .3, "sawtooth", .1); }
+function soundTick()    { beep(1000, .04, "square", .04); }
+function soundFanfare() { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.25),i*140)); }
+
+// ---------- GAME FLOW ----------
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function startGame() {
+  current = 0; score = 0; correctCount = 0; totalBonus = 0;
+  show("screen-game");
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answering = true;
+  const q = QUESTIONS[current];
+  document.getElementById("qnum").textContent = `Question ${current + 1} / ${QUESTIONS.length}`;
+  document.getElementById("question-text").textContent = q.q;
+  document.getElementById("btn-true").disabled = false;
+  document.getElementById("btn-false").disabled = false;
+  ["verdict","points-earned","explain","btn-next"].forEach(id =>
+    document.getElementById(id).classList.add("hidden"));
+
+  timeLeft = TIME_LIMIT;
+  updateTimerUI();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    if (timeLeft <= 3.05 && timeLeft > 0 && Math.abs(timeLeft % 1) < 0.1) soundTick();
+    if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); timeOut(); }
+    else updateTimerUI();
+  }, 100);
+}
+
+function updateTimerUI() {
+  const pct = (timeLeft / TIME_LIMIT) * 100;
+  const bar = document.getElementById("timer-bar");
+  bar.style.width = pct + "%";
+  bar.classList.toggle("warning", timeLeft <= 3);
+  document.getElementById("timer-label").textContent = timeLeft.toFixed(1) + " s";
+}
+
+function answer(choice) {
+  if (!answering) return;
+  answering = false;
+  clearInterval(timerInterval);
+  document.getElementById("btn-true").disabled = true;
+  document.getElementById("btn-false").disabled = true;
+
+  const q = QUESTIONS[current];
+  const isCorrect = (choice === q.a);
+  const secLeft = Math.ceil(timeLeft);
+  let earned = 0;
+
+  if (isCorrect) {
+    const bonus = secLeft * BONUS_PER_SEC;
+    earned = BASE_POINTS + bonus;
+    totalBonus += bonus;
+    correctCount++;
+    score += earned;
+    soundCorrect();
+    miniConfetti();
+    document.body.classList.add("flash-correct");
+    showFeedback("✔ CORRECT!", "good",
+      `+${BASE_POINTS} points  +${bonus} speed bonus (${secLeft}s left)  =  +${earned}`, q.ex);
+  } else {
+    soundWrong();
+    document.body.classList.add("flash-wrong");
+    showFeedback("✘ WRONG!", "bad",
+      `+0 points — the answer was ${q.a ? "TRUE" : "FALSE"}`, q.ex);
+  }
+  setTimeout(() => document.body.classList.remove("flash-correct","flash-wrong"), 550);
+  document.getElementById("score").textContent = score;
+}
+
+function timeOut() {
+  if (!answering) return;
+  answering = false;
+  clearInterval(timerInterval);
+  document.getElementById("btn-true").disabled = true;
+  document.getElementById("btn-false").disabled = true;
+  const q = QUESTIONS[current];
+  soundWrong();
+  document.body.classList.add("flash-wrong");
+  setTimeout(() => document.body.classList.remove("flash-wrong"), 550);
+  showFeedback("⏰ TOO SLOW!", "bad",
+    `+0 points — the answer was ${q.a ? "TRUE" : "FALSE"}`, q.ex);
+}
+
+function showFeedback(verdictText, cls, pointsText, explainText) {
+  const v = document.getElementById("verdict");
+  v.textContent = verdictText; v.className = "verdict " + cls;
+  document.getElementById("points-earned").textContent = pointsText;
+  document.getElementById("explain").textContent = explainText;
+  ["verdict","points-earned","explain","btn-next"].forEach(id =>
+    document.getElementById(id).classList.remove("hidden"));
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= QUESTIONS.length) endGame();
+  else loadQuestion();
+}
+
+function endGame() {
+  show("screen-end");
+  document.getElementById("final-score").textContent = score;
+  document.getElementById("stats").textContent =
+    `Correct: ${correctCount} / ${QUESTIONS.length}   •   Speed bonus earned: ${totalBonus} pts`;
+
+  let rank, note;
+  if (score >= 1300)      { rank = "🏛️ AQUARIUS MAXIMUS";  note = "The Emperor bows. Rome's water is safe in your hands — forever."; }
+  else if (score >= 1000) { rank = "⚔️ CHIEF ENGINEER";     note = "Outstanding. One more trial and the highest title is yours."; }
+  else if (score >= 700)  { rank = "🔨 AQUEDUCT BUILDER";   note = "Solid work, Engineer. Rome drinks — but the Emperor wants more speed."; }
+  else                    { rank = "📜 APPRENTICE";         note = "Rome is still thirsty... Study the channels and try the trial again!"; }
+  document.getElementById("rank").textContent = rank;
+  document.getElementById("rank-note").textContent = note;
+
+  if (score >= 1000) { soundFanfare(); bigConfetti(); }
+}
+
+// ---------- KEYBOARD ----------
+document.addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  if (document.getElementById("screen-game").classList.contains("active")) {
+    if (answering) {
+      if (k === "t") answer(true);
+      if (k === "f") answer(false);
+    } else if (k === "enter" || k === " ") {
+      if (!document.getElementById("btn-next").classList.contains("hidden")) nextQuestion();
+    }
+  }
+});
+
+// ---------- CONFETTI ----------
+const canvas = document.getElementById("confetti-canvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+resize(); addEventListener("resize", resize);
+
+function spawnConfetti(n, spread) {
+  const colors = ["#e8b64c","#4ecdc4","#ff8f6b","#7fd4d4","#f5ead7"];
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x: canvas.width / 2 + (Math.random() - .5) * spread,
+      y: canvas.height * 0.3,
+      vx: (Math.random() - .5) * 12,
+      vy: -Math.random() * 10 - 3,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+      life: 1
+    });
+  }
+}
+function miniConfetti() { spawnConfetti(30, 300); }
+function bigConfetti()  { spawnConfetti(150, canvas.width); }
+
+(function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.rot += p.vr; p.life -= 0.012;
+    ctx.save(); ctx.globalAlpha = Math.max(p.life, 0);
+    ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    ctx.restore();
+  });
+  requestAnimationFrame(loop);
+})();
+</script>
+
+
+</body></html>

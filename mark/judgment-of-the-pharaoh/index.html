@@ -1,0 +1,414 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judgment of the Pharaoh — TRUE or FALSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&amp;family=Roboto:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Roboto',sans-serif;
+    min-height:100vh;
+    background:linear-gradient(135deg,#f5d76e,#e67e22);
+    transition:background 1s ease;
+    display:flex; align-items:center; justify-content:center;
+    padding:15px;
+    overflow-x:hidden;
+  }
+
+  /* floating themed particles */
+  .particle {
+    position:fixed; font-size:26px; opacity:.18; pointer-events:none; z-index:0;
+    animation:floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform:translateY(105vh) rotate(0deg); }
+    100% { transform:translateY(-10vh) rotate(360deg); }
+  }
+
+  .card {
+    position:relative; z-index:2;
+    background:rgba(255,255,255,.94);
+    border-radius:22px;
+    box-shadow:0 18px 50px rgba(0,0,0,.30);
+    max-width:760px; width:100%;
+    padding:28px 30px 26px;
+    animation:fadeIn .5s ease;
+  }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+
+  /* top bar */
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-weight:700; color:#7d5a12; font-size:14px; }
+  .scorechip { background:#fdf3d7; border:2px solid #e0b64a; border-radius:20px; padding:4px 14px; }
+  .progress-track { height:9px; background:#eee3c2; border-radius:6px; overflow:hidden; margin-bottom:20px; }
+  .progress-fill { height:100%; width:0%; background:linear-gradient(90deg,#e0b64a,#e67e22); border-radius:6px; transition:width .4s ease; }
+
+  .tier {
+    display:inline-block; font-size:13px; font-weight:900; letter-spacing:1px;
+    padding:5px 14px; border-radius:14px; margin-bottom:14px; text-transform:uppercase;
+  }
+  .tier.basic  { background:#d5f5e3; color:#1e8449; }
+  .tier.medium { background:#fdebd0; color:#ca6f1e; }
+  .tier.hard   { background:#d6eaf8; color:#21618c; }
+
+  .statement {
+    font-family:'Merriweather',serif;
+    font-size:clamp(19px,3vw,26px); font-weight:700; line-height:1.45;
+    color:#3d2b0a; min-height:100px; margin-bottom:14px;
+    animation:fadeIn .45s ease;
+  }
+
+  /* timer line */
+  .timer-wrap { height:10px; background:#eee3c2; border-radius:6px; overflow:hidden; margin-bottom:26px; }
+  .timer-line { height:100%; width:100%; border-radius:6px; background:linear-gradient(90deg,#2ecc71,#f1c40f,#e74c3c); }
+  .timer-line.infinite { background:linear-gradient(90deg,#d4ac0d,#f7dc6f,#d4ac0d); animation:shimmer 2.2s linear infinite; }
+  @keyframes shimmer { 0%{filter:brightness(1);} 50%{filter:brightness(1.35);} 100%{filter:brightness(1);} }
+
+  /* answer buttons */
+  .answers { display:flex; gap:18px; }
+  .btn-ans {
+    flex:1; padding:30px 10px; border-radius:18px; border:4px solid transparent;
+    font-family:'Roboto',sans-serif; font-size:clamp(26px,4vw,40px); font-weight:900; letter-spacing:3px;
+    cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; color:#fff;
+  }
+  .btn-true  { background:#27ae60; }
+  .btn-false { background:#c0392b; }
+  .btn-ans:hover:not(:disabled) { transform:translateY(-4px) scale(1.03); box-shadow:0 10px 24px rgba(0,0,0,.25); }
+  .btn-ans:disabled { cursor:default; opacity:.9; }
+  .btn-ans.chosen-wrong  { border-color:#7b241c; filter:grayscale(.35) brightness(.75); }
+  .btn-ans.reveal-right  { border-color:#f7dc6f; box-shadow:0 0 22px rgba(241,196,15,.85); }
+  .btn-ans.dimmed { opacity:.35; filter:grayscale(.6); }
+
+  /* feedback */
+  .feedback { display:none; margin-top:20px; padding:16px 18px; border-radius:14px; font-size:16px; line-height:1.5; animation:fadeIn .35s ease; }
+  .feedback.good { display:block; background:#d5f5e3; border-left:6px solid #2ecc71; color:#145a32; }
+  .feedback.bad  { display:block; background:#fadbd8; border-left:6px solid #e74c3c; color:#78281f; }
+  .btn-next {
+    display:block; margin:18px auto 0; padding:13px 44px; border:none; border-radius:26px;
+    background:#4a69bd; color:#fff; font-size:17px; font-weight:700; cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn-next:hover { transform:scale(1.06); background:#3b5aa8; }
+
+  /* shake + red flash */
+  @keyframes shakeIt {
+    0%,100%{transform:translateX(0);} 15%{transform:translateX(-14px);} 30%{transform:translateX(12px);}
+    45%{transform:translateX(-10px);} 60%{transform:translateX(8px);} 75%{transform:translateX(-5px);} 90%{transform:translateX(3px);}
+  }
+  .shake { animation:shakeIt .55s ease; }
+  #redflash {
+    position:fixed; inset:0; background:rgba(231,76,60,.35); opacity:0; pointer-events:none; z-index:50; transition:opacity .18s;
+  }
+  #redflash.on { opacity:1; }
+
+  /* results */
+  .results { text-align:center; display:none; animation:fadeIn .6s ease; }
+  .results .big { font-size:64px; margin-bottom:8px; }
+  .results h2 { font-family:'Merriweather',serif; color:#7d5a12; font-size:30px; margin-bottom:10px; }
+  .results .scoreline { font-size:22px; font-weight:700; color:#3d2b0a; margin-bottom:8px; }
+  .results p { color:#6e5a2e; margin-bottom:22px; font-size:16px; }
+
+  .confetti-bit { position:fixed; z-index:100; pointer-events:none; }
+
+  @media (max-width:520px) {
+    .answers { gap:10px; }
+    .btn-ans { padding:22px 6px; }
+    .statement { min-height:120px; }
+  }
+</style>
+</head>
+<body>
+<div id="redflash"></div>
+
+<div class="card" id="card">
+
+  <div id="quizArea">
+    <div class="topbar">
+      <span id="qCount">Statement 1 of 24</span>
+      <span class="scorechip">𓂀 Score: <span id="score">0</span></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+
+    <span class="tier basic" id="tierChip">⚡ 7 seconds</span>
+    <div class="statement" id="statement">Loading the Pharaoh's scrolls…</div>
+
+    <div class="timer-wrap"><div class="timer-line" id="timerLine"></div></div>
+
+    <div class="answers">
+      <button class="btn-ans btn-true" id="btnTrue" onclick="answer(true)">TRUE</button>
+      <button class="btn-ans btn-false" id="btnFalse" onclick="answer(false)">FALSE</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btnNext" style="display:none" onclick="nextQ()">Next ⏵</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="big" id="resEmoji">🏺</div>
+    <h2 id="resTitle"></h2>
+    <div class="scoreline" id="resScore"></div>
+    <p id="resMsg"></p>
+    <button class="btn-next" onclick="location.reload()">⟲ Face the Pharaoh Again</button>
+  </div>
+
+</div>
+
+<script>
+/* ============ DATA ============ */
+/* tier: 'basic' = 7s, 'medium' = 25s, 'hard' = no limit */
+const QUESTIONS = [
+  // ---------- BASIC (7 s) ----------
+  { t:"Pharaohs were the kings of ancient Egypt.", a:true,  tier:"basic",
+    fb:"That was their title — the god-kings of the Nile." },
+  { t:"The ancient Egyptians mummified the dead to preserve their bodies.", a:true, tier:"basic",
+    fb:"They believed the body had to survive for the afterlife." },
+  { t:"Ancient Egypt grew up along the Amazon River.", a:false, tier:"basic",
+    fb:"Wrong river, wrong continent! Egypt is the gift of the NILE." },
+  { t:"Hieroglyphs were one of the earliest writing systems in the world.", a:true, tier:"basic",
+    fb:"Picture-writing over 5,000 years old — among the very first scripts ever." },
+  { t:"The great pyramids were built as tombs for pharaohs.", a:true, tier:"basic",
+    fb:"Giant eternal resting places — Khufu's was the biggest of all." },
+  { t:"Egypt's climate is cold and rainy.", a:false, tier:"basic",
+    fb:"Hot and dry — that's exactly why the Nile flood mattered so much." },
+  { t:"Serious scientists agree that aliens built the pyramids.", a:false, tier:"basic",
+    fb:"No aliens needed — about 25,000 skilled human workers did it." },
+  { t:"Most of Egypt's land is desert.", a:true, tier:"basic",
+    fb:"Over 90% desert — nearly everyone lived in the green strip along the Nile." },
+
+  // ---------- MEDIUM (25 s) ----------
+  { t:"The Egyptians watched the star Sirius to know when the Nile flood was coming.", a:true, tier:"medium",
+    fb:"The Dog Star rising before the sun = the flood alarm of Egypt." },
+  { t:"The Egyptian year had 12 months of 30 days, plus 5 special holiday days.", a:true, tier:"medium",
+    fb:"12 × 30 + 5 = 365. Your wall calendar is Egyptian technology." },
+  { t:"The sides of the Great Pyramid face exactly north, south, east, and west.", a:true, tier:"medium",
+    fb:"Aligned with the stars — off by only a twentieth of a degree!" },
+  { t:"At night, the Egyptians told time by watching groups of stars cross the sky.", a:true, tier:"medium",
+    fb:"36 star groups, each rising 40 minutes apart — a clock in the sky." },
+  { t:"The Egyptian calendar was perfect and never drifted out of season.", a:false, tier:"medium",
+    fb:"A real year is 365 ¼ days — the calendar slid 1 day off every 4 years." },
+  { t:"The Nile still floods Egypt every single year today.", a:false, tier:"medium",
+    fb:"The Aswan High Dam stopped the floods in 1970 — after 5,000 years, the star alarm retired." },
+  { t:"The pyramids were built by enslaved people.", a:false, tier:"medium",
+    fb:"A famous myth! They were citizens — housed and fed by the state." },
+  { t:"The Egyptians predicted the flood by watching for rain clouds.", a:false, tier:"medium",
+    fb:"It barely rains in Egypt — the flood water came from far away. They used a STAR instead." },
+
+  // ---------- HARD (no limit) ----------
+  { t:"Building the Great Pyramid took about 20 years.", a:true, tier:"hard",
+    fb:"The architect Hemiunu planned exactly 20 years — and delivered." },
+  { t:"To finish on time, workers had to set one stone block in place about every 3 minutes.", a:true, tier:"hard",
+    fb:"Every 3 minutes, 365 days a year, for 20 years. Over 2 million blocks!" },
+  { t:"Granite is softer and easier to shape than limestone.", a:false, tier:"hard",
+    fb:"Opposite! Granite is much harder — workers pounded it with dolerite rocks for years." },
+  { t:"The Great Pyramid holds just one burial chamber.", a:false, tier:"hard",
+    fb:"THREE were built — the pharaoh could die any day, so a chamber always had to be ready." },
+  { t:"When finished, the pyramid was covered in polished white limestone with a shining gold-like tip.", a:true, tier:"hard",
+    fb:"It gleamed like a second sun over Egypt. The white casing was stripped away centuries later." },
+  { t:"The North Star the Egyptians saw was Polaris — the same one we see today.", a:false, tier:"hard",
+    fb:"Earth wobbles like a slow spinning top — their pole star was Thuban. In 12,000 years it'll be Vega!" },
+  { t:"Dung beetles can navigate at night using the Milky Way.", a:true, tier:"hard",
+    fb:"Proven in 2013! The Egyptians worshipped the dung beetle — maybe they picked the right bug." },
+  { t:"Pyramid workers were fed worse than the average Egyptian.", a:false, tier:"hard",
+    fb:"They ate BETTER than the average Egyptian — good rations kept the workforce strong." },
+];
+
+const GRADIENTS = [
+  "linear-gradient(135deg,#f5d76e,#e67e22)",   // desert gold
+  "linear-gradient(135deg,#e74c3c,#f39c12)",   // sunset over Giza
+  "linear-gradient(135deg,#2980b9,#f7d794)",   // sky meets sand
+  "linear-gradient(135deg,#1a5276,#d4ac0d)",   // lapis & gold
+  "linear-gradient(135deg,#935116,#f0b27a)",   // Nile clay
+  "linear-gradient(135deg,#0e6655,#f4d03f)",   // Nile green & gold
+  "linear-gradient(135deg,#b9770e,#e74c3c)",   // amber & carnelian
+];
+
+const TIER_INFO = {
+  basic:  { label:"⚡ 7 seconds",  secs:7  },
+  medium: { label:"⏳ 25 seconds", secs:25 },
+  hard:   { label:"🤔 No time limit — think it through", secs:null },
+};
+
+/* ============ STATE ============ */
+let order = [], idx = 0, score = 0, locked = false;
+let timerRAF = null, timerEnd = null, lastGrad = -1;
+
+/* shuffle */
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+order = shuffle([...QUESTIONS]);
+
+/* ============ PARTICLES ============ */
+const P_EMOJI = ["🔺","⭐","🏺","👁️","🐫","☀️","𓂀","𓆣"];
+for(let i=0;i<14;i++){
+  const p=document.createElement("div"); p.className="particle";
+  p.textContent=P_EMOJI[i%P_EMOJI.length];
+  p.style.left=Math.random()*100+"vw";
+  p.style.animationDuration=(14+Math.random()*18)+"s";
+  p.style.animationDelay=(-Math.random()*20)+"s";
+  p.style.fontSize=(18+Math.random()*22)+"px";
+  document.body.appendChild(p);
+}
+
+/* ============ AUDIO ============ */
+let actx=null;
+function audio(){ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+function note(freq, start, dur, type="triangle", vol=0.22){
+  const a=audio(), o=a.createOscillator(), g=a.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001, a.currentTime+start);
+  g.gain.exponentialRampToValueAtTime(vol, a.currentTime+start+0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime+start+dur);
+  o.connect(g); g.connect(a.destination);
+  o.start(a.currentTime+start); o.stop(a.currentTime+start+dur+0.05);
+}
+function fanfare(){
+  note(523,0,.18); note(659,.14,.18); note(784,.28,.2); note(1047,.44,.45,"triangle",.28);
+  note(659,.44,.45,"sine",.12); note(784,.44,.45,"sine",.12);
+}
+function buzzer(){ note(200,0,.28,"sawtooth",.18); note(140,.18,.4,"sawtooth",.18); }
+
+/* ============ CONFETTI ============ */
+function confetti(){
+  const colors=["#f1c40f","#e67e22","#e74c3c","#2ecc71","#3498db","#9b59b6","#ffffff"];
+  const shapes=["50%","0%","20%"];
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  for(let i=0;i<70;i++){
+    const c=document.createElement("div"); c.className="confetti-bit";
+    const s=6+Math.random()*10;
+    c.style.width=s+"px"; c.style.height=s+"px";
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=shapes[Math.floor(Math.random()*shapes.length)];
+    c.style.left=cx+"px"; c.style.top=cy+"px";
+    document.body.appendChild(c);
+    const ang=Math.random()*Math.PI*2, v=180+Math.random()*420;
+    const dx=Math.cos(ang)*v, dy=Math.sin(ang)*v-200;
+    c.animate([
+      { transform:"translate(0,0) rotate(0deg)", opacity:1 },
+      { transform:`translate(${dx}px,${dy+400}px) rotate(${Math.random()*720-360}deg)`, opacity:0 }
+    ],{ duration:1300+Math.random()*800, easing:"cubic-bezier(.15,.6,.4,1)" });
+    setTimeout(()=>c.remove(),2200);
+  }
+}
+
+/* ============ QUIZ FLOW ============ */
+const el=id=>document.getElementById(id);
+
+function loadQ(){
+  locked=false;
+  const q=order[idx], info=TIER_INFO[q.tier];
+
+  // background gradient — random, never same twice in a row
+  let g; do { g=Math.floor(Math.random()*GRADIENTS.length); } while(g===lastGrad);
+  lastGrad=g; document.body.style.background=GRADIENTS[g];
+
+  el("qCount").textContent=`Statement ${idx+1} of ${order.length}`;
+  el("progFill").style.width=(idx/order.length*100)+"%";
+
+  const chip=el("tierChip");
+  chip.className="tier "+q.tier; chip.textContent=info.label;
+
+  const st=el("statement");
+  st.style.animation="none"; void st.offsetWidth; st.style.animation="";
+  st.textContent=q.t;
+
+  el("feedback").className="feedback"; el("feedback").textContent="";
+  el("btnNext").style.display="none";
+  const bt=el("btnTrue"), bf=el("btnFalse");
+  [bt,bf].forEach(b=>{ b.disabled=false; b.className=b.className.replace(/ (chosen-wrong|reveal-right|dimmed)/g,""); });
+
+  startTimer(info.secs);
+}
+
+function startTimer(secs){
+  cancelAnimationFrame(timerRAF);
+  const line=el("timerLine");
+  if(secs===null){
+    line.classList.add("infinite"); line.style.width="100%"; timerEnd=null; return;
+  }
+  line.classList.remove("infinite");
+  const t0=performance.now(); timerEnd=t0+secs*1000;
+  function tick(now){
+    if(locked) return;
+    const frac=Math.max(0,(timerEnd-now)/(secs*1000));
+    line.style.width=(frac*100)+"%";
+    if(frac<=0){ timeUp(); return; }
+    timerRAF=requestAnimationFrame(tick);
+  }
+  timerRAF=requestAnimationFrame(tick);
+}
+
+function answer(choice){
+  if(locked) return;
+  locked=true; cancelAnimationFrame(timerRAF);
+  const q=order[idx];
+  const bt=el("btnTrue"), bf=el("btnFalse");
+  bt.disabled=true; bf.disabled=true;
+  const chosenBtn = choice? bt: bf;
+  const rightBtn  = q.a? bt: bf;
+  const otherBtn  = q.a? bf: bt;
+
+  if(choice===q.a){
+    score++; el("score").textContent=score;
+    rightBtn.classList.add("reveal-right"); otherBtn.classList.add("dimmed");
+    fanfare(); confetti();
+    showFeedback(true, q.fb);
+  } else {
+    chosenBtn.classList.add("chosen-wrong"); rightBtn.classList.add("reveal-right");
+    buzzer(); shakeScreen();
+    showFeedback(false, q.fb);
+  }
+}
+
+function timeUp(){
+  if(locked) return;
+  locked=true;
+  const q=order[idx];
+  const bt=el("btnTrue"), bf=el("btnFalse");
+  bt.disabled=true; bf.disabled=true;
+  (q.a?bt:bf).classList.add("reveal-right");
+  (q.a?bf:bt).classList.add("dimmed");
+  buzzer(); shakeScreen();
+  showFeedback(false, "⏳ Time's up! " + q.fb);
+}
+
+function shakeScreen(){
+  const card=el("card"), flash=el("redflash");
+  card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+  flash.classList.add("on"); setTimeout(()=>flash.classList.remove("on"),350);
+}
+
+function showFeedback(good, text){
+  const f=el("feedback");
+  f.className="feedback "+(good?"good":"bad");
+  f.innerHTML=(good?"<b>✅ Correct!</b> ":"<b>❌ Not quite.</b> ")+text;
+  el("btnNext").style.display="block";
+}
+
+function nextQ(){
+  idx++;
+  if(idx>=order.length){ endQuiz(); } else { loadQ(); }
+}
+
+function endQuiz(){
+  el("quizArea").style.display="none";
+  el("progFill").style.width="100%";
+  const r=el("results"); r.style.display="block";
+  el("resScore").textContent=`${score} / ${order.length}`;
+  let emoji,title,msg;
+  if(score>=20){ emoji="👑"; title="GRAND PRIEST OF EGYPT";
+    msg="The Pharaoh bows to YOUR wisdom. The flood is predicted, the harvest is saved, and your name will be carved in stone for 4,000 years."; }
+  else if(score>=14){ emoji="𓂀"; title="TEMPLE SCRIBE";
+    msg="The Pharaoh nods with approval. A few scrolls still to study, but Egypt is safe in your hands."; }
+  else if(score>=8){ emoji="🏺"; title="PYRAMID APPRENTICE";
+    msg="The Pharaoh raises an eyebrow… Back to the temple roof for more star-watching, apprentice!"; }
+  else { emoji="🐊"; title="THE CROCODILES ARE CIRCLING";
+    msg="The Pharaoh is NOT pleased. Luckily, every priest gets a second chance — face the judgment again!"; }
+  el("resEmoji").textContent=emoji;
+  el("resTitle").textContent=title;
+  el("resMsg").textContent=msg;
+}
+
+loadQ();
+</script>
+
+
+</body></html>

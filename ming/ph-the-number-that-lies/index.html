@@ -1,0 +1,679 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pH: The Number That Lies</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(160deg,#5e1f24 0%,#6b4420 15%,#5d6320 29%,#24622f 45%,
+    #1f5a63 61%,#23356b 79%,#2e2160 100%);
+  background-attachment:fixed;
+  color:#f3f5ff;min-height:100vh;padding:14px}
+#wrap{max-width:1020px;margin:0 auto}
+h1{font-size:1.45em;text-align:center;color:#f7d794;letter-spacing:.4px}
+.sub{text-align:center;color:#dfe6ff;font-size:.85em;margin:4px 0 9px}
+#phbar{height:9px;border-radius:99px;margin:0 auto 3px;max-width:520px;
+  background:linear-gradient(90deg,#c0392b,#d68910,#cfc22b,#27ae60,#2980b9,#5b2c8d)}
+#phlab{display:flex;justify-content:space-between;max-width:520px;margin:0 auto 12px;
+  font-size:.68em;color:#cdd6f5;font-weight:800;letter-spacing:1px}
+#boot{text-align:center;font-size:.74em;padding:5px;border-radius:6px;margin-bottom:9px;
+  background:#5a1c1c;color:#ffc9c0}
+#boot.ok{background:rgba(20,80,55,.85);color:#a8ecbb}
+#err{display:none;background:#7a1f1f;border:2px solid #ff8a72;border-radius:9px;
+  padding:10px;margin-bottom:10px;font-family:monospace;font-size:.79em;line-height:1.5}
+.sec{display:none}.sec.on{display:block}
+.panel{background:rgba(12,18,38,.55);border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;padding:15px;margin-bottom:11px;backdrop-filter:blur(3px)}
+.lab{font-size:.69em;letter-spacing:1.2px;color:#bcc9f2;font-weight:800;margin-bottom:6px}
+.note{font-size:.87em;color:#e6ecff;line-height:1.6}
+.note b{color:#f7d794}
+.btn{border:none;border-radius:9px;padding:10px 20px;font-size:.92em;font-weight:800;
+  cursor:pointer;color:#25314f;background:#f7d794;margin:4px 4px 0 0}
+.btn:hover{filter:brightness(1.08)}
+.btn.g{background:rgba(255,255,255,.14);color:#f3f5ff;border:1px solid rgba(255,255,255,.34)}
+.btn.w{width:100%}
+.btn.sm{padding:7px 14px;font-size:.83em}
+.btn:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.dots{display:flex;gap:5px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.2)}
+.dot.done{background:#f7d794}.dot.help{background:#9fb0e8}
+.dot.now{background:#fff;transform:scale(1.35)}
+
+.item{text-align:center;background:#fdfcf7;color:#25314f;border-radius:14px;padding:16px;
+  margin-bottom:11px;box-shadow:0 8px 24px rgba(0,0,0,.34)}
+.item .em{font-size:2.7em;line-height:1}
+.item h2{font-size:1.28em;margin:5px 0 4px}
+.item p{font-size:.86em;color:#4a5570;line-height:1.5}
+.guessrow{text-align:center}
+.bigph{font-size:3em;font-weight:900;color:#f7d794;line-height:1;
+  font-variant-numeric:tabular-nums}
+.bigph small{font-size:.28em;display:block;color:#bcc9f2;font-weight:700;letter-spacing:1.4px}
+input[type=range]{width:100%;height:34px;accent-color:#f7d794;margin:6px 0 2px}
+.ticks{display:flex;justify-content:space-between;font-size:.7em;color:#bcc9f2;
+  font-variant-numeric:tabular-nums}
+.ion{font-family:'Consolas','Courier New',monospace;background:rgba(0,0,0,.42);
+  border-radius:10px;padding:12px;margin:10px 0}
+.ion .il{font-size:.7em;letter-spacing:1.2px;color:#bcc9f2;font-weight:800}
+.ion .iv{font-size:1.12em;font-weight:800;color:#f7d794;word-break:break-all;line-height:1.3}
+.ion .ic{font-size:.8em;color:#d5ddf7;margin-top:4px}
+.stack{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;min-height:22px}
+.blk{width:16px;height:16px;border-radius:3px;background:#f0b95f;opacity:.92}
+.blk.pale{background:#6d7ea8}
+.stacklab{font-size:.74em;color:#bcc9f2;margin-top:5px}
+.res{border-radius:10px;padding:12px;font-size:.88em;line-height:1.6;margin-top:10px}
+.res.ok{background:rgba(120,224,143,.2);border:1px solid rgba(120,224,143,.55)}
+.res.close{background:rgba(247,215,148,.18);border:1px solid rgba(247,215,148,.55)}
+.res.no{background:rgba(229,80,57,.2);border:1px solid rgba(229,80,57,.55)}
+.res b{color:#f7d794}
+
+.opt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.09);
+  border:2px solid rgba(255,255,255,.24);color:#f3f5ff;border-radius:11px;
+  padding:13px 16px;margin:8px 0;font-size:.95em;cursor:pointer;transition:all .14s}
+.opt:hover{border-color:#f7d794;background:rgba(247,215,148,.16)}
+.opt.right{border-color:#78e08f;background:rgba(120,224,143,.24)}
+.opt.wrong{border-color:#e55039;background:rgba(229,80,57,.2);animation:shk .45s}
+.opt:disabled{cursor:default}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.qh{font-size:1.06em;font-weight:800;color:#f7d794;margin-bottom:4px;line-height:1.45}
+.qs{font-size:.85em;color:#cdd6f5;line-height:1.5;margin-bottom:11px}
+
+.head{background:#fdfcf7;color:#25314f;border-radius:12px;padding:15px;margin-bottom:10px;
+  cursor:pointer;border:3px solid transparent;transition:all .14s}
+.head:hover{border-color:#f7d794}
+.head .src{font-size:.7em;letter-spacing:1.2px;color:#8a93ad;font-weight:800;margin-bottom:5px}
+.head .hl{font-size:1.05em;font-weight:800;line-height:1.45}
+.head.pickedR{border-color:#78e08f}
+.head.pickedW{border-color:#e55039}
+
+table.sm{width:100%;border-collapse:collapse;font-size:.79em;margin-top:8px}
+table.sm th,table.sm td{padding:5px 7px;border-bottom:1px solid rgba(255,255,255,.13);
+  text-align:right}
+table.sm th:first-child,table.sm td:first-child{text-align:left}
+table.sm th{color:#bcc9f2;font-size:.85em;text-transform:uppercase;letter-spacing:.5px}
+table.sm td b{color:#f7d794}
+table.sm tr.hi td{background:rgba(247,215,148,.13)}
+table.pw{width:100%;border-collapse:collapse;font-size:.85em;margin:9px 0}
+table.pw th,table.pw td{padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.13);
+  text-align:left}
+table.pw th{color:#bcc9f2;font-size:.85em;text-transform:uppercase;letter-spacing:.5px}
+table.pw td b{color:#f7d794}
+
+.calc{background:rgba(0,0,0,.4);border-radius:10px;padding:12px;margin-top:10px}
+.calc .row{display:flex;gap:12px;flex-wrap:wrap}
+.calc .row>div{flex:1;min-width:180px}
+.calc label{display:flex;justify-content:space-between;font-size:.8em;font-weight:800;
+  margin-bottom:2px}
+.calc label span{color:#f7d794;font-variant-numeric:tabular-nums}
+.calcout{font-family:'Consolas','Courier New',monospace;text-align:center;margin-top:8px;
+  font-size:1.05em;font-weight:800;color:#f7d794;line-height:1.6}
+.calcout small{display:block;font-size:.66em;color:#cdd6f5;font-weight:600}
+
+.conf{position:fixed;top:-14px;z-index:99;pointer-events:none;border-radius:2px;
+  animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(680deg);opacity:.42}}
+.big{font-size:1.1em;font-weight:800;color:#f7d794;text-align:center;margin:10px 0;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="boot">script did not run</div>
+  <div id="err"></div>
+  <h1>🧪 pH: THE NUMBER THAT LIES</h1>
+  <div class="sub">A scale designed so that enormous changes look small</div>
+  <div id="phbar"></div>
+  <div id="phlab"><span>0 · ACID</span><span>7 · NEUTRAL</span><span>14 · ALKALINE</span></div>
+
+  <!-- INTRO -->
+  <div class="sec on" id="s0">
+    <div class="panel">
+      <div class="note" style="margin-bottom:10px">
+        pH is a number between 0 and 14 that tells you how acidic something is. Low is acid, 7 is
+        neutral, high is alkaline. That much you already know.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        What almost nobody is told is <b>how the scale is built</b> — and it is built in a way
+        that makes gigantic changes look like small ones. Press releases rely on this.
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        Four parts. First you place sixteen everyday things on the scale, watching a counter as you go.
+        Then you learn the one trick for reading pH gaps properly. Then five calculations. Then two
+        newspaper headlines about the same measurement.
+      </div>
+      <button class="btn w" id="b0">Start →</button>
+    </div>
+  </div>
+
+  <!-- ROUND 1 -->
+  <div class="sec" id="s1">
+    <div class="dots" id="dots"></div>
+    <div class="item" id="itm">
+      <div class="em" id="iEm"></div>
+      <h2 id="iN"></h2>
+      <p id="iD"></p>
+    </div>
+    <div class="panel">
+      <div class="guessrow">
+        <div class="lab">YOUR GUESS</div>
+        <div class="bigph"><span id="gph">7.0</span><small>pH</small></div>
+        <input type="range" id="sl" min="0" max="140" step="1" value="70">
+        <div class="ticks"><span>0</span><span>2</span><span>4</span><span>6</span>
+          <span>8</span><span>10</span><span>12</span><span>14</span></div>
+      </div>
+      <div class="ion">
+        <div class="il">HYDROGEN IONS IN EVERY LITRE, AT THAT pH</div>
+        <div class="iv" id="ionV"></div>
+        <div class="ic" id="ionC"></div>
+        <div class="stack" id="stk"></div>
+        <div class="stacklab" id="stkL"></div>
+      </div>
+      <button class="btn w" id="bLock">Lock in this guess</button>
+      <button class="btn g w sm" id="bSkip">Skip ahead to the arithmetic →</button>
+      <div id="r1res"></div>
+    </div>
+  </div>
+
+  <!-- LADDER -->
+  <div class="sec" id="s1b">
+    <div class="panel">
+      <div class="lab">THE WHOLE SCALE, WITH THE REAL ION COUNTS</div>
+      <div class="note" id="r1sum" style="margin-bottom:8px"></div>
+      <table class="sm" id="ladder"></table>
+      <div class="note" style="margin-top:11px">
+        Two columns to look at. <b>Every step of one pH unit divides the hydrogen ions by ten</b>
+        — that's the fourth column. And the last column counts down from pH 0, where there is
+        exactly <b>one mole</b> of hydrogen ions per litre: the anchor the whole scale is built on.
+        By the time you reach the middle of the scale you have divided by <b>ten million</b>, and by
+        the far end, by <b>a hundred trillion</b>.
+      </div>
+      <button class="btn w" id="b1b">Now the one trick →</button>
+    </div>
+  </div>
+
+  <!-- THE TRICK -->
+  <div class="sec" id="s1c">
+    <div class="panel">
+      <div class="lab">THE ONE TRICK</div>
+      <div class="big">Subtract the two pH values. The answer is ten to the power of that.</div>
+      <div class="note" style="margin-bottom:10px">
+        That's it. Three steps, every time:
+      </div>
+      <table class="pw">
+        <tbody><tr><th>Step</th><th>Worked example: clean rain vs acid rain</th></tr>
+        <tr><td><b>1.</b> Write both pH values down</td><td>clean rain <b>5.6</b>, acid rain <b>4.3</b></td></tr>
+        <tr><td><b>2.</b> Subtract, smaller from larger</td><td>5.6 − 4.3 = <b>1.3</b></td></tr>
+        <tr><td><b>3.</b> Ten to the power of that</td><td>10<sup>1.3</sup> = <b>about 20 times</b> more hydrogen ions</td></tr>
+      </tbody></table>
+      <div class="note" style="margin-bottom:8px">
+        <b>You don't need a calculator.</b> Learn five rough values and you can do any of these in
+        your head:
+      </div>
+      <table class="pw">
+        <tbody><tr><th>Difference</th><th>Ten to that power</th><th>In words</th></tr>
+        <tr><td>0.1</td><td><b>1.26</b></td><td>about a quarter more</td></tr>
+        <tr><td>0.3</td><td><b>2</b></td><td>double</td></tr>
+        <tr><td>0.5</td><td><b>3.2</b></td><td>about triple</td></tr>
+        <tr><td>0.7</td><td><b>5</b></td><td>five times</td></tr>
+        <tr><td>1.0</td><td><b>10</b></td><td>ten times</td></tr>
+      </tbody></table>
+      <div class="note" style="margin-bottom:8px">
+        And for a big gap, <b>split it</b>. Say the difference is 5.9. Ten to the power of five is a
+        hundred thousand. Ten to the power of nought point nine is about eight. Multiply them:
+        <b>about eight hundred thousand</b>. No calculator, three seconds.
+      </div>
+      <div class="calc">
+        <div class="lab">TRY IT — DRAG BOTH</div>
+        <div class="row">
+          <div><label>pH of the first thing <span id="vA">7.0</span></label>
+            <input type="range" id="cA" min="0" max="140" step="1" value="70"></div>
+          <div><label>pH of the second thing <span id="vB">4.0</span></label>
+            <input type="range" id="cB" min="0" max="140" step="1" value="40"></div>
+        </div>
+        <div class="calcout" id="cOut"></div>
+      </div>
+      <button class="btn w" id="b1c">Round 2: five calculations →</button>
+    </div>
+  </div>
+
+  <!-- ROUND 2 -->
+  <div class="sec" id="s2">
+    <div class="dots" id="dots2"></div>
+    <div class="panel">
+      <div class="lab" id="q2n">QUESTION</div>
+      <div class="qh" id="q2h"></div>
+      <div class="qs" id="q2s"></div>
+      <div id="q2o"></div>
+      <div id="q2f"></div>
+    </div>
+  </div>
+
+  <!-- ROUND 3 -->
+  <div class="sec" id="s3">
+    <div class="panel">
+      <div class="lab">ROUND 3 · SAME MEASUREMENT, TWO HEADLINES</div>
+      <div class="note" style="margin-bottom:11px">
+        Since the industrial revolution, the average pH of the ocean surface has dropped by roughly
+        <b>0.1</b>. That is one measurement. Here is how two different outlets reported it.
+        <b>Both sentences are arithmetically true.</b> Click the one designed to mislead you.
+      </div>
+      <div class="head" id="hA" data-h="a">
+        <div class="src">OUTLET A</div>
+        <div class="hl">“Ocean pH has fallen by 0.1 — a shift of less than one percent
+          of the pH scale.”</div>
+      </div>
+      <div class="head" id="hB" data-h="b">
+        <div class="src">OUTLET B</div>
+        <div class="hl">“Ocean acidity has climbed by roughly a quarter since the industrial
+          revolution.”</div>
+      </div>
+      <div id="h3f"></div>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="sec" id="s4">
+    <div class="panel">
+      <div class="lab">WHAT YOU NOW KNOW THAT THE TEXTBOOK PAGE DOESN'T SAY</div>
+      <div class="big">The pH scale is a compression device.</div>
+      <div class="note" style="margin-bottom:10px">
+        It squeezes a range of <b>a hundred trillion</b> into the numbers nought to fourteen. That is
+        genuinely useful — nobody wants 0.00000000000001 on a graph axis. But it has a side
+        effect worth being permanently suspicious of: <b>it makes every change look small.</b>
+      </div>
+      <div class="note" style="margin-bottom:10px">
+        So when you see a pH change reported as a decimal, the honest question is never
+        “is 0.1 a big number?” It is: <b>ten to the power of what?</b>
+      </div>
+      <div class="note" id="fin" style="margin-bottom:10px"></div>
+      <div class="note" style="color:#cdd6f5;font-size:.84em">
+        One number to keep. Your tooth enamel starts dissolving at about pH 5.5. Clean, unpolluted
+        rain sits at 5.6. A can of cola sits at about 2.5 — which, as you can now work out in
+        your head, is around <b>a thousand times</b> more acidic than the rain.
+      </div>
+      <button class="btn w" onclick="location.reload()">↻ Run it again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.onerror=function(m,s,l,c){
+  var e=document.getElementById("err");
+  if(e){e.style.display="block";
+    e.innerHTML="<b>SCRIPT ERROR</b><br>"+m+"<br>line "+l+" col "+c;}
+  return false;
+};
+</script>
+<script>
+(function(){
+"use strict";
+
+function fail(w,e){
+  var b=document.getElementById("err");
+  if(b){b.style.display="block";
+    b.innerHTML="<b>BROKE IN: "+w+"</b><br>"+(e&&e.message?e.message:e);}
+}
+function go(w,fn){return function(ev){try{fn(ev);}catch(e){fail(w,e);}};}
+function $(i){return document.getElementById(i);}
+
+/* ---------- audio ---------- */
+var AC=null;
+function tone(f,d,du,ty,v){
+  try{
+    if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(),g=AC.createGain();
+    o.type=ty;o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+    g.gain.setValueAtTime(v,AC.currentTime+d);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+du);
+    o.start(AC.currentTime+d);o.stop(AC.currentTime+d+du+.04);
+  }catch(e){}
+}
+function sTick(){tone(600,0,.03,"square",.02);}
+function sWin(){var n=[523,659,784,1047],i;for(i=0;i<n.length;i++)tone(n[i],i*.1,.3,"triangle",.14);}
+function sMid(){tone(523,0,.14,"triangle",.13);tone(659,.09,.24,"triangle",.13);}
+function sBad(){tone(150,0,.27,"sawtooth",.12);tone(104,.1,.3,"square",.1);}
+function conf(n){
+  var c=["#f7d794","#78e08f","#4a69bd","#f0b95f","#82ccdd","#c9a4dd"],i,d;
+  for(i=0;i<n;i++){
+    d=document.createElement("div");d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.7)+"s";
+    document.body.appendChild(d);
+    (function(e){setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},4200);})(d);
+  }
+}
+
+/* ---------- number formatting ---------- */
+function molStr(p){
+  var v=Math.pow(10,-p),dp=Math.min(19,Math.ceil(p)+3),s=v.toFixed(dp);
+  if(s.indexOf(".")>-1){
+    while(s.charAt(s.length-1)==="0")s=s.substring(0,s.length-1);
+    if(s.charAt(s.length-1)===".")s=s.substring(0,s.length-1);
+  }
+  return s;
+}
+var SUPD="\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079";
+function sciStr(p){
+  var v=Math.pow(10,-p),e=Math.floor(Math.log(v)/Math.LN10+1e-9),m=v/Math.pow(10,e),
+      sup="",ae=Math.abs(e),ds=String(ae),i;
+  for(i=0;i<ds.length;i++)sup+=SUPD.charAt(parseInt(ds.charAt(i),10));
+  return m.toFixed(2)+" \u00D7 10"+(e<0?"\u207B":"")+sup+" mol/L";
+}
+function bigWord(n){
+  if(n<1000)return (n<10?n.toFixed(1):String(Math.round(n)));
+  if(n<1e6)return (n/1e3<10?(n/1e3).toFixed(1):String(Math.round(n/1e3)))+" thousand";
+  if(n<1e9)return (n/1e6<10?(n/1e6).toFixed(1):String(Math.round(n/1e6)))+" million";
+  if(n<1e12)return (n/1e9<10?(n/1e9).toFixed(1):String(Math.round(n/1e9)))+" billion";
+  return (n/1e12<10?(n/1e12).toFixed(1):String(Math.round(n/1e12)))+" trillion";
+}
+function cmpWater(p){
+  var r=Math.pow(10,7-p);
+  if(Math.abs(r-1)<0.02)return "the same as pure water";
+  if(r>1)return bigWord(r)+" times MORE than pure water";
+  return bigWord(1/r)+" times FEWER than pure water";
+}
+
+/* ---------- round 1 data ---------- */
+var ITEMS=[
+ {em:"\u2697\uFE0F",n:"Concentrated hydrochloric acid",ph:0.0,
+  d:"Laboratory strength. One whole mole of hydrogen ions in every litre &mdash; and that is not a coincidence. <b>pH 0 means exactly one</b>, and the entire scale is built from that anchor."},
+ {em:"\uD83D\uDD0B",n:"Car battery acid",ph:0.5,
+  d:"Sulfuric acid, concentrated. The same acid that falls as acid rain, just vastly stronger."},
+ {em:"\uD83E\uDD22",n:"Your stomach acid",ph:1.5,
+  d:"Produced deliberately, by you, right now &mdash; and somehow it does not digest your stomach."},
+ {em:"\uD83C\uDF4B",n:"Lemon juice",ph:2.2,
+  d:"Squeezed straight from the fruit. Citric acid."},
+ {em:"\uD83E\uDD64",n:"Cola",ph:2.5,
+  d:"A standard can of dark fizzy drink. Phosphoric acid plus carbonic acid."},
+ {em:"\u2614",n:"Acid rain over Scandinavia, 1970s",ph:4.3,
+  d:"Typical rainfall in southern Sweden and Norway at the height of the problem."},
+ {em:"\uD83C\uDF27\uFE0F",n:"Clean, unpolluted rain",ph:5.6,
+  d:"Rain in a place with no pollution at all. Falls through ordinary air and lands on you."},
+ {em:"\uD83E\uDD5B",n:"Milk",ph:6.6,
+  d:"Fresh cow's milk. Drops lower as it sours, because bacteria make lactic acid."},
+ {em:"\uD83D\uDCA7",n:"Pure water",ph:7.0,
+  d:"Distilled, nothing dissolved in it. This is the definition of neutral."},
+ {em:"\uD83E\uDE78",n:"Human blood",ph:7.4,
+  d:"Held in an extremely narrow range. Move this by 0.3 either way and you are in hospital."},
+ {em:"\uD83C\uDF0A",n:"Seawater",ph:8.1,
+  d:"Average ocean surface today. It used to sit slightly higher. Remember that one."},
+ {em:"\uD83E\uDDC2",n:"Baking soda in water",ph:8.4,
+  d:"A spoonful stirred into a glass. The thing people drink for indigestion."},
+ {em:"\uD83E\uDDFC",n:"Soapy water",ph:9.8,
+  d:"Hand soap dissolved in water. It feels slippery, and slippery is what a base feels like &mdash; it is starting to dissolve the oils on your skin."},
+ {em:"\uD83E\uDDFD",n:"Household ammonia cleaner",ph:11.5,
+  d:"Glass and floor cleaner, straight from the bottle. Smell it and your eyes water."},
+ {em:"\uD83E\uDDF4",n:"Household bleach",ph:12.6,
+  d:"Straight from the bottle. Burns skin &mdash; and notice which end of the scale it is at."},
+ {em:"\u2620\uFE0F",n:"Concentrated sodium hydroxide",ph:14.0,
+  d:"Laboratory-strength drain cleaner. The far end of the scale: <b>ten million times fewer</b> hydrogen ions than pure water, and it will dissolve your skin just as happily as the acid will."}
+];
+
+var ord=[],qi=0,score=0,firstTry=0,r1st=[];
+
+function shuffle(a){var i,j,t;for(i=a.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));
+  t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function buildDots(id,n){
+  var h="",i;
+  for(i=0;i<n;i++)h+='<div class="dot" id="'+id+'_'+i+'"></div>';
+  $(id).innerHTML=h;
+}
+function markDots(id,n,cur,st){
+  var i,e;
+  for(i=0;i<n;i++){
+    e=$(id+"_"+i);if(!e)continue;
+    e.className="dot"+(st[i]?" "+st[i]:(i===cur?" now":""));
+  }
+}
+
+function liveIon(){
+  var p=parseInt($("sl").value,10)/10,r,cap,i,h;
+  $("gph").textContent=p.toFixed(1);
+  $("ionV").textContent=molStr(p)+" mol/L";
+  $("ionC").innerHTML=sciStr(p)+" &nbsp;&mdash;&nbsp; "+cmpWater(p);
+  r=Math.pow(10,7-p);
+  h="";
+  if(r>=1){
+    cap=Math.min(70,Math.round(Math.log(r)/Math.LN10*5));
+    for(i=0;i<cap;i++)h+='<div class="blk"></div>';
+    $("stkL").innerHTML=(r>=1.02
+      ? "gold blocks = how far <b>above</b> pure water this sits (five blocks per tenfold)"
+      : "level with pure water");
+  }else{
+    cap=Math.min(70,Math.round(-Math.log(r)/Math.LN10*5));
+    for(i=0;i<cap;i++)h+='<div class="blk pale"></div>';
+    $("stkL").innerHTML="pale blocks = how far <b>below</b> pure water this sits (alkaline side)";
+  }
+  $("stk").innerHTML=h;
+}
+function showItem(){
+  var it=ITEMS[ord[qi]];
+  $("iEm").textContent=it.em;
+  $("iN").textContent=it.n;
+  $("iD").innerHTML=it.d;
+  $("sl").value=70;
+  $("sl").disabled=false;
+  $("bLock").disabled=false;
+  $("bLock").textContent="Lock in this guess";
+  $("bSkip").style.display="block";
+  $("r1res").innerHTML="";
+  liveIon();
+  markDots("dots",ITEMS.length,qi,r1st);
+}
+function lockIn(){
+  var it=ITEMS[ord[qi]],g=parseInt($("sl").value,10)/10,d=Math.abs(g-it.ph),
+      cls,h,ratio,txt;
+  $("sl").disabled=true;
+  $("bLock").disabled=true;
+  $("bSkip").style.display="none";
+  if(d<=0.6){cls="ok";score++;firstTry++;r1st[qi]="done";sWin();conf(30);txt="<b>Spot on.</b> ";}
+  else if(d<=1.5){cls="close";score++;r1st[qi]="help";sMid();txt="<b>Close.</b> ";}
+  else{cls="no";r1st[qi]="help";sBad();txt="<b>Not quite.</b> ";}
+  ratio=Math.pow(10,d);
+  h='<div class="res '+cls+'">'+txt+
+    'The real value is <b>pH '+it.ph.toFixed(1)+'</b>, and you said '+g.toFixed(1)+'.';
+  if(d>0.05){
+    h+=' A gap of '+d.toFixed(1)+' pH units is a factor of <b>'+
+       (ratio<10?ratio.toFixed(1):bigWord(ratio))+'&times;</b> in hydrogen ions &mdash; which is what '+
+       'makes guessing on this scale so unforgiving.';
+  }
+  h+='<br><br>At pH '+it.ph.toFixed(1)+' there are <b>'+molStr(it.ph)+' mol/L</b> of hydrogen ions, '+
+     'which is '+cmpWater(it.ph)+'.</div>'+
+     '<button class="btn w" id="bNx">'+
+     (qi<ITEMS.length-1?"Next substance &rarr;":"See the whole scale &rarr;")+'</button>';
+  $("r1res").innerHTML=h;
+  markDots("dots",ITEMS.length,qi,r1st);
+  $("bNx").onclick=go("next item",function(){
+    qi++;
+    if(qi>=ITEMS.length){buildLadder();show("s1b");}
+    else showItem();
+  });
+}
+function buildLadder(){
+  var s=ITEMS.slice(0),i,t,prev=null,step,vs;
+  s.sort(function(a,b){return a.ph-b.ph;});
+  t='<tr><th>Substance</th><th>pH</th><th>H&#8314; ions, mol/L</th>'+
+    '<th>&divide; vs the row above</th><th>&divide; vs pH&nbsp;0</th></tr>';
+  for(i=0;i<s.length;i++){
+    if(prev===null)step="&mdash;";
+    else{
+      var f=Math.pow(10,s[i].ph-prev);
+      step="<b>&divide; "+(f<10?f.toFixed(1):bigWord(f))+"</b>";
+    }
+    vs=(s[i].ph<0.05)?"<b>1&times; (the anchor)</b>":("&divide; "+bigWord(Math.pow(10,s[i].ph)));
+    t+='<tr'+((Math.abs(s[i].ph-7)<0.01||s[i].ph<0.05||s[i].ph>13.9)?' class="hi"':'')+
+       '><td>'+s[i].em+' '+s[i].n+'</td><td>'+s[i].ph.toFixed(1)+'</td><td>'+
+       molStr(s[i].ph)+'</td><td>'+step+'</td><td>'+vs+'</td></tr>';
+    prev=s[i].ph;
+  }
+  $("ladder").innerHTML=t;
+  $("r1sum").innerHTML="You placed <b>"+firstTry+" of "+ITEMS.length+
+    "</b> within half a pH unit, and <b>"+score+"</b> within one and a half. Most people put milk and "+
+    "soapy water far too close to neutral, and are startled by bleach.";
+}
+
+/* ---------- the trick calculator ---------- */
+function calc(){
+  var a=parseInt($("cA").value,10)/10,b=parseInt($("cB").value,10)/10,
+      d=Math.abs(a-b),r=Math.pow(10,d),lo=Math.min(a,b),hi=Math.max(a,b);
+  $("vA").textContent=a.toFixed(1);
+  $("vB").textContent=b.toFixed(1);
+  if(d<0.05){
+    $("cOut").innerHTML="same pH, same acidity<small>move one of them</small>";
+    return;
+  }
+  $("cOut").innerHTML=hi.toFixed(1)+" &minus; "+lo.toFixed(1)+" = <b>"+d.toFixed(1)+
+    "</b> &nbsp;&rarr;&nbsp; 10<sup>"+d.toFixed(1)+"</sup> = <b>"+
+    (r<10?r.toFixed(2):bigWord(r))+"&times;</b>"+
+    "<small>pH "+lo.toFixed(1)+" has "+(r<10?r.toFixed(2):bigWord(r))+
+    " times more hydrogen ions than pH "+hi.toFixed(1)+"</small>";
+}
+
+/* ---------- round 2 ---------- */
+var Q2=[
+ {h:"Clean rain is pH 5.6. Acid rain over Sweden was pH 4.3. How many times more hydrogen ions in the acid rain?",
+  s:"One decimal point of difference on the printed scale. Work out what it actually means.",
+  o:["About 20 times more","About 1.3 times more","About 200 times more","About 2 times more"],
+  a:0,
+  w:"The difference is 1.3, and ten to the power of 1.3 is about <b>20</b>. The printed numbers look almost identical. The acidity differs twentyfold."},
+ {h:"Your textbook says fish die below pH 4.5. Clean rain is 5.6. How much more acidic is the fish-death line?",
+  s:"These two numbers sit one line apart in the same paragraph of the page.",
+  o:["About 13 times more","About 1.1 times more","About 130 times more","About 2.5 times more"],
+  a:0,
+  w:"Difference 1.1, so ten to the power of 1.1 is about <b>13</b>. The page prints 5.6 and 4.5 as though they were neighbours on a ruler. They are thirteenfold apart."},
+ {h:"One of the lowest rainfall pH values ever recorded was around 2.4. Compared with clean rain at 5.6?",
+  s:"A gap of 3.2 units. Split it before you look at the options.",
+  o:["About 32 times more","About 320 times more","About 1,600 times more","About 160,000 times more"],
+  a:2,
+  w:"Split the 3.2: ten to the power of three is a thousand, ten to the power of nought point two is about 1.6. Multiply: <b>about 1,600</b>. That rainfall was roughly as acidic as vinegar, falling out of the sky."},
+ {h:"Baking soda solution is pH 8.4. Cola is pH 2.5. How many times more hydrogen ions in the cola?",
+  s:"This one crosses neutral, and it needs the splitting method. All four answers are large.",
+  o:["About 800 thousand times more","About 80 thousand times more",
+     "About 8 million times more","About 590 thousand times more"],
+  a:0,
+  w:"Difference is 5.9. Split it: ten to the power of five is a hundred thousand, and ten to the power of nought point nine is about eight. Multiply: <b>about 800 thousand</b>. (590 thousand is the trap for anyone who multiplied 5.9 by a hundred thousand instead.) Notice what crossing neutral does &mdash; two ordinary kitchen substances, and the gap runs into the hundreds of thousands."},
+ {h:"Ocean surface pH has dropped from about 8.2 to about 8.1. What has happened to hydrogen ions?",
+  s:"A drop of one tenth of one unit. This is the number that gets quoted in arguments.",
+  o:["About 1% more","About 0.1% more","About 10 times more","About 26% more"],
+  a:3,
+  w:"Ten to the power of 0.1 is about <b>1.26</b> &mdash; so about <b>26% more</b> hydrogen ions. You will also see &ldquo;about 30%&rdquo; quoted, because the measured drop since pre-industrial times is a little more than exactly 0.1. Being able to say <i>why</i> two published figures differ is the real skill."}
+];
+var q2i=0,q2try=0,q2first=0,q2st=[];
+
+function showQ2(){
+  var q=Q2[q2i],mix=[],i,h="";
+  q2try=0;
+  $("q2n").textContent="ROUND 2 \u00B7 QUESTION "+(q2i+1)+" OF "+Q2.length;
+  $("q2h").textContent=q.h;
+  $("q2s").textContent=q.s;
+  for(i=0;i<q.o.length;i++)mix.push({t:q.o[i],ok:(i===q.a)});
+  shuffle(mix);
+  for(i=0;i<mix.length;i++)
+    h+='<button class="opt" data-ok="'+(mix[i].ok?"1":"0")+'">'+mix[i].t+'</button>';
+  $("q2o").innerHTML=h;
+  $("q2f").innerHTML="";
+  var bs=$("q2o").getElementsByClassName("opt"),j;
+  for(j=0;j<bs.length;j++)(function(el){
+    el.onclick=go("q2 pick",function(){pickQ2(el);});
+  })(bs[j]);
+  markDots("dots2",Q2.length,q2i,q2st);
+}
+function pickQ2(el){
+  var q=Q2[q2i],bs,i;
+  if(el.getAttribute("data-ok")==="1"){
+    el.className="opt right";
+    bs=$("q2o").getElementsByClassName("opt");
+    for(i=0;i<bs.length;i++)bs[i].disabled=true;
+    if(q2try===0){q2first++;q2st[q2i]="done";}else q2st[q2i]="help";
+    sWin();conf(40);
+    $("q2f").innerHTML='<div class="res ok">'+q.w+'</div>'+
+      '<button class="btn w" id="bQ2">'+(q2i<Q2.length-1?"Next &rarr;":"Round 3 &rarr;")+'</button>';
+    $("bQ2").onclick=go("q2 next",function(){
+      q2i++;
+      if(q2i>=Q2.length)show("s3");else showQ2();
+    });
+    markDots("dots2",Q2.length,q2i,q2st);
+  }else{
+    q2try++;
+    el.className="opt wrong";el.disabled=true;
+    sBad();
+    $("q2f").innerHTML='<div class="res no">Not that one. Subtract the two pH values, then split the '+
+      'difference into a whole part and a fraction, and ask <b>ten to the power of each</b>.</div>';
+  }
+}
+
+/* ---------- round 3 ---------- */
+function pickHead(which){
+  var a=$("hA"),b=$("hB"),h;
+  a.onclick=null;b.onclick=null;
+  if(which==="a"){
+    a.className="head pickedR";b.className="head";
+    sWin();conf(60);
+    h='<div class="res ok"><b>Correct &mdash; Outlet A.</b> And notice it never says anything false. '+
+      'It commits one specific crime: it treats the pH scale as if it were a <b>percentage scale</b>, '+
+      'so 0.1 out of 14 sounds like almost nothing.<br><br>'+
+      'But pH is not a ruler. It is an <b>exponent</b>. A drop of 0.1 means about <b>26% more '+
+      'hydrogen ions</b>, which is Outlet B&rsquo;s sentence &mdash; and Outlet B is describing the '+
+      'thing that actually matters to a shellfish trying to build a shell.<br><br>'+
+      '<b>Both numbers came from the same measurement.</b> One was chosen to make you relax.</div>';
+  }else{
+    b.className="head pickedW";a.className="head";
+    sBad();
+    h='<div class="res no"><b>Not quite.</b> Outlet B is the honest one. A pH drop of 0.1 really is '+
+      'about a 26% rise in hydrogen ions &mdash; that is just what ten to the power of 0.1 comes out '+
+      'at.<br><br>The misleading one is <b>Outlet A</b>. It quietly treats pH as a percentage scale, '+
+      'as though the scale were a ruler with fourteen equal marks. It is not. Every mark is a tenfold '+
+      'jump, so &ldquo;less than one percent of the scale&rdquo; is a meaningless quantity that happens '+
+      'to sound reassuring.</div>';
+  }
+  h+='<button class="btn w" id="b3">Finish &rarr;</button>';
+  $("h3f").innerHTML=h;
+  $("b3").onclick=go("finish",function(){
+    $("fin").innerHTML="Your scores: <b>"+firstTry+" of "+ITEMS.length+
+      "</b> substances placed tightly, and <b>"+q2first+" of "+Q2.length+
+      "</b> calculations right first time.";
+    show("s4");
+  });
+}
+
+/* ---------- nav ---------- */
+function show(id){
+  var a=document.getElementsByClassName("sec"),i;
+  for(i=0;i<a.length;i++)a[i].className="sec";
+  $(id).className="sec on";
+  window.scrollTo(0,0);
+}
+function init(){
+  var i;
+  ord=[];
+  for(i=0;i<ITEMS.length;i++){ord.push(i);r1st[i]=null;}
+  shuffle(ord);
+  for(i=0;i<Q2.length;i++)q2st[i]=null;
+  buildDots("dots",ITEMS.length);
+  buildDots("dots2",Q2.length);
+  $("b0").onclick=go("start",function(){qi=0;showItem();show("s1");});
+  $("sl").oninput=go("slider",function(){liveIon();sTick();});
+  $("bLock").onclick=go("lock",lockIn);
+  $("bSkip").onclick=go("skip",function(){buildLadder();show("s1b");});
+  $("b1b").onclick=go("to trick",function(){calc();show("s1c");});
+  $("cA").oninput=go("calcA",function(){calc();sTick();});
+  $("cB").oninput=go("calcB",function(){calc();sTick();});
+  $("b1c").onclick=go("to r2",function(){q2i=0;showQ2();show("s2");});
+  $("hA").onclick=go("head a",function(){pickHead("a");});
+  $("hB").onclick=go("head b",function(){pickHead("b");});
+  liveIon();
+  var bt=$("boot");
+  bt.className="ok";
+  bt.textContent="script OK \u00B7 "+ITEMS.length+" substances \u00B7 "+Q2.length+" calculations";
+}
+try{
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",function(){try{init();}catch(e){fail("init",e);}});
+  else init();
+}catch(e){fail("init",e);}
+})();
+</script>
+
+
+</body></html>
