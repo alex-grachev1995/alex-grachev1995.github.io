@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dilution Machine</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(160deg,#0b1026 0%,#1a2247 60%,#232c5c 100%);
+    color:#eef1ff; min-height:100vh; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:1100px; margin:0 auto; padding:24px; min-height:100vh; }
+  .screen.active { display:block; animation: fadeIn .5s; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+
+  h1 { font-size:2.2em; text-align:center; margin-bottom:8px;
+       background: linear-gradient(90deg,#7fd4ff,#c792ff,#ff92c2);
+       -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { text-align:center; color:#9fb0e8; margin-bottom:24px; font-size:1.05em; }
+
+  .card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+          border-radius:16px; padding:22px; margin:14px 0; }
+
+  .btn { display:inline-block; border:none; border-radius:12px; padding:14px 28px;
+         font-size:1.05em; font-weight:700; cursor:pointer; color:#fff;
+         background:linear-gradient(90deg,#3b82f6,#8b5cf6); transition:transform .12s, box-shadow .12s; }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(99,102,241,.45); }
+  .btn:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
+  .btn.big { font-size:1.25em; padding:18px 40px; }
+  .btn.gold { background:linear-gradient(90deg,#f59e0b,#ef4444); }
+  .btn.ghost { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); }
+
+  /* ---------- MACHINE LAYOUT ---------- */
+  .machine-grid { display:grid; grid-template-columns: 340px 1fr; gap:18px; align-items:start; }
+  @media (max-width:820px){ .machine-grid { grid-template-columns:1fr; } }
+
+  .lab { text-align:center; }
+  .c-display { font-size:2.6em; font-weight:900; color:#7fd4ff; line-height:1; }
+  .c-display small { font-size:.35em; color:#9fb0e8; display:block; font-weight:400; }
+  .potency-tags { display:flex; justify-content:space-between; font-size:.8em; margin:10px 4px; gap:8px;}
+  .tag { padding:4px 10px; border-radius:999px; }
+  .tag.homeo { background:rgba(196,132,252,.18); color:#d8b4fe; border:1px solid rgba(196,132,252,.4);}
+  .tag.chem  { background:rgba(52,211,153,.14); color:#6ee7b7; border:1px solid rgba(52,211,153,.4);}
+
+  #vialWrap { position:relative; display:inline-block; margin:8px 0; }
+  #vial { display:block; }
+  .shaking { animation: shake .5s; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0) rotate(0);}
+    15%{transform:translateX(-9px) rotate(-4deg);} 30%{transform:translateX(9px) rotate(4deg);}
+    45%{transform:translateX(-7px) rotate(-3deg);} 60%{transform:translateX(7px) rotate(3deg);}
+    75%{transform:translateX(-4px) rotate(-2deg);} 90%{transform:translateX(4px) rotate(2deg);}
+  }
+  .vial-note { font-size:.72em; color:#8b98c9; margin-top:2px; }
+
+  .counter-box { background:rgba(0,0,0,.35); border-radius:12px; padding:12px; margin-top:10px; }
+  .counter-label { font-size:.8em; color:#9fb0e8; letter-spacing:1px; text-transform:uppercase; }
+  #molCount { font-size:1.5em; font-weight:800; color:#fbbf24; word-break:break-all; line-height:1.25; min-height:1.4em;}
+  #molSci { color:#9fb0e8; font-size:.95em; margin-top:2px; }
+  #chanceLine { color:#f87171; font-size:.9em; margin-top:6px; display:none; font-weight:600;}
+
+  .controls { margin-top:14px; display:flex; flex-direction:column; gap:10px; align-items:center;}
+
+  /* ladder */
+  .ladder { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:10px 0 2px; }
+  .rung { font-size:1.5em; opacity:.18; filter:grayscale(1); transition:all .4s; position:relative; }
+  .rung.lit { opacity:1; filter:none; transform:scale(1.15); }
+  .rung.current { animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1.15);} 50%{transform:scale(1.45);} }
+  .ladder-caption { font-size:.75em; color:#8b98c9; text-align:center; margin-bottom:8px;}
+
+  /* log */
+  #log { max-height:430px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px; scroll-behavior:smooth; }
+  .log-entry { background:rgba(255,255,255,.07); border-left:4px solid #8b5cf6; border-radius:10px;
+               padding:10px 14px; animation:slideIn .45s; }
+  .log-entry.milestone-red { border-left-color:#ef4444; background:rgba(239,68,68,.12); }
+  @keyframes slideIn { from{opacity:0; transform:translateX(30px);} to{opacity:1; transform:none;} }
+  .log-entry .le-head { font-weight:800; font-size:.95em; }
+  .log-entry .le-body { font-size:.88em; color:#c6cff5; margin-top:3px; }
+  .le-icon { font-size:1.3em; margin-right:6px; }
+
+  /* ibuprofen bar */
+  .ibu-bar-wrap { margin-top:16px; }
+  .ibu-bar { position:relative; height:56px; background:rgba(0,0,0,.4); border-radius:10px; overflow:visible; }
+  .ibu-scale { position:absolute; inset:0; display:flex; }
+  .ibu-scale div { flex:1; border-right:1px solid rgba(255,255,255,.07); }
+  .marker { position:absolute; top:0; bottom:0; width:4px; border-radius:2px; transition:left .5s; }
+  .marker .mlabel { position:absolute; white-space:nowrap; font-size:.72em; font-weight:700; top:-20px; transform:translateX(-50%); left:2px;}
+  #mkIbu { background:#34d399; } #mkIbu .mlabel{ color:#34d399; top:auto; bottom:-20px;}
+  #mkYou { background:#fbbf24; } #mkYou .mlabel{ color:#fbbf24; }
+  .bar-caption { font-size:.75em; color:#8b98c9; margin-top:24px; text-align:center;}
+
+  /* overlays */
+  .overlay { position:fixed; inset:0; background:rgba(4,6,18,.94); z-index:50; display:none;
+             align-items:center; justify-content:center; padding:20px; }
+  .overlay.active { display:flex; animation:fadeIn .4s; }
+  .overlay .inner { max-width:680px; text-align:center; }
+  .overlay h2 { font-size:2.4em; margin-bottom:14px; }
+  .overlay p { font-size:1.12em; color:#c6cff5; line-height:1.6; margin-bottom:14px;}
+  .bignum { font-size:1.6em; font-weight:900; color:#fbbf24; display:block; margin:10px 0; word-break:break-all;}
+
+  /* compare screen */
+  .vs-grid { display:grid; grid-template-columns:1fr 90px 1fr; gap:10px; align-items:stretch; margin:20px 0;}
+  @media (max-width:760px){ .vs-grid{grid-template-columns:1fr;} .vs-mid{display:none;} }
+  .pill-card { border-radius:16px; padding:20px; text-align:center; }
+  .pill-card.real { background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.4); }
+  .pill-card.fake { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.4); }
+  .vs-mid { display:flex; align-items:center; justify-content:center; font-size:2em; font-weight:900; color:#9fb0e8;}
+  .dotfield { width:100%; height:150px; border-radius:10px; background:rgba(0,0,0,.35); margin:12px 0; }
+  .pill-count { font-size:1.05em; font-weight:800; margin:6px 0; word-break:break-all;}
+  .pill-card.real .pill-count{ color:#34d399; } .pill-card.fake .pill-count{ color:#f87171; }
+  .pill-sub { font-size:.85em; color:#9fb0e8; }
+
+  /* quiz */
+  .q-progress { display:flex; gap:8px; justify-content:center; margin-bottom:18px;}
+  .qdot { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.15); transition:all .3s;}
+  .qdot.done { background:#34d399; } .qdot.now { background:#7fd4ff; transform:scale(1.3); }
+  .q-text { font-size:1.25em; font-weight:700; line-height:1.5; margin-bottom:18px;}
+  .opt { display:block; width:100%; text-align:left; background:rgba(255,255,255,.07);
+         border:2px solid rgba(255,255,255,.15); color:#eef1ff; border-radius:12px;
+         padding:14px 18px; margin:10px 0; font-size:1.02em; cursor:pointer; transition:all .15s;}
+  .opt:hover { border-color:#7fd4ff; background:rgba(127,212,255,.1); }
+  .opt.correct { border-color:#34d399; background:rgba(52,211,153,.2); }
+  .opt.wrong { border-color:#ef4444; background:rgba(239,68,68,.15); animation:shake .4s; }
+  .opt:disabled { cursor:default; }
+  .q-feedback { min-height:60px; padding:12px; border-radius:10px; margin-top:8px; font-size:.98em; display:none;}
+  .q-feedback.show { display:block; animation:fadeIn .3s;}
+  .q-feedback.good { background:rgba(52,211,153,.15); border:1px solid rgba(52,211,153,.4); color:#a7f3d0;}
+  .q-feedback.bad { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.4); color:#fecaca;}
+
+  /* verdict stamps */
+  .stamp { display:inline-block; border:4px solid #ef4444; color:#ef4444; font-weight:900;
+           padding:8px 18px; border-radius:8px; transform:rotate(-6deg); font-size:1.2em; margin:10px;
+           text-transform:uppercase; letter-spacing:1px;}
+
+  .confetti { position:fixed; top:-20px; z-index:100; pointer-events:none; border-radius:2px;
+              animation:fall linear forwards; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(720deg); opacity:.6; } }
+  .muted { color:#8b98c9; font-size:.85em; }
+  sup { font-size:.6em; }
+</style>
+</head>
+<body>
+
+<!-- ============ INTRO ============ -->
+<div class="screen active" id="scr-intro">
+  <h1>🧪 The Dilution Machine</h1>
+  <p class="subtitle">Case File #1 — The Evidence Court · Defendant: Homeopathy</p>
+  <div class="card" style="max-width:720px;margin:0 auto;">
+    <p style="font-size:1.1em; line-height:1.7;">
+      <b>January 30, 2010 — 10:23 a.m.</b> Hundreds of protesters swallow <b>entire bottles</b>
+      of homeopathic sleeping pills. Nobody even yawns. 🥱</p>
+    <p style="font-size:1.1em; line-height:1.7; margin-top:12px;">
+      Your mission: <b>manufacture a real homeopathic remedy yourself</b>, exactly the way the
+      factories do it — and discover why that stunt was perfectly safe.</p>
+    <p style="margin-top:12px; line-height:1.7;">
+      📋 <b>The recipe</b> (this is real): take extract of <b>duck liver and heart</b> 🦆,
+      dilute it 1:100, shake hard, and repeat… again and again. Each round is called <b>1C</b>.
+      Homeopaths claim every dilution makes it <b>stronger</b>.</p>
+    <p style="margin-top:12px; line-height:1.7;">
+      🏪 <b>This is a real, best-selling product.</b> It's called <b>Oscillococcinum®</b>
+      (made by the French company Boiron), sold over-the-counter as a flu remedy in pharmacies
+      worldwide — including in the US. The label lists the starting ingredient as
+      <i>"Anas barbariae hepatis et cordis extractum"</i> — Latin for extract of Muscovy
+      duck liver and heart. The claim is that diluting it again and again makes it <b>better</b>
+      at treating flu symptoms. You're about to test that claim yourself, one dilution at a time.</p>
+    <p style="margin-top:12px; line-height:1.7;">
+      We'll be generous and start with <b>one full mole</b> of duck extract —
+      <b style="color:#fbbf24;">602 214 076 000 000 000 000 000 molecules</b>.
+      Watch the counter. Watch the log. Keep diluting until <b>30C</b> — the potency sold in real pharmacies.</p>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn big" onclick="startMachine()">🔬 Enter the lab</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MACHINE ============ -->
+<div class="screen" id="scr-machine">
+  <h1 style="font-size:1.6em;">🧪 The Dilution Machine</h1>
+  <div class="ladder" id="ladder"></div>
+  <div class="ladder-caption">Water needed to find <b>ONE</b> molecule of duck extract 💧→🌌</div>
+
+  <div class="machine-grid">
+    <div class="card lab">
+      <div class="c-display"><span id="cLevel">0C</span><small>dilution level</small></div>
+      <div class="potency-tags">
+        <span class="tag homeo" id="tagHomeo">Homeopath says: raw tincture</span>
+        <span class="tag chem" id="tagChem">Chemist says: full strength</span>
+      </div>
+      <div id="vialWrap">
+        <svg id="vial" width="190" height="230" viewBox="0 0 190 230">
+          <rect x="78" y="6" width="34" height="26" rx="4" fill="#2a3564" stroke="#4a5aa0"/>
+          <path d="M60 32 L130 32 L130 70 L156 200 Q156 222 95 222 Q34 222 34 200 L60 70 Z"
+                fill="rgba(120,160,255,0.13)" stroke="#6b7fd4" stroke-width="2.5"/>
+          <path id="liquid" d="M56 84 L134 84 L152 198 Q152 216 95 216 Q38 216 38 198 Z" fill="#3b82f6"/>
+          <g id="dots"></g>
+        </svg>
+      </div>
+      <div class="vial-note">(schematic — the honest count is below)</div>
+      <div class="counter-box">
+        <div class="counter-label">molecules of duck extract remaining</div>
+        <div id="molCount"></div>
+        <div id="molSci"></div>
+        <div id="chanceLine"></div>
+      </div>
+      <div class="controls">
+        <button class="btn big" id="btnDilute" onclick="dilute()">💧 DILUTE 1:100 &amp; SHAKE</button>
+        <button class="btn ghost" id="btnAuto" onclick="autoRun()" style="display:none;">⏩ Auto-pilot the machine</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:800; margin-bottom:10px;">📜 THE ABSURDITY LOG</div>
+      <div id="log"><div class="log-entry"><span class="le-head"><span class="le-icon">🦆</span>0C — Mother tincture loaded</span>
+        <div class="le-body">One mole of duck liver extract. More active molecules than any pill in any pharmacy. Downhill from here.</div></div></div>
+    </div>
+  </div>
+
+  <div class="card ibu-bar-wrap">
+    <div style="font-weight:800; margin-bottom:22px;">⚖️ Active molecules: your remedy vs. one ibuprofen tablet <span class="muted">(logarithmic scale — every gridline = ×100)</span></div>
+    <div class="ibu-bar">
+      <div class="ibu-scale" id="ibuScale"></div>
+      <div class="marker" id="mkIbu"><span class="mlabel">💊 ibuprofen: 5.8 × 10²⁰</span></div>
+      <div class="marker" id="mkYou"><span class="mlabel">🦆 your remedy</span></div>
+    </div>
+    <div class="bar-caption">1 molecule&nbsp;←&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;10²⁴ molecules</div>
+  </div>
+</div>
+
+<!-- ============ AVOGADRO OVERLAY ============ -->
+<div class="overlay" id="ovAvogadro">
+  <div class="inner">
+    <h2 style="color:#ef4444;">🧱 YOU JUST HIT THE AVOGADRO WALL</h2>
+    <p>At <b>12C</b> you have diluted by 10²⁴ — more than <b>Avogadro's number</b>:</p>
+    <span class="bignum">6.022 × 10²³ = «10:23»</span>
+    <p>Statistically, <b>not one single molecule</b> of duck extract remains.
+       From this click onward, you are <b>diluting water with water</b> — and the shaking is just exercise.</p>
+    <p style="color:#7fd4ff;"><b>Mystery solved:</b> that's why the protesters chose <b>10:23 a.m.</b> —
+       and why swallowing a whole bottle is exactly as dangerous as swallowing… sugar. 🍬</p>
+    <p class="muted">But real products on the shelf are 30C. The factory doesn't stop here. Neither do we.</p>
+    <button class="btn gold big" onclick="closeOverlay('ovAvogadro')">Keep diluting the nothing →</button>
+  </div>
+</div>
+
+<!-- ============ 30C OVERLAY ============ -->
+<div class="overlay" id="ov30">
+  <div class="inner">
+    <h2 style="color:#fbbf24;">🌞 30C — SHELF STRENGTH REACHED</h2>
+    <p>To find <b>ONE</b> molecule of duck extract at this dilution, you would need a sphere of water</p>
+    <span class="bignum">≈ 15 000 000 km wide</span>
+    <p>That's <b>10 Suns lined up side by side</b> ☀️☀️☀️☀️☀️☀️☀️☀️☀️☀️<br>
+       — or <b>40× the distance from Earth to the Moon</b> 🌍↔️🌕×40.<br>
+       Somewhere inside that ocean-of-oceans: one lonely duck molecule. 🦆</p>
+    <p>This — <b>exactly this</b> — is what's inside the box at the pharmacy.</p>
+    <button class="btn gold big" onclick="showCompare()">🏪 See the real products →</button>
+  </div>
+</div>
+
+<!-- ============ COMPARE ============ -->
+<div class="screen" id="scr-compare">
+  <h1>🏪 On the Pharmacy Shelf</h1>
+  <p class="subtitle">Two boxes. Same shelf. Same price range. Count the medicine.</p>
+  <div class="vs-grid">
+    <div class="pill-card real">
+      <div style="font-size:2.6em;">💊</div>
+      <h3>Ibuprofen 200 mg</h3>
+      <canvas class="dotfield" id="fieldReal" width="400" height="150"></canvas>
+      <div class="pill-count">580 000 000 000 000 000 000</div>
+      <div class="pill-sub">molecules of active drug per tablet<br>(5.8 × 10²⁰ — the canvas above shows 4,000 dots; <b>each dot = 145 quadrillion molecules</b>)</div>
+    </div>
+    <div class="vs-mid">VS</div>
+    <div class="pill-card fake">
+      <div style="font-size:2.6em;">🦆</div>
+      <h3>Oscillococcinum® 200C</h3>
+      <canvas class="dotfield" id="fieldFake" width="400" height="150"></canvas>
+      <div class="pill-count">0</div>
+      <div class="pill-sub">molecules of duck extract per dose<br>(100% sugar · ~$15 per box · sold in real pharmacies worldwide)</div>
+    </div>
+  </div>
+  <div class="card">
+    <p style="line-height:1.7;">😱 <b>Wait — 200C?!</b> You stopped at 30C. Oscillococcinum, the world's best-selling homeopathic
+    flu remedy, is diluted <b>1 in 10⁴⁰⁰</b>. The entire observable universe contains only ~10⁸⁰ atoms.
+    Even if <b>every atom in the universe were itself a whole universe made of water</b>, you would <i>still</i>
+    not expect to find one duck molecule. The factory, of course, just dilutes one vial 200 times — but that's the claim printed on the box.</p>
+  </div>
+  <div style="text-align:center; margin-top:10px;">
+    <button class="btn big" onclick="startQuiz()">⚖️ Proceed to the verdict quiz →</button>
+  </div>
+</div>
+
+<!-- ============ QUIZ ============ -->
+<div class="screen" id="scr-quiz">
+  <h1>⚖️ The Verdict Quiz</h1>
+  <p class="subtitle">Five questions stand between the defendant and judgment.</p>
+  <div class="q-progress" id="qProgress"></div>
+  <div class="card">
+    <div class="q-text" id="qText"></div>
+    <div id="qOpts"></div>
+    <div class="q-feedback" id="qFeedback"></div>
+    <div style="text-align:right; margin-top:10px;">
+      <button class="btn" id="btnNextQ" style="display:none;" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ END ============ -->
+<div class="screen" id="scr-end">
+  <h1>🏛️ VERDICT DELIVERED</h1>
+  <div class="card" style="text-align:center;">
+    <h2 style="margin-bottom:6px;">Defendant: Homeopathy (est. 1796)</h2>
+    <div>
+      <span class="stamp">Works beyond placebo? NO</span>
+      <span class="stamp" style="transform:rotate(4deg);">Theory possible? NO</span>
+    </div>
+    <p style="margin-top:18px; line-height:1.8; font-size:1.05em; text-align:left;">
+      📌 <b>What you proved today:</b><br>
+      • Past <b>12C</b>, Avogadro's number guarantees <b>zero molecules</b> remain — the «10:23» protest was chemistry, not courage.<br>
+      • A 30C remedy would need a <b>ball of water 10 Suns wide</b> to contain one molecule. A 200C remedy would need more universes than exist.<br>
+      • One ibuprofen tablet contains ≈ <b>580 quintillion</b> active molecules. The competition contains <b>sugar</b>.<br>
+      • «More dilute = more potent» isn't weak science. It's <b>anti</b>-science — it runs backwards from everything chemistry knows.</p>
+    <p style="margin-top:10px; line-height:1.8; font-size:1.05em; text-align:left; color:#c6cff5;">
+      🤔 <b>One question for the judge before you leave the bench:</b><br>
+      Homeopathy was invented in 1796 — the same era doctors were bleeding George Washington to death.
+      And in the 1800s, homeopathy patients often did <b>BETTER</b> than regular patients. That fact is real.
+      Explain it to your teacher — you have all the tools. 😉</p>
+    <div id="endScore" style="font-size:1.2em; font-weight:800; color:#fbbf24; margin-top:14px;"></div>
+  </div>
+</div>
+
+<script>
+/* ================= AUDIO ================= */
+let AC;
+function ac(){ if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function tone(f, t, dur, type='sine', vol=0.18){
+  const a=ac(), o=a.createOscillator(), g=a.createGain();
+  o.type=type; o.frequency.value=f; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(vol, a.currentTime+t);
+  g.gain.exponentialRampToValueAtTime(0.001, a.currentTime+t+dur);
+  o.start(a.currentTime+t); o.stop(a.currentTime+t+dur+0.05);
+}
+function sndThwack(){ tone(90,0,0.09,'square',0.22); tone(60,0.02,0.1,'sawtooth',0.15); }
+function sndDing(){ tone(880,0,0.15); tone(1320,0.1,0.25); }
+function sndBuzz(){ tone(160,0,0.3,'sawtooth',0.2); tone(110,0,0.3,'square',0.15); }
+function sndMilestone(){ tone(523,0,0.12); tone(659,0.1,0.12); tone(784,0.2,0.2); }
+function sndFanfare(){ [523,659,784,1047,1319].forEach((f,i)=>tone(f,i*0.12,0.3)); }
+
+/* ================= CONFETTI ================= */
+function confetti(n=80){
+  const colors=['#f43f5e','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#fbbf24'];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.width=c.style.height=(6+Math.random()*8)+'px';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(1.8+Math.random()*2)+'s';
+    c.style.animationDelay=(Math.random()*0.4)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4500);
+  }
+}
+
+/* ================= STATE ================= */
+let level=0, busy=false, auto=false, manualClicks=0;
+const MAXC=30;
+
+/* ladder rungs: [minLevel, emoji, label] */
+const RUNGS=[[13,'🥤','glass'],[14,'🪣','bucket'],[15,'🛁','hot tub'],[16,'🏊','pool'],
+  [18,'🐟','lake'],[20,'🦕','Loch Ness'],[22,'🌊','Caspian Sea'],[24,'🌍','all oceans'],
+  [26,'🪐','15 Earths'],[28,'☀️','⅛ of Sun'],[30,'🌞🌞','10 Suns wide']];
+
+/* milestones: level -> {icon,title,body,red} */
+const MILESTONES={
+  1:{icon:'💊',title:'1C — still beats ibuprofen',body:'6 × 10²¹ molecules left — about 10× MORE than the active molecules in an ibuprofen tablet. Enjoy it. It won\'t last.'},
+  2:{icon:'📉',title:'2C — weaker than one ibuprofen',body:'Already ~10× FEWER active molecules than a single ibuprofen tablet. The homeopath\'s label says it\'s getting STRONGER.'},
+  3:{icon:'🤏',title:'3C — a thousand times below ibuprofen',body:'You have lost 99.9999% of the medicine. Six clicks of shaking to go before things get truly weird.'},
+  6:{icon:'🌌',title:'6C — down to galaxy-scale numbers',body:'6 × 10¹¹ left — about 3× the number of stars in the Milky Way. Sounds like a lot? It\'s a 99.9999999999% loss.'},
+  8:{icon:'🇮🇹',title:'8C — population of Italy',body:'About 60 million molecules in the whole vial. You could, in principle, give each one an Italian name.'},
+  10:{icon:'✋',title:'10C — countable by hand',body:'≈ 6,022 molecules. A patient microscopist could literally count your medicine.'},
+  11:{icon:'🔬',title:'11C — sixty. individual. molecules.',body:'In the ENTIRE vial. The next shake is historic.',red:true},
+  13:{icon:'🥤',title:'13C — one molecule per GLASS',body:'To swallow ONE molecule of duck extract you\'d now need to drink a full glass of remedy.',red:true},
+  14:{icon:'🪣',title:'14C — one molecule per BUCKET',body:'17 litres of remedy per molecule. Bottoms up.',red:true},
+  15:{icon:'🛁',title:'15C — one molecule per HOT TUB',body:'1,700 litres. Bring friends.',red:true},
+  16:{icon:'🏊',title:'16C — one molecule per SWIMMING POOL',body:'A whole backyard pool of remedy contains, on average, ONE duck molecule.',red:true},
+  17:{icon:'🏊‍♂️',title:'17C — seven OLYMPIC pools',body:'Michael Phelps would need several careers to swim past your molecule.',red:true},
+  18:{icon:'🐟',title:'18C — one molecule per LAKE',body:'A small lake. The fish outnumber your medicine by millions.',red:true},
+  20:{icon:'🦕',title:'20C — two LOCH NESSES',body:'17 km³ of water per molecule — more than 2× Loch Ness. The molecule is now roughly as findable as the monster.',red:true},
+  22:{icon:'🌊',title:'22C — twice the CASPIAN SEA',body:'The largest lake on Earth. Twice. Per molecule.',red:true},
+  24:{icon:'🌍',title:'24C — ALL THE OCEANS ON EARTH',body:'Drink every ocean on the planet — the Pacific, the Atlantic, all of them — and on average you\'d swallow ONE molecule of duck extract.',red:true},
+  26:{icon:'🪐',title:'26C — fifteen water-Earths',body:'You\'d need 15 entire planet-Earths made of pure remedy to find one molecule.',red:true},
+  28:{icon:'☀️',title:'28C — one-eighth of the SUN',body:'A ball of remedy an eighth the volume of the Sun. Per. Molecule.',red:true},
+  29:{icon:'☀️☀️',title:'29C — twelve SUNS of water',body:'One more shake reaches shelf strength.',red:true}
+};
+
+/* ================= FORMAT ================= */
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+function sup(n){ return String(n).split('').map(d=>SUP[+d]).join(''); }
+function fullDigits(mant,exp){ // mant like 6022 (×10^-3)
+  let s=String(mant);
+  const zeros=exp-(s.length-1);
+  if(zeros<0) return null;
+  s=s+'0'.repeat(zeros);
+  return s.replace(/\B(?=(\d{3})+(?!\d))/g,'\u2009');
+}
+function updateCounter(){
+  const exp=23-2*level; // 6.022 × 10^exp
+  const mc=document.getElementById('molCount'), ms=document.getElementById('molSci'),
+        ch=document.getElementById('chanceLine');
+  if(exp>=0){
+    mc.textContent=fullDigits(6022,exp+3-3)||''; // 6022 has 4 digits => exponent relative
+    mc.textContent=fullDigits(6022,exp)===null?'6':fullDigits(6022,exp-3)? '':'';
+    // simpler: build from '6022' with exp meaning 6.022×10^exp
+    let s='6022'; const zeros=exp-3;
+    if(zeros>=0){ s=s+'0'.repeat(zeros); }
+    else { s=s.slice(0, 4+zeros)||'6'; }
+    mc.textContent=s.replace(/\B(?=(\d{3})+(?!\d))/g,'\u2009');
+    ms.innerHTML='= 6.022 × 10'+sup(exp)+' molecules';
+    ch.style.display='none';
+  } else {
+    mc.textContent='0';
+    ms.innerHTML='statistically: the last molecule vanished around 12C';
+    ch.style.display='block';
+    const pexp=-exp; // chance ≈ 6×10^exp => 1 in 1.66×10^pexp
+    ch.innerHTML='☠️ Chance this vial holds even ONE molecule: 1 in 1.7 × 10'+sup(pexp-1)+'';
+  }
+  document.getElementById('cLevel').textContent=level+'C';
+  /* potency tags */
+  const homeo=['raw tincture','low potency','gaining power','medium potency','strong','very strong','high potency','EXTRA strength','MAXIMUM power','ULTRA potency','COSMIC potency'];
+  document.getElementById('tagHomeo').textContent='Homeopath says: '+(level===0?'raw tincture':homeo[Math.min(Math.floor(level/3)+1,10)]);
+  const chem= level===0?'full strength': level<2?'weaker': level<12?'vanishing…':'literally water';
+  document.getElementById('tagChem').textContent='Chemist says: '+chem;
+  /* vial visuals */
+  const liq=document.getElementById('liquid');
+  const alpha=Math.max(0.08, 0.9*Math.pow(0.75,level));
+  liq.setAttribute('fill', level>=12? 'rgba(120,170,255,0.25)' : `rgba(196,80,120,${alpha})`);
+  const dg=document.getElementById('dots'); dg.innerHTML='';
+  let nd = level>=12?0 : Math.max(2, Math.round(200*Math.pow((12-level)/12,1.6)));
+  if(level===11) nd=6;
+  for(let i=0;i<nd;i++){
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    const t=Math.random();
+    const y=90+t*118;
+    /* keep dots safely inside the wider flask body at this height */
+    const halfWidth = 34 + t*30; // narrower near neck, wider near base, with margin
+    const cx = 95 + (Math.random()*2-1)*halfWidth;
+    c.setAttribute('cx',cx);
+    c.setAttribute('cy',y); c.setAttribute('r',2.2);
+    c.setAttribute('fill','#ff5c8a'); dg.appendChild(c);
+  }
+  /* ibu bar marker: map exponent(log10 count) 0..24 */
+  const lg = exp>=0 ? exp+Math.log10(6.022) : -1;
+  const mk=document.getElementById('mkYou');
+  if(lg>=0){ mk.style.left='calc('+(lg/24*100)+'% - 2px)'; mk.style.opacity=1;
+    mk.querySelector('.mlabel').textContent='🦆 your remedy: 6×10'+sup(exp); }
+  else { mk.style.left='-6px'; mk.querySelector('.mlabel').textContent='🦆 your remedy: GONE'; }
+  /* ladder */
+  document.querySelectorAll('.rung').forEach(r=>{
+    const lv=+r.dataset.lv;
+    r.classList.toggle('lit', level>=lv);
+    r.classList.toggle('current', level>=lv && (RUNGS.find(x=>x[0]>level)?.[0]??99)>lv && lv===Math.max(...RUNGS.filter(x=>x[0]<=level).map(x=>x[0])));
+  });
+}
+
+function addLog(m){
+  const e=document.createElement('div');
+  e.className='log-entry'+(m.red?' milestone-red':'');
+  e.innerHTML='<span class="le-head"><span class="le-icon">'+m.icon+'</span>'+m.title+'</span><div class="le-body">'+m.body+'</div>';
+  const logEl=document.getElementById('log');
+  logEl.appendChild(e);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+/* ================= ACTIONS ================= */
+function startMachine(){
+  document.getElementById('scr-intro').classList.remove('active');
+  document.getElementById('scr-machine').classList.add('active');
+  const sc=document.getElementById('ibuScale');
+  for(let i=0;i<12;i++) sc.appendChild(document.createElement('div'));
+  document.getElementById('mkIbu').style.left='calc('+(20.77/24*100)+'% - 2px)';
+  const lad=document.getElementById('ladder');
+  RUNGS.forEach(r=>{ const s=document.createElement('span'); s.className='rung'; s.dataset.lv=r[0];
+    s.title=r[2]; s.textContent=r[1]; lad.appendChild(s); });
+  updateCounter();
+}
+function dilute(){
+  if(busy||level>=MAXC) return;
+  busy=true; manualClicks++;
+  const btn=document.getElementById('btnDilute'); btn.disabled=true;
+  const vial=document.getElementById('vialWrap');
+  vial.classList.add('shaking');
+  sndThwack(); setTimeout(sndThwack,150); setTimeout(sndThwack,300);
+  setTimeout(()=>{
+    vial.classList.remove('shaking');
+    level++;
+    updateCounter();
+    const m=MILESTONES[level];
+    if(m){ addLog(m); if(!auto) sndMilestone(); }
+    if(level===12){ stopAuto(); openOverlay('ovAvogadro'); sndBuzz(); }
+    else if(level===MAXC){ stopAuto(); openOverlay('ov30'); sndFanfare(); confetti(50); }
+    btn.disabled=false; busy=false;
+    if(manualClicks>=5 && level<MAXC) {
+      const ba=document.getElementById('btnAuto'); ba.style.display='inline-block';
+      ba.textContent= level<12 ? '⏩ Auto-pilot to 12C' : '⏩ Auto-pilot to 30C';
+    }
+    if(auto && level<MAXC && level!==12) setTimeout(dilute,120);
+  }, auto?260:520);
+}
+function autoRun(){ auto=true; document.getElementById('btnAuto').style.display='none'; dilute(); }
+function stopAuto(){ auto=false; document.getElementById('btnAuto').style.display= level<MAXC?'inline-block':'none';
+  document.getElementById('btnAuto').textContent='⏩ Auto-pilot to 30C'; }
+function openOverlay(id){ document.getElementById(id).classList.add('active'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('active'); }
+
+/* ================= COMPARE ================= */
+function showCompare(){
+  closeOverlay('ov30');
+  document.getElementById('scr-machine').classList.remove('active');
+  document.getElementById('scr-compare').classList.add('active');
+  window.scrollTo(0,0);
+  const ctx=document.getElementById('fieldReal').getContext('2d');
+  ctx.fillStyle='#34d399';
+  for(let i=0;i<4000;i++) ctx.fillRect(Math.random()*400,Math.random()*150,1.5,1.5);
+  const c2=document.getElementById('fieldFake').getContext('2d');
+  c2.fillStyle='#8b98c9'; c2.font='13px sans-serif'; c2.textAlign='center';
+  c2.fillText('( nothing to display )',200,72);
+  c2.fillText('🦆 not found',200,92);
+}
+
+/* ================= QUIZ ================= */
+const QUIZ=[
+ {q:'🥱 Solve the hook: hundreds of protesters swallowed ENTIRE bottles of homeopathic sleeping pills at 10:23 a.m. Why did nobody overdose?',
+  opts:['Past ~12C not a single molecule of "active ingredient" remains — the pills are pure sugar',
+        'The dose was too small to be dangerous, but still big enough to work normally',
+        'Sleeping-pill ingredients stop working if you swallow them too quickly',
+        'The protesters had secretly built up immunity beforehand'],
+  a:0, fb:'Exactly. You watched the counter hit zero yourself. You cannot overdose on the absence of medicine.'},
+ {q:'🔢 Why did the campaign choose the number 10:23?',
+  opts:['It was the average time pharmacies open in the UK',
+        'Avogadro\'s number ≈ 6 × 10²³ — the constant proving nothing survives past 12C',
+        'October 23rd is the anniversary of homeopathy\'s invention',
+        'There were 1,023 protesters registered'],
+  a:1, fb:'Avogadro\'s number is the wall you crashed into at 12C — the protesters named their whole campaign after it.'},
+ {q:'💪 A homeopath insists: "The 30C is MORE potent than the 6C — dilution releases the medicine\'s energy." What does your molecule counter say?',
+  opts:['Both have the same strength since they come from the same tincture',
+        'It\'s untestable — potency is a matter of personal experience',
+        'The 6C still contains some real molecules; the 30C contains exactly zero — dilution can only remove, never add',
+        'The 30C is stronger, but only for sensitive patients'],
+  a:2, fb:'Right — "more dilute = more potent" runs backwards from all of chemistry. You watched removal happen 30 times; nothing was ever added.'},
+ {q:'💉 The textbook says homeopathy\'s "like cures like" is similar to how vaccines work. Is that comparison fair?',
+  opts:['Yes — both give a small dose of what causes the illness',
+        'Yes — both were invented around the same time, so they share a theory',
+        'No — vaccines are synthetic while homeopathy is natural',
+        'No — a vaccine contains billions of REAL antigen molecules that train your immune system; a 30C remedy contains nothing at all'],
+  a:3, fb:'The analogy flatters homeopathy enormously. A vaccine\'s "small dose" is small but REAL — countable molecules doing measurable work. 30C is zero.'},
+ {q:'🤧 Your friend took a 30C remedy for a cold and was better in 3 days. "It worked!" Using LAST lesson\'s toolkit, what\'s the best explanation?',
+  opts:['The water remembered the shape of the medicine\'s molecules',
+        'Colds get better on their own + placebo effect + regression to the mean — and there was no untreated comparison',
+        'The sugar in the pill boosted her immune system',
+        'Three days is unusually fast, so the remedy must have done something'],
+  a:1, fb:'Fool Thyself all over again: she dosed at her worst, and the worst is followed by better — remedy or no remedy. Washington\'s doctors made the same mistake for 2,000 years.'}
+];
+let qi=0, qTries=0, qPerfect=0;
+function startQuiz(){
+  document.getElementById('scr-compare').classList.remove('active');
+  document.getElementById('scr-quiz').classList.add('active');
+  window.scrollTo(0,0);
+  const p=document.getElementById('qProgress'); p.innerHTML='';
+  QUIZ.forEach(()=>{const d=document.createElement('div');d.className='qdot';p.appendChild(d);});
+  renderQ();
+}
+function renderQ(){
+  qTries=0;
+  document.querySelectorAll('.qdot').forEach((d,i)=>{
+    d.className='qdot'+(i<qi?' done':i===qi?' now':'');});
+  document.getElementById('qText').textContent=QUIZ[qi].q;
+  document.getElementById('btnNextQ').style.display='none';
+  const fb=document.getElementById('qFeedback'); fb.className='q-feedback'; fb.textContent='';
+  const box=document.getElementById('qOpts'); box.innerHTML='';
+  QUIZ[qi].opts.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+    b.onclick=()=>answer(i,b); box.appendChild(b);
+  });
+}
+function answer(i,btn){
+  const fb=document.getElementById('qFeedback');
+  if(i===QUIZ[qi].a){
+    btn.classList.add('correct'); sndDing(); confetti(30);
+    if(qTries===0) qPerfect++;
+    fb.className='q-feedback show good'; fb.textContent='✅ '+QUIZ[qi].fb;
+    document.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+    document.getElementById('btnNextQ').style.display='inline-block';
+  } else {
+    qTries++; btn.classList.add('wrong'); btn.disabled=true; sndBuzz();
+    fb.className='q-feedback show bad';
+    fb.textContent='❌ Not quite — remember what the counter showed you. Try again.';
+  }
+}
+function nextQ(){
+  qi++;
+  if(qi<QUIZ.length){ renderQ(); }
+  else {
+    document.getElementById('scr-quiz').classList.remove('active');
+    document.getElementById('scr-end').classList.add('active');
+    window.scrollTo(0,0);
+    document.getElementById('endScore').textContent=
+      '🏆 First-try answers: '+qPerfect+' / '+QUIZ.length+(qPerfect===QUIZ.length?' — a flawless judgment!':'');
+    sndFanfare(); confetti(150); setTimeout(()=>confetti(100),700);
+  }
+}
+</script>
+</body>
+</html>

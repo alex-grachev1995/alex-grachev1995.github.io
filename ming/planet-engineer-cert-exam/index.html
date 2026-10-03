@@ -1,0 +1,439 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Engineer Certification Exam</title>
+    <style>
+        :root {
+            --primary-color: #005a9c;
+            --secondary-color: #f0f4f8;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --light-text: #fff;
+            --dark-text: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--dark-text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--light-text);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 15px;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 15px;
+        }
+
+        .question-page {
+            display: none;
+        }
+
+        .question-page.active {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .option {
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-width: 300px;
+            font-size: 1em;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        #check-btn { background-color: var(--correct-color); }
+        #check-btn:hover { background-color: #218838; }
+        #next-btn { background-color: var(--primary-color); display: none; }
+        #next-btn:hover { background-color: #004175; }
+
+        .feedback {
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback.correct {
+            color: var(--correct-color);
+            background-color: #e9f7ef;
+            border: 1px solid var(--correct-color);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            color: var(--incorrect-color);
+            background-color: #fdecea;
+            border: 1px solid var(--incorrect-color);
+            display: block;
+        }
+
+        #results-page {
+            text-align: center;
+        }
+        
+        #results-page h2 {
+            font-size: 2em;
+            color: var(--primary-color);
+        }
+        
+        #final-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            opacity: 0.9;
+            z-index: 1000;
+            animation: fall 5s linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+
+    <div class="container" id="quiz-container">
+        <h1>Planet Engineer Certification Exam</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div id="quiz-content">
+            <!-- Question 1 -->
+            <div class="question-page active" data-question="1">
+                <p class="question-text">1. Who was the scientist that proposed the theory of "continental drift" and the existence of a supercontinent called Pangaea?</p>
+                <div class="option"><label><input type="radio" name="q1" value="a"> Harry Hess</label></div>
+                <div class="option"><label><input type="radio" name="q1" value="b"> John Tuzo Wilson</label></div>
+                <div class="option"><label><input type="radio" name="q1" value="c"> Alfred Wegener</label></div>
+                <div class="option"><label><input type="radio" name="q1" value="d"> Isaac Newton</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-page" data-question="2">
+                <p class="question-text">2. True or False: The lithosphere is a partially molten layer of rock that the tectonic plates float on.</p>
+                <div class="option"><label><input type="radio" name="q2" value="true"> True</label></div>
+                <div class="option"><label><input type="radio" name="q2" value="false"> False</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-page" data-question="3">
+                <p class="question-text">3. The process where new oceanic crust is formed at underwater mountain ranges and spreads outwards is called ________.</p>
+                <select id="q3-select">
+                    <option value="">-- Select an answer --</option>
+                    <option value="a">subduction</option>
+                    <option value="b">seafloor spreading</option>
+                    <option value="c">continental drift</option>
+                    <option value="d">convection</option>
+                </select>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-page" data-question="4">
+                <p class="question-text">4. What geological feature is often formed at a subduction zone, where one plate slides beneath another?</p>
+                <div class="option"><label><input type="radio" name="q4" value="a"> Rift valleys</label></div>
+                <div class="option"><label><input type="radio" name="q4" value="b"> Volcanoes and ocean trenches</label></div>
+                <div class="option"><label><input type="radio" name="q4" value="c"> Massive flat plains</label></div>
+                <div class="option"><label><input type="radio" name="q4" value="d"> Sand dunes</label></div>
+                <div class="feedback"></div>
+            </div>
+            
+            <!-- Question 5 -->
+            <div class="question-page" data-question="5">
+                <p class="question-text">5. The Earth's lithosphere is broken into large rocky pieces called:</p>
+                <div class="option"><label><input type="radio" name="q5" value="a"> Tectonic plates</label></div>
+                <div class="option"><label><input type="radio" name="q5" value="b"> Asthenospheres</label></div>
+                <div class="option"><label><input type="radio" name="q5" value="c"> Supercontinents</label></div>
+                <div class="option"><label><input type="radio" name="q5" value="d"> Mantle plumes</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-page" data-question="6">
+                <p class="question-text">6. True or False: Alfred Wegener's theory of continental drift was immediately accepted by the scientific community because his evidence was so strong.</p>
+                <div class="option"><label><input type="radio" name="q6" value="true"> True</label></div>
+                <div class="option"><label><input type="radio" name="q6" value="false"> False</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-page" data-question="7">
+                <p class="question-text">7. The theory of 'hot spots' was proposed by John Tuzo Wilson to explain what phenomenon?</p>
+                <div class="option"><label><input type="radio" name="q7" value="a"> Why earthquakes happen along fault lines.</label></div>
+                <div class="option"><label><input type="radio" name="q7" value="b"> How supercontinents break apart.</label></div>
+                <div class="option"><label><input type="radio" name="q7" value="c"> The formation of volcanic islands far from plate boundaries, like Hawaii.</label></div>
+                <div class="option"><label><input type="radio" name="q7" value="d"> The creation of mountain ranges like the Himalayas.</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-page" data-question="8">
+                <p class="question-text">8. Which of the following did Alfred Wegener use as evidence for his continental drift theory? (Select all that apply)</p>
+                <div class="option"><label><input type="checkbox" name="q8" value="a"> Matching fossils on different continents.</label></div>
+                <div class="option"><label><input type="checkbox" name="q8" value="b"> The fact that continents like South America and Africa fit together like puzzle pieces.</label></div>
+                <div class="option"><label><input type="checkbox" name="q8" value="c"> GPS data showing that the continents are still moving.</label></div>
+                <div class="option"><label><input type="checkbox" name="q8" value="d"> Similar rock formations and mountain chains found on different continents.</label></div>
+                <div class="option"><label><input type="checkbox" name="q8" value="e"> The discovery of seafloor spreading at mid-ocean ridges.</label></div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- Results Page -->
+            <div class="question-page" id="results-page">
+                <h2>Certification Complete!</h2>
+                <p id="final-score"></p>
+                <p id="score-message"></p>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="btn" id="check-btn">Check Answer</button>
+            <button class="btn" id="next-btn">Next Question</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CHANGE HIGHLIGHT ---
+        // The feedback text is now a neutral explanation. The "Correct!" or "Incorrect..."
+        // part is added dynamically in the checkAnswer function.
+        const quizData = [
+            { question: 1, type: 'radio', answer: 'c', feedback: 'Alfred Wegener was the visionary scientist behind the theory of continental drift.' },
+            { question: 2, type: 'radio', answer: 'false', feedback: 'The asthenosphere is the molten layer; the lithosphere is the solid outer layer that makes up the plates.' },
+            { question: 3, type: 'select', answer: 'b', feedback: 'This process, confirmed by Harry Hess, was a key piece of evidence for plate tectonics.' },
+            { question: 4, type: 'radio', answer: 'b', feedback: 'Subduction zones are hotspots for geological activity, creating deep trenches and volcanic arcs.' },
+            { question: 5, type: 'radio', answer: 'a', feedback: 'The lithosphere is broken into these massive, moving slabs of rock.' },
+            { question: 6, type: 'radio', answer: 'false', feedback: 'His theory was dismissed for decades until more evidence, like seafloor spreading, came to light.' },
+            { question: 7, type: 'radio', answer: 'c', feedback: 'This explained volcanoes that weren\'t at plate boundaries, a major puzzle at the time.' },
+            { question: 8, type: 'checkbox', answer: ['a', 'b', 'd'], feedback: 'Wegener used puzzle-piece fits, fossil evidence, and rock formations. GPS and seafloor spreading data came much later and confirmed his ideas.' }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionPages = document.querySelectorAll('.question-page');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+
+        checkBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+
+        function updateProgressBar() {
+            const progress = (currentQuestionIndex / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function checkAnswer() {
+            const currentQuestionData = quizData[currentQuestionIndex];
+            const currentPage = questionPages[currentQuestionIndex];
+            const feedbackEl = currentPage.querySelector('.feedback');
+            let isCorrect = false;
+            
+            if (currentQuestionData.type === 'radio') {
+                const userAnswer = currentPage.querySelector(`input[name="q${currentQuestionData.question}"]:checked`);
+                if (userAnswer && userAnswer.value === currentQuestionData.answer) {
+                    isCorrect = true;
+                }
+            } else if (currentQuestionData.type === 'select') {
+                const userAnswer = currentPage.querySelector('select').value;
+                if (userAnswer === currentQuestionData.answer) {
+                    isCorrect = true;
+                }
+            } else if (currentQuestionData.type === 'checkbox') {
+                const checkedBoxes = currentPage.querySelectorAll(`input[name="q${currentQuestionData.question}"]:checked`);
+                const userAnswers = Array.from(checkedBoxes).map(cb => cb.value);
+                
+                // Sort both arrays to ensure order doesn't matter for comparison
+                const sortedUserAnswers = userAnswers.sort();
+                const sortedCorrectAnswers = [...currentQuestionData.answer].sort();
+
+                if (JSON.stringify(sortedUserAnswers) === JSON.stringify(sortedCorrectAnswers)) {
+                    isCorrect = true;
+                }
+            }
+            
+            // --- CHANGE HIGHLIGHT ---
+            // The logic for displaying feedback is now fixed.
+            if (isCorrect) {
+                score++;
+                feedbackEl.textContent = 'Correct! ' + currentQuestionData.feedback; // Add "Correct!" here
+                feedbackEl.className = 'feedback correct';
+                triggerConfetti();
+            } else {
+                feedbackEl.textContent = 'Incorrect. Let\'s review: ' + currentQuestionData.feedback; // Add "Incorrect..." here
+                feedbackEl.className = 'feedback incorrect';
+                shakeScreen();
+            }
+
+            checkBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.textContent = 'See Final Score';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            updateProgressBar();
+
+            if (currentQuestionIndex < quizData.length) {
+                questionPages.forEach(page => page.classList.remove('active'));
+                questionPages[currentQuestionIndex].classList.add('active');
+                
+                checkBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            questionPages.forEach(page => page.classList.remove('active'));
+            document.getElementById('results-page').classList.add('active');
+            document.querySelector('.button-container').style.display = 'none';
+            progressBar.style.width = '100%';
+
+            const finalScoreEl = document.getElementById('final-score');
+            const scoreMessageEl = document.getElementById('score-message');
+            finalScoreEl.textContent = `Your Score: ${score} out of ${quizData.length}`;
+
+            if (score === quizData.length) {
+                scoreMessageEl.textContent = 'Perfection! You have demonstrated complete mastery. You are a true Planet Engineer!';
+                finalScoreEl.style.color = 'var(--correct-color)';
+            } else if (score >= quizData.length * 0.7) {
+                scoreMessageEl.textContent = 'Excellent work! Your understanding of Earth\'s forces is impressive. Certification granted!';
+                finalScoreEl.style.color = 'var(--primary-color)';
+            } else {
+                scoreMessageEl.textContent = 'A good start, but further study is required. Review the materials and try again!';
+                finalScoreEl.style.color = 'var(--incorrect-color)';
+            }
+        }
+
+        function shakeScreen() {
+            document.getElementById('quiz-container').classList.add('shake');
+            setTimeout(() => {
+                document.getElementById('quiz-container').classList.remove('shake');
+            }, 500);
+        }
+
+        function triggerConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#009688', '#4caf50', '#ffeb3b', '#ff9800'];
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 1.5 + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Initialize
+        updateProgressBar();
+    </script>
+
+
+</body></html>

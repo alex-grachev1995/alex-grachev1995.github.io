@@ -1,0 +1,311 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Poe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.50ec1b0612bf5b0c30a5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _recharts = require('recharts');
+var _lucidereact = require('lucide-react');
+
+// ---------- seeded RNG so a "month" is reproducible ----------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function generateMonth(seedStart) {
+  for (let s = seedStart; s < seedStart + 2000; s++) {
+    const rng = mulberry32(s);
+    const arr = [];
+    let prev = 5.5;
+    for (let i = 0; i < 30; i++) {
+      let v = 0.35 * prev + 0.65 * 5.3 + (rng() * 2 - 1) * 2.9;
+      v = Math.max(1, Math.min(10, v));
+      v = Math.round(v * 2) / 2;
+      arr.push(v);
+      prev = v;
+    }
+    const peaks = arr.filter((v, i) => v >= 7.5 && i < 27).length;
+    const startsOk = arr[0] < 7;
+    if (peaks >= 4 && peaks <= 8 && startsOk) return arr;
+  }
+  return null;
+}
+
+const faceFor = (p) => (p <= 3 ? '🙂' : p <= 5 ? '😐' : p <= 7 ? '😣' : '😫');
+const painColor = (p) => (p <= 3 ? 'text-green-600' : p <= 5 ? 'text-yellow-600' : p <= 7 ? 'text-orange-600' : 'text-red-600');
+
+function doseOutcome(series, d) {
+  const window = series.slice(d + 1, d + 3);
+  if (window.length === 0) return { improved: false, drop: 0 };
+  const best = Math.min(...window);
+  return { improved: best < series[d], drop: Math.round((series[d] - best) * 10) / 10 };
+}
+
+ function FoolThyself() {
+  const [seed, setSeed] = _react.useState.call(void 0, 12);
+  const [series, setSeries] = _react.useState.call(void 0, () => generateMonth(12));
+  const [phase, setPhase] = _react.useState.call(void 0, 'intro'); // intro | play | results | replay | reveal
+  const [day, setDay] = _react.useState.call(void 0, 0);
+  const [doses, setDoses] = _react.useState.call(void 0, []);
+  const [ghost, setGhost] = _react.useState.call(void 0, 0);
+
+  const restart = _react.useCallback.call(void 0, (newMonth) => {
+    if (newMonth) {
+      const ns = seed + 1000 + Math.floor(Math.random() * 500);
+      setSeed(ns);
+      setSeries(generateMonth(ns));
+    }
+    setDay(0);
+    setDoses([]);
+    setGhost(0);
+    setPhase('play');
+  }, [seed]);
+
+  // replay animation
+  _react.useEffect.call(void 0, () => {
+    if (phase !== 'replay') return;
+    setGhost(0);
+    const id = setInterval(() => {
+      setGhost((g) => {
+        if (g >= 29) {
+          clearInterval(id);
+          setTimeout(() => setPhase('reveal'), 800);
+          return 29;
+        }
+        return g + 1;
+      });
+    }, 130);
+    return () => clearInterval(id);
+  }, [phase]);
+
+  if (!series) return _react2.default.createElement('div', { className: "p-8",}, "Loading...");
+
+  const pain = series[day];
+  const results = doses.map((d) => ({ d, ...doseOutcome(series, d) }));
+  const successes = results.filter((r) => r.improved).length;
+  const rate = doses.length ? Math.round((successes / doses.length) * 100) : 0;
+
+  const chartData = (upTo) =>
+    series.slice(0, upTo + 1).map((v, i) => ({ day: i + 1, pain: v }));
+
+  const advance = (withDose) => {
+    if (withDose) setDoses((ds) => [...ds, day]);
+    if (day >= 29) setPhase('results');
+    else if (day === 28 && withDose) { setDay(29); }
+    else setDay(day + 1);
+    if (day >= 29) setPhase('results');
+  };
+
+  const nextDay = (withDose) => {
+    if (withDose) setDoses((ds) => [...ds, day]);
+    if (day >= 29) { setPhase('results'); return; }
+    const nd = day + 1;
+    setDay(nd);
+    if (nd >= 29) setTimeout(() => setPhase('results'), 900);
+  };
+
+  // ---------------- INTRO ----------------
+  if (phase === 'intro') {
+    return (
+      _react2.default.createElement('div', { className: "min-h-screen bg-slate-900 flex items-center justify-center p-6"     ,}
+        , _react2.default.createElement('div', { className: "max-w-xl w-full bg-slate-800 rounded-2xl p-8 text-center shadow-2xl border border-slate-700"        ,}
+          , _react2.default.createElement(_lucidereact.FlaskConical, { className: "w-12 h-12 text-purple-400 mx-auto mb-4"    ,} )
+          , _react2.default.createElement('h1', { className: "text-3xl font-bold text-white mb-2"   ,}, "Fool Thyself" )
+          , _react2.default.createElement('p', { className: "text-slate-400 italic mb-6"  ,}, "\"The first principle is that you must not fool yourself — and you are the easiest person to fool.\""
+
+            , _react2.default.createElement('span', { className: "block mt-1 not-italic text-slate-500"   ,}, "— Richard Feynman"  )
+          )
+          , _react2.default.createElement('div', { className: "bg-slate-700 rounded-xl p-5 text-left text-slate-200 mb-6 space-y-3"      ,}
+            , _react2.default.createElement('p', null, "😫 You have chronic back pain. It changes every day."         )
+            , _react2.default.createElement('p', null, "💊 You just bought "    , _react2.default.createElement('span', { className: "font-bold text-purple-300" ,}, "Dr. Wonder's Miracle Tonic"   ), ".")
+            , _react2.default.createElement('p', { className: "font-semibold text-white" ,}, "The rule: whenever the pain gets really bad (7 or higher), take the tonic. Then watch what happens next."                  )
+            , _react2.default.createElement('p', null, "📊 At the end of the month, we'll check: did the tonic work?"            )
+          )
+          , _react2.default.createElement('button', {
+            onClick: () => restart(false),
+            className: "bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl text-lg transition-colors"        ,}
+, "Start the month "
+               , _react2.default.createElement(_lucidereact.ArrowRight, { className: "inline w-5 h-5 ml-1"   ,} )
+          )
+        )
+      )
+    );
+  }
+
+  // ---------------- PLAY ----------------
+  if (phase === 'play') {
+    const tonicGlow = pain >= 7;
+    return (
+      _react2.default.createElement('div', { className: "min-h-screen bg-slate-900 p-4 md:p-8"   ,}
+        , _react2.default.createElement('div', { className: "max-w-3xl mx-auto" ,}
+          , _react2.default.createElement('div', { className: "flex items-center justify-between mb-4"   ,}
+            , _react2.default.createElement('h1', { className: "text-xl md:text-2xl font-bold text-white"   ,}, "💊 Miracle Tonic Diary"   )
+            , _react2.default.createElement('span', { className: "text-slate-400 font-mono" ,}, "Day " , day + 1, " / 30"  )
+          )
+
+          , _react2.default.createElement('div', { className: "bg-slate-800 rounded-2xl p-4 md:p-6 border border-slate-700 mb-4"      ,}
+            , _react2.default.createElement('div', { className: "flex items-center justify-center gap-6 mb-4"    ,}
+              , _react2.default.createElement('span', { className: "text-6xl",}, faceFor(pain))
+              , _react2.default.createElement('div', { className: "text-center",}
+                , _react2.default.createElement('div', { className: "text-slate-400 text-sm uppercase tracking-wide"   ,}, "Today's pain" )
+                , _react2.default.createElement('div', { className: `text-5xl font-black ${painColor(pain)}`,}, pain, _react2.default.createElement('span', { className: "text-2xl text-slate-500" ,}, "/10"))
+              )
+            )
+
+            , _react2.default.createElement('div', { className: "h-64 w-full" ,}
+              , _react2.default.createElement(_recharts.ResponsiveContainer, { width: "100%", height: "100%",}
+                , _react2.default.createElement(_recharts.LineChart, { data: chartData(day), margin: { top: 10, right: 20, bottom: 0, left: -20 },}
+                  , _react2.default.createElement(_recharts.CartesianGrid, { strokeDasharray: "3 3" , stroke: "#334155",} )
+                  , _react2.default.createElement(_recharts.XAxis, { dataKey: "day", domain: [1, 30], type: "number", tickCount: 10, stroke: "#64748b",} )
+                  , _react2.default.createElement(_recharts.YAxis, { domain: [0, 10], stroke: "#64748b",} )
+                  , _react2.default.createElement(_recharts.Tooltip, { contentStyle: { background: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }, labelStyle: { color: '#cbd5e1' },} )
+                  , _react2.default.createElement(_recharts.Line, { type: "monotone", dataKey: "pain", stroke: "#f87171", strokeWidth: 3, dot: { r: 3, fill: '#f87171' }, isAnimationActive: false,} )
+                  , doses.map((d) => (
+                    _react2.default.createElement(_recharts.ReferenceDot, { key: d, x: d + 1, y: series[d], r: 8, fill: "#a855f7", stroke: "#e9d5ff", strokeWidth: 2,} )
+                  ))
+                )
+              )
+            )
+            , _react2.default.createElement('p', { className: "text-center text-slate-500 text-sm mt-1"   ,}, "🟣 = days you took the tonic"      )
+          )
+
+          , _react2.default.createElement('div', { className: "flex flex-col sm:flex-row gap-3 justify-center"    ,}
+            , _react2.default.createElement('button', {
+              onClick: () => nextDay(false),
+              className: "bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-6 py-3 rounded-xl transition-colors"       ,}
+, "Just endure it → next day"
+
+            )
+            , _react2.default.createElement('button', {
+              onClick: () => nextDay(true),
+              className: `font-bold px-6 py-3 rounded-xl transition-all text-white flex items-center justify-center gap-2 ${
+                tonicGlow
+                  ? 'bg-purple-600 hover:bg-purple-500 ring-4 ring-purple-400 animate-pulse'
+                  : 'bg-purple-800 hover:bg-purple-700'
+              }`,}
+
+              , _react2.default.createElement(_lucidereact.Pill, { className: "w-5 h-5" ,} ), " Take Miracle Tonic → next day"
+            )
+          )
+          , tonicGlow && (
+            _react2.default.createElement('p', { className: "text-center text-purple-300 mt-3 font-medium"   ,}, "That looks painful... maybe it's tonic time? 💊"       )
+          )
+        )
+      )
+    );
+  }
+
+  // ---------------- RESULTS ----------------
+  if (phase === 'results') {
+    if (doses.length === 0) {
+      return (
+        _react2.default.createElement('div', { className: "min-h-screen bg-slate-900 flex items-center justify-center p-6"     ,}
+          , _react2.default.createElement('div', { className: "max-w-md bg-slate-800 rounded-2xl p-8 text-center border border-slate-700"      ,}
+            , _react2.default.createElement('div', { className: "text-5xl mb-4" ,}, "🦾")
+            , _react2.default.createElement('h2', { className: "text-2xl font-bold text-white mb-3"   ,}, "You never took the tonic!"    )
+            , _react2.default.createElement('p', { className: "text-slate-300 mb-6" ,}, "Impressively stubborn. But for this experiment to work, you need to follow the rule: dose when the pain gets bad."                   )
+            , _react2.default.createElement('button', { onClick: () => restart(false), className: "bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-3 rounded-xl"      ,}
+              , _react2.default.createElement(_lucidereact.RotateCcw, { className: "inline w-4 h-4 mr-2"   ,} ), "Try the month again"
+            )
+          )
+        )
+      );
+    }
+    return (
+      _react2.default.createElement('div', { className: "min-h-screen bg-slate-900 flex items-center justify-center p-6"     ,}
+        , _react2.default.createElement('div', { className: "max-w-lg w-full bg-gradient-to-b from-purple-900 to-slate-900 rounded-2xl p-8 text-center border border-purple-600 shadow-2xl"          ,}
+          , _react2.default.createElement('div', { className: "text-5xl mb-2" ,}, "🎉✨💊✨🎉")
+          , _react2.default.createElement('h2', { className: "text-2xl md:text-3xl font-black text-white mb-4"    ,}, "MIRACLE TONIC REPORT"  )
+          , _react2.default.createElement('div', { className: "grid grid-cols-3 gap-3 mb-6"   ,}
+            , _react2.default.createElement('div', { className: "bg-slate-800 rounded-xl p-4"  ,}
+              , _react2.default.createElement('div', { className: "text-3xl font-black text-white"  ,}, doses.length)
+              , _react2.default.createElement('div', { className: "text-slate-400 text-sm" ,}, "doses taken" )
+            )
+            , _react2.default.createElement('div', { className: "bg-slate-800 rounded-xl p-4"  ,}
+              , _react2.default.createElement('div', { className: "text-3xl font-black text-green-400"  ,}, successes)
+              , _react2.default.createElement('div', { className: "text-slate-400 text-sm" ,}, "times pain improved after"   )
+            )
+            , _react2.default.createElement('div', { className: "bg-slate-800 rounded-xl p-4"  ,}
+              , _react2.default.createElement('div', { className: "text-3xl font-black text-purple-300"  ,}, rate, "%")
+              , _react2.default.createElement('div', { className: "text-slate-400 text-sm" ,}, "success rate" )
+            )
+          )
+          , _react2.default.createElement('p', { className: "text-xl text-purple-200 font-bold mb-2"   ,}
+            , rate >= 70 ? 'The tonic WORKS! Incredible!' : 'The tonic seems to help quite a lot!'
+          )
+          , _react2.default.createElement('p', { className: "text-slate-400 mb-6" ,}, "Pain improved within 2 days after "      , successes, " of your "   , doses.length, " doses. You should tell everyone about this tonic... right?"         )
+          , _react2.default.createElement('button', {
+            onClick: () => setPhase('replay'),
+            className: "bg-white hover:bg-slate-200 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"       ,}
+
+            , _react2.default.createElement(_lucidereact.Eye, { className: "inline w-5 h-5 mr-2"   ,} ), "🤔 Wait. Run the SAME month again — with NO tonic"
+          )
+        )
+      )
+    );
+  }
+
+  // ---------------- REPLAY + REVEAL ----------------
+  const showDay = phase === 'replay' ? ghost : 29;
+  return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-slate-900 p-4 md:p-8"   ,}
+      , _react2.default.createElement('div', { className: "max-w-3xl mx-auto" ,}
+        , _react2.default.createElement('h1', { className: "text-xl md:text-2xl font-bold text-white mb-1"    ,}
+          , phase === 'replay' ? '⏪ The exact same month... no tonic this time' : '🪞 The Reveal'
+        )
+        , _react2.default.createElement('p', { className: "text-slate-400 mb-4" ,}
+          , phase === 'replay' ? `Day ${showDay + 1} / 30 — watch the days you dosed (gray rings)` : 'Same pain. Same recoveries. Zero tonic.'
+        )
+
+        , _react2.default.createElement('div', { className: "bg-slate-800 rounded-2xl p-4 md:p-6 border border-slate-700 mb-4"      ,}
+          , _react2.default.createElement('div', { className: "h-64 w-full" ,}
+            , _react2.default.createElement(_recharts.ResponsiveContainer, { width: "100%", height: "100%",}
+              , _react2.default.createElement(_recharts.LineChart, { data: chartData(showDay), margin: { top: 10, right: 20, bottom: 0, left: -20 },}
+                , _react2.default.createElement(_recharts.CartesianGrid, { strokeDasharray: "3 3" , stroke: "#334155",} )
+                , _react2.default.createElement(_recharts.XAxis, { dataKey: "day", domain: [1, 30], type: "number", tickCount: 10, stroke: "#64748b",} )
+                , _react2.default.createElement(_recharts.YAxis, { domain: [0, 10], stroke: "#64748b",} )
+                , _react2.default.createElement(_recharts.Tooltip, { contentStyle: { background: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }, labelStyle: { color: '#cbd5e1' },} )
+                , _react2.default.createElement(_recharts.Line, { type: "monotone", dataKey: "pain", stroke: "#38bdf8", strokeWidth: 3, dot: { r: 3, fill: '#38bdf8' }, isAnimationActive: false,} )
+                , doses.filter((d) => d <= showDay).map((d) => (
+                  _react2.default.createElement(_recharts.ReferenceDot, { key: d, x: d + 1, y: series[d], r: 9, fill: "none", stroke: "#94a3b8", strokeWidth: 2, strokeDasharray: "4 3" ,} )
+                ))
+              )
+            )
+          )
+          , _react2.default.createElement('p', { className: "text-center text-slate-500 text-sm mt-1"   ,}, "⚪ dashed rings = days you WOULD have dosed"        )
+        )
+
+        , phase === 'reveal' && (
+          _react2.default.createElement('div', { className: "bg-slate-800 rounded-2xl p-6 border border-sky-700 space-y-4"     ,}
+            , _react2.default.createElement('div', { className: "text-center",}
+              , _react2.default.createElement('div', { className: "text-4xl mb-2" ,}, "😱")
+              , _react2.default.createElement('p', { className: "text-xl font-bold text-white"  ,}, "Pain STILL improved after "
+                    , successes, " of those "   , doses.length, " days — a "    , rate, "% \"success rate\"..."
+              )
+              , _react2.default.createElement('p', { className: "text-sky-300 text-lg font-semibold"  ,}, "...with no tonic at all. The two months are IDENTICAL."         )
+            )
+            , _react2.default.createElement('div', { className: "bg-slate-900 rounded-xl p-5 text-slate-200 space-y-3"    ,}
+              , _react2.default.createElement('p', null, _react2.default.createElement('span', { className: "font-bold text-white" ,}, "What happened?" ), " You only took the tonic on your "        , _react2.default.createElement('span', { className: "font-bold text-red-400" ,}, "worst days" ), ". But pain wobbles up and down on its own — and an extreme day is usually followed by a more ordinary one. So \"better\" almost always follows \"worst\"... tonic or no tonic."                                )
+              , _react2.default.createElement('p', null, "Statisticians call this "   , _react2.default.createElement('span', { className: "font-bold text-sky-300" ,}, "regression to the mean"   ), " — and it is the single biggest reason humans believe in remedies that do nothing."               )
+              , _react2.default.createElement('p', { className: "text-slate-400 italic" ,}, "Think about it: when does anyone ever take a remedy? At their worst. And what follows the worst?"                 )
+            )
+            , _react2.default.createElement('div', { className: "flex flex-col sm:flex-row gap-3 justify-center"    ,}
+              , _react2.default.createElement('button', { onClick: () => restart(true), className: "bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-3 rounded-xl"      ,}
+                , _react2.default.createElement(_lucidereact.RotateCcw, { className: "inline w-4 h-4 mr-2"   ,} ), "Try a new month (it'll fool you again)"
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+} exports.default = FoolThyself;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>

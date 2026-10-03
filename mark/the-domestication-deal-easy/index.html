@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
-<meta charset="UTF-8">
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Domestication Deal</title>
 <style>
@@ -116,9 +115,9 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 }
 
 .body-text {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--text);
-    line-height: 1.7;
+    line-height: 1.8;
     margin-bottom: 20px;
 }
 
@@ -146,7 +145,6 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     box-shadow: 0 6px 20px rgba(107,66,38,0.4);
 }
 
-/* Images - FIXED for proper display */
 .comparison {
     display: flex;
     align-items: stretch;
@@ -207,8 +205,8 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     min-width: 200px;
     padding: 12px 16px;
     border-radius: 12px;
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 .fact-wild { background: #FBE9E7; border-left: 4px solid var(--wild); }
@@ -263,24 +261,12 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     flex-shrink: 0;
 }
 
-.step-text { font-size: 0.95rem; line-height: 1.4; }
+.step-text { font-size: 1rem; line-height: 1.4; }
 
-/* CONTENT / QUESTION TOGGLE */
-.content-area {
-    transition: all 0.4s ease;
-}
-
-.content-area.hidden {
-    display: none;
-}
-
-.question-area {
-    padding-top: 20px;
-}
-
-.question-area.hidden {
-    display: none;
-}
+.content-area { transition: all 0.4s ease; }
+.content-area.hidden { display: none; }
+.question-area { padding-top: 20px; }
+.question-area.hidden { display: none; }
 
 .ready-btn {
     display: block;
@@ -319,10 +305,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     transition: all 0.2s ease;
 }
 
-.reveal-btn:hover {
-    background: #FFF3E0;
-    transform: scale(1.03);
-}
+.reveal-btn:hover { background: #FFF3E0; transform: scale(1.03); }
 
 .question-text {
     font-size: 1.1rem;
@@ -375,12 +358,12 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     font-weight: 500;
     display: none;
     animation: fadeIn 0.3s ease;
+    line-height: 1.5;
 }
 
 .feedback.correct-fb { background: var(--green-light); color: var(--green); display: block; }
 .feedback.wrong-fb { background: var(--red-light); color: var(--red); display: block; }
 
-/* Checkboxes */
 .checkbox-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -440,7 +423,6 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(107,66,38,0.3); }
 .submit-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
 
-/* Navigation */
 .nav-btn {
     display: inline-block;
     background: linear-gradient(135deg, var(--accent), var(--accent-hover));
@@ -478,7 +460,6 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 
 .back-btn:hover { background: var(--accent); color: white; }
 
-/* The Deal columns */
 .deal-columns {
     display: flex;
     gap: 16px;
@@ -499,9 +480,8 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 .deal-lost { background: #FFEBEE; border: 2px solid var(--red); flex: 100%; margin-top: 4px; }
 
 .deal-col h3 { font-size: 1rem; margin-bottom: 10px; }
-.deal-col ul { list-style: none; font-size: 0.92rem; line-height: 1.8; }
+.deal-col ul { list-style: none; font-size: 0.95rem; line-height: 1.9; }
 
-/* Syndrome traits */
 .trait-list {
     display: flex;
     flex-wrap: wrap;
@@ -520,7 +500,6 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     color: var(--orange);
 }
 
-/* Results */
 .results-card { text-align: center; padding: 50px 32px; }
 .results-score { font-size: 4rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
 .results-msg { font-size: 1.2rem; color: var(--text-light); margin-bottom: 24px; line-height: 1.5; }
@@ -575,7 +554,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 <div class="card title-page">
     <div class="title-icon">🐺 → 🐕</div>
     <h1>The Domestication Deal</h1>
-    <p class="subtitle">How wild animals became farm animals — and what they lost in the trade.</p>
+    <p class="subtitle">How wild animals became farm animals — and what they lost.</p>
     <button class="start-btn" onclick="goTo(1)">Let's Begin →</button>
 </div>
 </div>
@@ -586,17 +565,18 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 1 of 11</p>
     <div class="content-area" id="content-1">
         <h2>What Is Domestication?</h2>
-        <p class="body-text"><strong>Domestication</strong> is when humans change wild animals over many generations by choosing which ones to breed. It started about <strong>15,000 years ago</strong> with wolves — and it changed both the animals and us forever.</p>
-        <p class="body-text">Not every wild animal can be domesticated. The animal has to be calm enough to live near humans, willing to breed in captivity, and useful in some way. Out of thousands of wild species, humans have only fully domesticated about <strong>14</strong>.</p>
+        <p class="body-text"><strong>Domestication</strong> means making wild animals tame. Humans did this a long time ago — about <strong>15,000 years ago</strong>. The first animal we tamed was the wolf.</p>
+        <p class="body-text">How did we do it? We picked the <strong>friendliest</strong> animals. Then we let them have babies. We picked the friendliest babies again. After a very long time, the animals changed. They became tame.</p>
+        <p class="body-text">Not every animal can be tamed. The animal must be calm and useful. Out of thousands of animals, humans only tamed about <strong>14</strong>.</p>
         <button class="ready-btn" onclick="showQuestion(1)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-1">
-        <button class="reveal-btn" onclick="revealContent(1)">👁 Show info again</button>
-        <p class="question-text">When did humans first start domesticating animals?</p>
+        <button class="reveal-btn" onclick="revealContent(1)">👁 Read again</button>
+        <p class="question-text">When did humans first tame animals?</p>
         <div class="options" id="opts1">
             <button class="option" onclick="checkMC(1, this, false)">About 2,000 years ago</button>
             <button class="option" onclick="checkMC(1, this, true)">About 15,000 years ago</button>
-            <button class="option" onclick="checkMC(1, this, false)">About 1 million years ago</button>
+            <button class="option" onclick="checkMC(1, this, false)">About 1,000,000 years ago</button>
             <button class="option" onclick="checkMC(1, this, false)">About 500 years ago</button>
         </div>
         <div class="feedback" id="fb1"></div>
@@ -612,28 +592,28 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 <div class="page" id="page-2">
 <div class="card">
     <p class="page-label">Page 2 of 11</p>
-    <h2>Why Did Humans Domesticate Animals?</h2>
-    <p class="body-text">Humans didn't domesticate animals just for fun. Every animal we tamed solved a problem.</p>
+    <h2>Why Did Humans Tame Animals?</h2>
+    <p class="body-text">Every animal we tamed helps us in some way.</p>
     <div class="info-grid">
         <div class="info-block" style="background:#FFF3E0">
             <div class="info-icon">🥩</div>
             <div class="info-title">Food</div>
-            <div class="info-desc">Meat, milk, eggs, honey</div>
+            <div class="info-desc">Meat, milk, eggs</div>
         </div>
         <div class="info-block" style="background:#E3F2FD">
             <div class="info-icon">🧶</div>
             <div class="info-title">Materials</div>
-            <div class="info-desc">Wool, leather, feathers</div>
+            <div class="info-desc">Wool, leather</div>
         </div>
         <div class="info-block" style="background:#E8F5E9">
             <div class="info-icon">🚜</div>
-            <div class="info-title">Labor</div>
-            <div class="info-desc">Plowing, carrying, herding</div>
+            <div class="info-title">Work</div>
+            <div class="info-desc">Carrying things, farming</div>
         </div>
         <div class="info-block" style="background:#F3E5F5">
             <div class="info-icon">🐕</div>
-            <div class="info-title">Companionship</div>
-            <div class="info-desc">Guarding, hunting partners, friends</div>
+            <div class="info-title">Friends</div>
+            <div class="info-desc">Guarding, helping, company</div>
         </div>
     </div>
     <div class="nav-row">
@@ -647,28 +627,28 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 <div class="page" id="page-3">
 <div class="card">
     <p class="page-label">Page 3 of 11</p>
-    <h2>How Does Domestication Work?</h2>
-    <p class="body-text">It all comes down to <strong>selective breeding</strong> — picking the animals you want and letting only THOSE ones have babies. Over hundreds of generations, the whole species changes.</p>
+    <h2>How Does It Work?</h2>
+    <p class="body-text">Humans pick the <strong>calmest</strong> animals. Only those animals have babies. After many, many years, the whole animal family changes.</p>
     <div class="steps-container" id="stepsContainer">
         <div class="step" data-delay="300">
             <div class="step-number">1</div>
-            <div class="step-text">Find a wild animal. Pick the <strong>calmest, friendliest</strong> one.</div>
+            <div class="step-text">Find a wild animal. Pick the <strong>calmest</strong> one.</div>
         </div>
         <div class="step" data-delay="700">
             <div class="step-number">2</div>
-            <div class="step-text">Let that one <strong>breed</strong> with another calm animal.</div>
+            <div class="step-text">Let it have babies with another calm animal.</div>
         </div>
         <div class="step" data-delay="1100">
             <div class="step-number">3</div>
-            <div class="step-text">From their babies, pick the <strong>calmest</strong> one again.</div>
+            <div class="step-text">From the babies, pick the <strong>calmest</strong> one again.</div>
         </div>
         <div class="step" data-delay="1500">
             <div class="step-number">4</div>
-            <div class="step-text">Repeat. And repeat. And repeat.</div>
+            <div class="step-text">Do it again. And again. And again.</div>
         </div>
         <div class="step" data-delay="1900">
             <div class="step-number">5</div>
-            <div class="step-text">After <strong>hundreds of generations</strong>… you have a completely different animal. 🎉</div>
+            <div class="step-text">After a very long time… you have a <strong>new, tame</strong> animal! 🎉</div>
         </div>
     </div>
     <div class="nav-row">
@@ -684,27 +664,27 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 4 of 11</p>
     <div class="content-area" id="content-4">
         <h2>Wolf → Dog</h2>
-        <p class="subtitle">First domesticated about 15,000 years ago</p>
+        <p class="subtitle">First tamed about 15,000 years ago</p>
         <div class="comparison">
             <div class="animal">
                 <img src="wolf.jpg" alt="Gray Wolf">
-                <span class="animal-label wild-label">🐺 Gray Wolf</span>
+                <span class="animal-label wild-label">🐺 Wolf</span>
             </div>
             <div class="comparison-arrow">→</div>
             <div class="animal">
                 <img src="dog.jpg" alt="Domestic Dog">
-                <span class="animal-label domestic-label">🐕 Domestic Dog</span>
+                <span class="animal-label domestic-label">🐕 Dog</span>
             </div>
         </div>
         <div class="facts">
-            <div class="fact fact-wild">🐺 Large brain, hunts in packs, fears humans, survives alone in the wild</div>
-            <div class="fact fact-domestic">🐕 Brain <strong>20% smaller</strong>, follows human commands, depends on people, reads human faces better than any other animal</div>
+            <div class="fact fact-wild">🐺 <strong>Wolf:</strong> Big brain. Hunts in groups. Afraid of people. Can live alone in the wild.</div>
+            <div class="fact fact-domestic">🐕 <strong>Dog:</strong> Brain is <strong>20% smaller</strong>. Follows people. Needs people. Can understand our faces very well.</div>
         </div>
         <button class="ready-btn" onclick="showQuestion(4)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-4">
-        <button class="reveal-btn" onclick="revealContent(4)">👁 Show info again</button>
-        <p class="question-text">Dogs' brains are about ___% smaller than wolves' brains.</p>
+        <button class="reveal-btn" onclick="revealContent(4)">👁 Read again</button>
+        <p class="question-text">A dog's brain is ___% smaller than a wolf's brain.</p>
         <div class="options" id="opts4">
             <button class="option" onclick="checkMC(4, this, false)">50%</button>
             <button class="option" onclick="checkMC(4, this, false)">2%</button>
@@ -726,7 +706,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 5 of 11</p>
     <div class="content-area" id="content-5">
         <h2>Aurochs → Cow</h2>
-        <p class="subtitle">Domesticated about 10,000 years ago in the Middle East</p>
+        <p class="subtitle">Tamed about 10,000 years ago</p>
         <div class="comparison">
             <div class="animal">
                 <img src="aurochs.jpg" alt="Aurochs">
@@ -735,23 +715,23 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
             <div class="comparison-arrow">→</div>
             <div class="animal">
                 <img src="cow.jpg" alt="Domestic Cow">
-                <span class="animal-label domestic-label">🐄 Domestic Cow</span>
+                <span class="animal-label domestic-label">🐄 Cow</span>
             </div>
         </div>
         <div class="facts">
-            <div class="fact fact-wild">🦬 6 feet tall at the shoulder, aggressive and dangerous, depicted in ancient cave paintings — <strong>extinct since 1627</strong></div>
-            <div class="fact fact-domestic">🐄 Docile, can't defend itself from predators, depends entirely on humans for food and shelter. 30,000 died in a single blizzard.</div>
+            <div class="fact fact-wild">🦬 <strong>Aurochs:</strong> Very big — almost 2 meters tall! Strong and dangerous. People drew them in caves. The last one died in <strong>1627</strong>.</div>
+            <div class="fact fact-domestic">🐄 <strong>Cow:</strong> Calm and gentle. Cannot fight other animals. Needs people to give it food and a home.</div>
         </div>
         <button class="ready-btn" onclick="showQuestion(5)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-5">
-        <button class="reveal-btn" onclick="revealContent(5)">👁 Show info again</button>
+        <button class="reveal-btn" onclick="revealContent(5)">👁 Read again</button>
         <p class="question-text">When did the last wild aurochs die?</p>
         <div class="options" id="opts5">
-            <button class="option" onclick="checkMC(5, this, false)">About 10,000 years ago</button>
-            <button class="option" onclick="checkMC(5, this, false)">They're still alive today</button>
-            <button class="option" onclick="checkMC(5, this, true)">1627</button>
-            <button class="option" onclick="checkMC(5, this, false)">1920</button>
+            <button class="option" onclick="checkMC(5, this, false)">10,000 years ago</button>
+            <button class="option" onclick="checkMC(5, this, false)">They are still alive</button>
+            <button class="option" onclick="checkMC(5, this, true)">In 1627</button>
+            <button class="option" onclick="checkMC(5, this, false)">In 1920</button>
         </div>
         <div class="feedback" id="fb5"></div>
         <div class="nav-row">
@@ -767,7 +747,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 <div class="card">
     <p class="page-label">Page 6 of 11</p>
     <h2>Wild Boar → Pig</h2>
-    <p class="subtitle">Domesticated about 9,000 years ago</p>
+    <p class="subtitle">Tamed about 9,000 years ago</p>
     <div class="comparison">
         <div class="animal">
             <img src="boar.jpg" alt="Wild Boar">
@@ -776,14 +756,14 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
         <div class="comparison-arrow">→</div>
         <div class="animal">
             <img src="pig.jpg" alt="Domestic Pig">
-            <span class="animal-label domestic-label">🐷 Domestic Pig</span>
+            <span class="animal-label domestic-label">🐷 Pig</span>
         </div>
     </div>
     <div class="facts">
-        <div class="fact fact-wild">🐗 Muscular, sharp tusks, aggressive, can run 30 mph, survives in forests across Europe and Asia</div>
-        <div class="fact fact-domestic">🐷 Rounder body, curly tail, smaller tusks, docile — but still one of the <strong>smartest</strong> domesticated animals (smarter than dogs!)</div>
+        <div class="fact fact-wild">🐗 <strong>Wild Boar:</strong> Strong with big teeth. Can run very fast. Lives in forests.</div>
+        <div class="fact fact-domestic">🐷 <strong>Pig:</strong> Round body. Curly tail. Small teeth. Calm — but very <strong>smart</strong>! (Smarter than dogs!)</div>
     </div>
-    <p class="body-text" style="font-style:italic; color:var(--text-light);">Fun fact: Domestic pigs that escape into the wild start growing thicker fur and longer tusks within a few generations. The wild is still in there — just hidden.</p>
+    <p class="body-text" style="font-style:italic; color:var(--text-light);">Fun fact: If farm pigs go back to the wild, their babies start to look like wild boars again! The wild is still inside them.</p>
     <div class="nav-row">
         <button class="back-btn" onclick="goTo(5)">← Back</button>
         <button class="nav-btn" onclick="goTo(7)">Next →</button>
@@ -796,33 +776,33 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 <div class="card">
     <p class="page-label">Page 7 of 11</p>
     <div class="content-area" id="content-7">
-        <h2>Red Junglefowl → Chicken</h2>
-        <p class="subtitle">Domesticated about 8,000 years ago in Southeast Asia</p>
+        <h2>Junglefowl → Chicken</h2>
+        <p class="subtitle">Tamed about 8,000 years ago in Southeast Asia</p>
         <div class="comparison">
             <div class="animal">
                 <img src="junglefowl.jpg" alt="Red Junglefowl">
-                <span class="animal-label wild-label">🐦 Red Junglefowl</span>
+                <span class="animal-label wild-label">🐦 Junglefowl</span>
             </div>
             <div class="comparison-arrow">→</div>
             <div class="animal">
                 <img src="chicken.jpg" alt="Domestic Chicken">
-                <span class="animal-label domestic-label">🐔 Domestic Chicken</span>
+                <span class="animal-label domestic-label">🐔 Chicken</span>
             </div>
         </div>
         <div class="facts">
-            <div class="fact fact-wild">🐦 Can fly well, lives in forests, lays only about <strong>12 eggs per year</strong>, alert and quick to escape predators</div>
-            <div class="fact fact-domestic">🐔 Can barely fly, lays about <strong>300 eggs per year</strong>, heavier body, calmer and slower — but 25× more productive</div>
+            <div class="fact fact-wild">🐦 <strong>Junglefowl:</strong> Can fly well. Lives in forests. Only lays about <strong>12 eggs</strong> a year. Quick and alert.</div>
+            <div class="fact fact-domestic">🐔 <strong>Chicken:</strong> Cannot fly well. Lays about <strong>300 eggs</strong> a year! Heavier body. Slower and calmer.</div>
         </div>
         <button class="ready-btn" onclick="showQuestion(7)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-7">
-        <button class="reveal-btn" onclick="revealContent(7)">👁 Show info again</button>
-        <p class="question-text">How many times more eggs does a farm chicken lay per year compared to a wild junglefowl?</p>
+        <button class="reveal-btn" onclick="revealContent(7)">👁 Read again</button>
+        <p class="question-text">How many eggs does a farm chicken lay in one year?</p>
         <div class="options" id="opts7">
-            <button class="option" onclick="checkMC(7, this, false)">About 3 times more</button>
-            <button class="option" onclick="checkMC(7, this, false)">About 100 times more</button>
-            <button class="option" onclick="checkMC(7, this, false)">About the same</button>
-            <button class="option" onclick="checkMC(7, this, true)">About 25 times more</button>
+            <button class="option" onclick="checkMC(7, this, false)">About 12</button>
+            <button class="option" onclick="checkMC(7, this, true)">About 300</button>
+            <button class="option" onclick="checkMC(7, this, false)">About 1,000</button>
+            <button class="option" onclick="checkMC(7, this, false)">About 50</button>
         </div>
         <div class="feedback" id="fb7"></div>
         <div class="nav-row">
@@ -833,39 +813,39 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 </div>
 </div>
 
-<!-- PAGE 8: WILD CAT → DOMESTIC CAT (NEW) -->
+<!-- PAGE 8: WILD CAT → DOMESTIC CAT -->
 <div class="page" id="page-8">
 <div class="card">
     <p class="page-label">Page 8 of 11</p>
     <div class="content-area" id="content-8">
-        <h2>African Wildcat → House Cat</h2>
-        <p class="subtitle">Domesticated about 10,000 years ago in the Near East</p>
+        <h2>Wildcat → House Cat</h2>
+        <p class="subtitle">Tamed about 10,000 years ago</p>
         <div class="comparison">
             <div class="animal">
                 <img src="wild cat.jpg" alt="African Wildcat">
-                <span class="animal-label wild-label">🐆 African Wildcat</span>
+                <span class="animal-label wild-label">🐆 Wildcat</span>
             </div>
             <div class="comparison-arrow">→</div>
             <div class="animal">
                 <img src="cat.jpg" alt="Domestic Cat">
-                <span class="animal-label domestic-label">🐱 Domestic Cat</span>
+                <span class="animal-label domestic-label">🐱 House Cat</span>
             </div>
         </div>
         <div class="facts">
-            <div class="fact fact-wild">🐆 Solitary hunter, fiercely territorial, avoids all contact with humans, hunts rodents and birds at night, survives completely alone</div>
-            <div class="fact fact-domestic">🐱 Still an excellent hunter, still mostly independent — but tolerates humans and other cats, has a <strong>smaller brain</strong>, and chooses to stay for food and warmth</div>
+            <div class="fact fact-wild">🐆 <strong>Wildcat:</strong> Lives alone. Stays away from people. Hunts mice and birds at night.</div>
+            <div class="fact fact-domestic">🐱 <strong>House Cat:</strong> Still a good hunter. But likes to be near people. Has a <strong>smaller brain</strong>. Stays for food and warmth.</div>
         </div>
-        <p class="body-text" style="font-style:italic; color:var(--text-light);">Cats are the <strong>weirdest</strong> domesticated animal. Scientists think they basically domesticated THEMSELVES. When humans started farming grain, mice came. Wildcats followed the mice. The friendliest cats got fed scraps and stuck around. Nobody "chose" to breed them — they chose us.</p>
+        <p class="body-text" style="font-style:italic; color:var(--text-light);">Cats are special! Scientists think cats tamed <strong>themselves</strong>. When people grew food, mice came. Cats followed the mice. The friendliest cats got free food from people and stayed. Nobody chose to tame them — they chose us!</p>
         <button class="ready-btn" onclick="showQuestion(8)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-8">
-        <button class="reveal-btn" onclick="revealContent(8)">👁 Show info again</button>
-        <p class="question-text">What makes cats different from every other domesticated animal?</p>
+        <button class="reveal-btn" onclick="revealContent(8)">👁 Read again</button>
+        <p class="question-text">What is special about cats?</p>
         <div class="options" id="opts8">
-            <button class="option" onclick="checkMC(8, this, false)">They were domesticated the longest ago</button>
-            <button class="option" onclick="checkMC(8, this, false)">They can't hunt anymore</button>
-            <button class="option" onclick="checkMC(8, this, true)">They basically domesticated themselves — humans didn't deliberately breed them</button>
-            <button class="option" onclick="checkMC(8, this, false)">Their brains got bigger, not smaller</button>
+            <button class="option" onclick="checkMC(8, this, false)">They were tamed first</button>
+            <button class="option" onclick="checkMC(8, this, false)">They cannot hunt anymore</button>
+            <button class="option" onclick="checkMC(8, this, true)">They tamed themselves — people didn't choose them</button>
+            <button class="option" onclick="checkMC(8, this, false)">Their brains got bigger</button>
         </div>
         <div class="feedback" id="fb8"></div>
         <div class="nav-row">
@@ -882,7 +862,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 9 of 11</p>
     <div class="content-area" id="content-9">
         <h2>Mouflon → Sheep</h2>
-        <p class="subtitle">Domesticated about 11,000 years ago</p>
+        <p class="subtitle">Tamed about 11,000 years ago</p>
         <div class="comparison">
             <div class="animal">
                 <img src="mouflon.jpg" alt="Mouflon">
@@ -891,23 +871,23 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
             <div class="comparison-arrow">→</div>
             <div class="animal">
                 <img src="sheep.jpg" alt="Domestic Sheep">
-                <span class="animal-label domestic-label">🐑 Domestic Sheep</span>
+                <span class="animal-label domestic-label">🐑 Sheep</span>
             </div>
         </div>
         <div class="facts">
-            <div class="fact fact-wild">🐏 Short brown coat that <strong>sheds naturally</strong> every spring, large curved horns, agile on rocky terrain</div>
-            <div class="fact fact-domestic">🐑 Wool grows <strong>forever</strong> — must be sheared by humans or it keeps piling on. A sheep named Shrek went unsheared for 6 years and had 60 lbs of wool!</div>
+            <div class="fact fact-wild">🐏 <strong>Mouflon:</strong> Short brown fur that <strong>falls off</strong> every spring. Big horns. Good at climbing rocks.</div>
+            <div class="fact fact-domestic">🐑 <strong>Sheep:</strong> Wool grows and <strong>never stops</strong>! People must cut it. One sheep didn't get a haircut for 6 years — it had 27 kg of wool!</div>
         </div>
         <button class="ready-btn" onclick="showQuestion(9)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-9">
-        <button class="reveal-btn" onclick="revealContent(9)">👁 Show info again</button>
-        <p class="question-text">What happens to a domesticated sheep's wool if it's never sheared?</p>
+        <button class="reveal-btn" onclick="revealContent(9)">👁 Read again</button>
+        <p class="question-text">What happens to a sheep's wool if nobody cuts it?</p>
         <div class="options" id="opts9">
-            <button class="option" onclick="checkMC(9, this, false)">It falls off naturally each spring</button>
+            <button class="option" onclick="checkMC(9, this, false)">It falls off every spring</button>
             <button class="option" onclick="checkMC(9, this, true)">It keeps growing and never stops</button>
-            <button class="option" onclick="checkMC(9, this, false)">It stops growing after a few inches</button>
-            <button class="option" onclick="checkMC(9, this, false)">It changes from white to brown</button>
+            <button class="option" onclick="checkMC(9, this, false)">It stops growing after a short time</button>
+            <button class="option" onclick="checkMC(9, this, false)">It changes color</button>
         </div>
         <div class="feedback" id="fb9"></div>
         <div class="nav-row">
@@ -924,21 +904,21 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 10 of 11</p>
     <div class="content-area" id="content-10">
         <h2>Domestication Syndrome</h2>
-        <p class="body-text">Scientists noticed something strange: <strong>ALL domesticated animals</strong> — dogs, cats, pigs, cows, horses, even foxes — develop the <strong>same set of changes</strong>. It doesn't matter what species. Breed for tameness, and this whole package comes along:</p>
+        <p class="body-text">Scientists found something interesting: <strong>ALL</strong> tame animals — dogs, cats, pigs, cows, horses — get the <strong>same changes</strong>. It doesn't matter what animal it is. If you make it tame, these things happen:</p>
         <div class="trait-list">
             <span class="trait-tag">Floppy ears</span>
             <span class="trait-tag">Curly tails</span>
-            <span class="trait-tag">Spotted coats</span>
+            <span class="trait-tag">Spotted fur</span>
             <span class="trait-tag">Smaller brains</span>
             <span class="trait-tag">Shorter faces</span>
             <span class="trait-tag">Less fear</span>
         </div>
-        <p class="body-text">Why? When you select for <strong>tameness</strong>, you're changing special cells called <strong>neural crest cells</strong>. These cells control ear shape, coat color, brain size, jaw length, AND fear — all at once. Change one, and everything shifts.</p>
+        <p class="body-text">Why? When you choose calm animals, you also change special cells in their body. These cells control ear shape, fur color, brain size, and fear — <strong>all at once</strong>. Change one thing, and everything changes!</p>
         <button class="ready-btn" onclick="showQuestion(10)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-10">
-        <button class="reveal-btn" onclick="revealContent(10)">👁 Show info again</button>
-        <p class="question-text">Which of these are traits of Domestication Syndrome? Select ALL that apply.</p>
+        <button class="reveal-btn" onclick="revealContent(10)">👁 Read again</button>
+        <p class="question-text">Which of these happen to tame animals? Choose ALL the correct ones.</p>
         <div class="checkbox-grid" id="checkboxGrid">
             <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
                 <div class="custom-checkbox"></div>
@@ -950,7 +930,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
             </div>
             <div class="checkbox-item" data-correct="true" onclick="toggleCheck(this)">
                 <div class="custom-checkbox"></div>
-                <span class="checkbox-label">Spotted coats</span>
+                <span class="checkbox-label">Spotted fur</span>
             </div>
             <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
                 <div class="custom-checkbox"></div>
@@ -970,7 +950,7 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
             </div>
             <div class="checkbox-item" data-correct="false" onclick="toggleCheck(this)">
                 <div class="custom-checkbox"></div>
-                <span class="checkbox-label">More fear of humans</span>
+                <span class="checkbox-label">More fear</span>
             </div>
         </div>
         <button class="submit-btn" id="submitCheck" onclick="checkCheckboxes()">Check My Answers</button>
@@ -989,46 +969,47 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
     <p class="page-label">Page 11 of 11</p>
     <div class="content-area" id="content-11">
         <h2>The Deal</h2>
-        <p class="body-text">Domestication is a <strong>trade</strong>. Both sides give something. But when one side can't hold up their end…</p>
+        <p class="body-text">Domestication is like a <strong>trade</strong>. People give something. Animals give something. But the animals also <strong>lost</strong> something important.</p>
         <div class="deal-columns">
             <div class="deal-col deal-give">
-                <h3>🧑‍🌾 Humans Give</h3>
+                <h3>🧑‍🌾 People Give</h3>
                 <ul>
-                    <li>Food &amp; water</li>
-                    <li>Shelter</li>
-                    <li>Protection from predators</li>
-                    <li>Medical care</li>
+                    <li>Food and water</li>
+                    <li>A home</li>
+                    <li>Safety from danger</li>
+                    <li>Help when sick</li>
                 </ul>
             </div>
             <div class="deal-col deal-get">
                 <h3>🐄 Animals Give</h3>
                 <ul>
-                    <li>Meat &amp; milk</li>
+                    <li>Meat and milk</li>
                     <li>Eggs</li>
-                    <li>Wool &amp; leather</li>
-                    <li>Labor</li>
+                    <li>Wool and leather</li>
+                    <li>Work</li>
                 </ul>
             </div>
             <div class="deal-col deal-lost">
                 <h3>⚠️ But Animals Lost</h3>
                 <ul>
-                    <li>Thick winter coats &amp; survival instincts</li>
-                    <li>Ability to find food on their own</li>
-                    <li>Migration instinct</li>
-                    <li>Large brains &amp; aggression to fight predators</li>
+                    <li>Thick fur to keep warm</li>
+                    <li>How to find food alone</li>
+                    <li>How to travel far</li>
+                    <li>Big brains and fighting skills</li>
                 </ul>
             </div>
         </div>
+        <p class="body-text">This is a problem! If people cannot help the animals (for example, in a big storm), the animals <strong>cannot take care of themselves</strong>. They forgot how.</p>
         <button class="ready-btn" onclick="showQuestion(11)">I'm ready for the question →</button>
     </div>
     <div class="question-area hidden" id="question-11">
-        <button class="reveal-btn" onclick="revealContent(11)">👁 Show info again</button>
-        <p class="question-text">In the 2007 Colorado blizzard, cattle couldn't survive on their own because…</p>
+        <button class="reveal-btn" onclick="revealContent(11)">👁 Read again</button>
+        <p class="question-text">Why can't farm animals live alone in the wild?</p>
         <div class="options" id="opts11">
-            <button class="option" onclick="checkMC(11, this, false)">The cattle chose to migrate south but got lost</button>
-            <button class="option" onclick="checkMC(11, this, true)">Humans couldn't reach them to provide food and water — and the cattle had lost the ability to survive alone</button>
-            <button class="option" onclick="checkMC(11, this, false)">The cattle had too much fur and overheated</button>
-            <button class="option" onclick="checkMC(11, this, false)">The snow was a different color than usual</button>
+            <button class="option" onclick="checkMC(11, this, false)">They don't like the wild</button>
+            <button class="option" onclick="checkMC(11, this, true)">They lost the skills to find food and stay safe alone</button>
+            <button class="option" onclick="checkMC(11, this, false)">They have too much fur</button>
+            <button class="option" onclick="checkMC(11, this, false)">They are too fast</button>
         </div>
         <div class="feedback" id="fb11"></div>
         <div class="nav-row">
@@ -1052,7 +1033,6 @@ h2 { font-size: 1.6rem; color: var(--accent); margin-bottom: 16px; line-height: 
 </div>
 
 <script>
-// ============ STATE ============
 let currentPage = 0;
 const totalPages = 13;
 const totalQuestions = 8;
@@ -1072,33 +1052,31 @@ const questionNames = {
 };
 
 const correctFeedback = {
-    1: "That's right! Dogs were the first — about 15,000 years ago.",
-    4: "Correct! Wolves traded brain power for the safety of living with humans.",
-    5: "Right! The last aurochs died in a Polish forest in 1627.",
-    7: "Exactly! We changed their bodies to produce 25 times more eggs.",
-    8: "Yes! Cats are unique — they chose US. Friendly wildcats hung around grain stores for the mice, and humans let them stay.",
-    9: "Yes! Without human shearing, the wool just keeps piling up — forever.",
-    11: "That's the key. The deal broke. Humans couldn't deliver their half, and cattle no longer have the instincts to survive alone."
+    1: "Yes! Dogs were the first — about 15,000 years ago.",
+    4: "Correct! Dogs have smaller brains than wolves.",
+    5: "Right! The last aurochs died in 1627.",
+    7: "Yes! Farm chickens lay about 300 eggs a year.",
+    8: "Yes! Cats are special — they chose US, not the other way around.",
+    9: "Yes! Sheep wool never stops growing. People must cut it.",
+    11: "That's right. Farm animals lost the skills to live alone."
 };
 
 const wrongFeedback = {
-    1: "Not quite. Domestication goes way further back — about 15,000 years.",
-    4: "Not quite. The answer is 20% — significant, but not as extreme as half.",
-    5: "Nope! Aurochs survived a long time alongside domestic cows. The last one died in 1627.",
-    7: "Not quite. 12 eggs vs. 300 — that's about 25 times more.",
-    8: "Think again — the text said cats basically domesticated THEMSELVES. Nobody deliberately chose to breed them like other animals.",
-    9: "Careful — that's what WILD sheep (mouflons) do. Domestic sheep's wool never stops growing.",
-    11: "Think about the deal: humans provide food and water. What happens when they CAN'T — and the cattle can't do it themselves?"
+    1: "Not quite. Look again — it says 15,000 years ago.",
+    4: "Not quite. The answer is 20%.",
+    5: "No! The last aurochs died in 1627.",
+    7: "Not quite. Look at the numbers again — 12 vs 300.",
+    8: "Think again — the text says cats tamed THEMSELVES.",
+    9: "No — that's what wild mouflons do. Sheep wool never stops!",
+    11: "Think about it: they lost the skills to find food and stay safe alone."
 };
 
-// ============ NAVIGATION ============
 function goTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     currentPage = page;
     updateProgress();
     window.scrollTo(0, 0);
-
     if (page === 3) animateSteps();
     if (page === 12) showResults();
 }
@@ -1108,7 +1086,6 @@ function updateProgress() {
     document.getElementById('progressBar').style.width = pct + '%';
 }
 
-// ============ CONTENT / QUESTION TOGGLE ============
 function showQuestion(pageNum) {
     const content = document.getElementById('content-' + pageNum);
     const question = document.getElementById('question-' + pageNum);
@@ -1120,32 +1097,23 @@ function showQuestion(pageNum) {
 
 function revealContent(pageNum) {
     const content = document.getElementById('content-' + pageNum);
-    const question = document.getElementById('question-' + pageNum);
-    
     if (contentRevealed[pageNum]) {
-        // Hide it again
         content.classList.add('hidden');
         contentRevealed[pageNum] = false;
     } else {
-        // Show it
         content.classList.remove('hidden');
-        // Remove the ready button when revealing during question
         const readyBtn = content.querySelector('.ready-btn');
         if (readyBtn) readyBtn.style.display = 'none';
         contentRevealed[pageNum] = true;
     }
 }
 
-// ============ MULTIPLE CHOICE ============
 function checkMC(qNum, btn, isCorrect) {
     if (answered[qNum]) return;
     answered[qNum] = { correct: isCorrect };
 
     const opts = document.getElementById('opts' + qNum).querySelectorAll('.option');
-    opts.forEach(o => {
-        o.classList.add('disabled');
-        o.style.pointerEvents = 'none';
-    });
+    opts.forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
 
     const fb = document.getElementById('fb' + qNum);
 
@@ -1159,26 +1127,16 @@ function checkMC(qNum, btn, isCorrect) {
         btn.classList.add('wrong');
         fb.className = 'feedback wrong-fb';
         fb.textContent = '❌ ' + wrongFeedback[qNum];
-        opts.forEach(o => {
-            if (o.getAttribute('onclick').includes('true')) {
-                o.classList.add('correct');
-            }
-        });
+        opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
         document.querySelector('.page.active .card').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.page.active .card').classList.remove('shake');
-        }, 400);
+        setTimeout(() => document.querySelector('.page.active .card').classList.remove('shake'), 400);
     }
 
     updateScore();
     const nextBtn = document.getElementById('nextPage-' + qNum);
-    if (nextBtn) {
-        nextBtn.style.display = 'inline-block';
-        nextBtn.style.animation = 'fadeIn 0.3s ease';
-    }
+    if (nextBtn) { nextBtn.style.display = 'inline-block'; nextBtn.style.animation = 'fadeIn 0.3s ease'; }
 }
 
-// ============ CHECKBOXES ============
 function toggleCheck(item) {
     if (answered[10]) return;
     item.classList.toggle('selected');
@@ -1198,15 +1156,9 @@ function checkCheckboxes() {
         const isSelected = item.classList.contains('selected');
         item.style.pointerEvents = 'none';
 
-        if (isCorrect && isSelected) {
-            item.classList.add('correct-check');
-        } else if (isCorrect && !isSelected) {
-            item.classList.add('correct-check');
-            allCorrect = false;
-        } else if (!isCorrect && isSelected) {
-            item.classList.add('wrong-check');
-            allCorrect = false;
-        }
+        if (isCorrect && isSelected) item.classList.add('correct-check');
+        else if (isCorrect && !isSelected) { item.classList.add('correct-check'); allCorrect = false; }
+        else if (!isCorrect && isSelected) { item.classList.add('wrong-check'); allCorrect = false; }
         item.classList.remove('selected');
     });
 
@@ -1217,15 +1169,13 @@ function checkCheckboxes() {
         score++;
         answered[10].correct = true;
         fb.className = 'feedback correct-fb';
-        fb.textContent = '✅ Perfect! You identified all the domestication syndrome traits correctly.';
+        fb.textContent = '✅ Perfect! You got all of them right.';
         createConfetti();
     } else {
         fb.className = 'feedback wrong-fb';
-        fb.textContent = '❌ Not quite — the green ones are the correct traits. Remember: domesticated animals get SMALLER brains, not bigger!';
+        fb.textContent = '❌ Not quite — the green ones are correct. Remember: tame animals get SMALLER brains, not bigger!';
         document.querySelector('.page.active .card').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.page.active .card').classList.remove('shake');
-        }, 400);
+        setTimeout(() => document.querySelector('.page.active .card').classList.remove('shake'), 400);
     }
 
     updateScore();
@@ -1233,38 +1183,31 @@ function checkCheckboxes() {
     document.getElementById('nextPage-10').style.animation = 'fadeIn 0.3s ease';
 }
 
-// ============ SCORE ============
 function updateScore() {
     document.getElementById('scoreDisplay').textContent = 'Score: ' + score + ' / ' + totalQuestions;
 }
 
-// ============ RESULTS ============
 function showResults() {
     document.getElementById('finalScore').textContent = score + ' / ' + totalQuestions;
-    
     let msg = '';
-    if (score === 8) msg = "🏆 Master Domesticator! You understand the deal perfectly.";
-    else if (score >= 6) msg = "🌟 Great job! You've got a strong grasp of domestication.";
-    else if (score >= 4) msg = "👍 Good start! Review the parts you missed.";
-    else msg = "📚 Let's go through this again together.";
-    
+    if (score === 8) msg = "🏆 Amazing! You know everything about domestication!";
+    else if (score >= 6) msg = "🌟 Great job! You understand domestication very well.";
+    else if (score >= 4) msg = "👍 Good! Read again the parts you missed.";
+    else msg = "📚 Let's try again! Read the pages more carefully.";
     document.getElementById('finalMsg').textContent = msg;
 
     const bd = document.getElementById('breakdown');
     bd.innerHTML = '';
-    const pages = [1, 4, 5, 7, 8, 9, 10, 11];
-    pages.forEach(q => {
+    [1, 4, 5, 7, 8, 9, 10, 11].forEach(q => {
         const item = document.createElement('div');
         item.className = 'result-item';
         const wasCorrect = answered[q] && answered[q].correct;
         item.innerHTML = '<span>' + questionNames[q] + '</span><span class="result-icon">' + (wasCorrect ? '✅' : '❌') + '</span>';
         bd.appendChild(item);
     });
-
     if (score >= 6) createConfetti();
 }
 
-// ============ ANIMATED STEPS ============
 function animateSteps() {
     const steps = document.querySelectorAll('#stepsContainer .step');
     steps.forEach((s, i) => {
@@ -1274,7 +1217,6 @@ function animateSteps() {
     });
 }
 
-// ============ CONFETTI ============
 function createConfetti() {
     const colors = ['#6B4226', '#8B6914', '#2E7D32', '#FFB74D', '#E65100', '#1565C0'];
     const shapes = ['●', '■', '▲', '◆'];
@@ -1288,21 +1230,17 @@ function createConfetti() {
         el.style.fontSize = (Math.random() * 14 + 8) + 'px';
         el.style.opacity = Math.random() * 0.8 + 0.2;
         document.body.appendChild(el);
-
         const xDrift = (Math.random() - 0.5) * 200;
         const duration = Math.random() * 2000 + 1500;
         const spin = Math.random() * 720 - 360;
-
         el.animate([
             { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
             { transform: `translateY(${window.innerHeight + 40}px) translateX(${xDrift}px) rotate(${spin}deg)`, opacity: 0 }
-        ], { duration: duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
-
+        ], { duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
         setTimeout(() => el.remove(), duration);
     }
 }
 
-// ============ FLOATING PARTICLES ============
 function createParticles() {
     const colors = ['#D7CCC8', '#BCAAA4', '#A1887F', '#C8E6C9', '#FFE0B2'];
     for (let i = 0; i < 15; i++) {
@@ -1315,24 +1253,18 @@ function createParticles() {
         p.style.left = (Math.random() * 100) + 'vw';
         p.style.top = (Math.random() * 100) + 'vh';
         document.body.appendChild(p);
-        animateParticle(p);
+        const duration = Math.random() * 15000 + 10000;
+        const xEnd = (Math.random() - 0.5) * 200;
+        const yEnd = (Math.random() - 0.5) * 200;
+        p.animate([
+            { transform: 'translate(0, 0)' },
+            { transform: `translate(${xEnd}px, ${yEnd}px)` }
+        ], { duration, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
     }
 }
 
-function animateParticle(p) {
-    const duration = Math.random() * 15000 + 10000;
-    const xEnd = (Math.random() - 0.5) * 200;
-    const yEnd = (Math.random() - 0.5) * 200;
-    p.animate([
-        { transform: 'translate(0, 0)' },
-        { transform: `translate(${xEnd}px, ${yEnd}px)` }
-    ], { duration, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
-}
-
-// ============ INIT ============
 createParticles();
 updateProgress();
 </script>
-
 
 </body></html>

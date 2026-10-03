@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oral Care Smarts</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;background:#0a1628;min-height:100vh;padding:20px;color:#e0e0e0}
+.container{max-width:680px;margin:0 auto}
+h1{font-family:'Merriweather',serif;font-size:1.3rem;color:#f7d794;text-align:center;margin-bottom:4px}
+.sub{text-align:center;font-size:.8rem;color:#8a8aaa;margin-bottom:16px}
+.progress{text-align:center;font-size:.75rem;color:#5a5a7a;margin-bottom:12px}
+.q-card{background:#1a2a4a;border-radius:14px;padding:24px;border:1px solid #2a3a5a;margin-bottom:14px;display:none;animation:fadeIn .3s ease}
+.q-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.q-text{font-family:'Merriweather',serif;font-size:1rem;color:#f0f0f0;margin-bottom:16px;line-height:1.6}
+.q-note{font-size:.78rem;color:#f39c12;margin-bottom:12px;font-style:italic}
+.option{display:block;width:100%;text-align:left;padding:12px 16px;margin:6px 0;background:#111e36;border:2px solid #2a3a5a;border-radius:8px;color:#c0c0d0;font-size:.85rem;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif;line-height:1.4}
+.option:hover:not(.disabled){background:#1e2e4e;border-color:#4a69bd}
+.option.correct{border-color:#2ecc71;background:rgba(46,204,113,.12);color:#2ecc71}
+.option.wrong{border-color:#e74c3c;background:rgba(231,76,60,.1);color:#e74c3c;animation:shake .4s}
+.option.disabled{pointer-events:none;opacity:.6}
+.option.show-right{border-color:#2ecc71;background:rgba(46,204,113,.12)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:6px;font-size:.82rem;display:none;line-height:1.5}
+.feedback.show{display:block}
+.feedback.fb-ok{background:rgba(46,204,113,.1);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
+.feedback.fb-no{background:rgba(231,76,60,.1);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
+.btn-next{display:none;margin-top:12px;padding:10px 22px;background:#2ecc71;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s}
+.btn-next:hover{background:#27ae60}
+.final{text-align:center;display:none;padding:30px}
+.final.show{display:block;animation:fadeIn .4s ease}
+.final-icon{font-size:3rem;margin-bottom:10px}
+.final-score{font-family:'Merriweather',serif;font-size:2rem;color:#f7d794;margin-bottom:6px}
+.final-msg{color:#b0b0c0;font-size:.9rem;margin-bottom:16px}
+.btn-restart{padding:10px 24px;background:#4a69bd;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer}
+.confetti-box{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:999;overflow:hidden}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🦷 Oral Care Smarts</h1>
+<p class="sub">Test what you've learned — some answers might surprise you!</p>
+<div class="progress" id="prog">Question 1 of 8</div>
+<div id="quizArea"></div>
+<div class="final" id="finalScreen">
+<div class="final-icon" id="fIcon"></div>
+<div class="final-score" id="fScore"></div>
+<div class="final-msg" id="fMsg"></div>
+<button class="btn-restart" onclick="location.reload()">Try Again</button>
+</div>
+</div>
+<div class="confetti-box" id="confettiBox"></div>
+<script>
+(function(){
+var questions=[
+{q:"You just ate an orange (acidic fruit). When should you brush your teeth?",note:"Think about what acid does to enamel temporarily...",opts:["Immediately — get the acid off fast!","Wait about 30 minutes, then brush","Wait at least 2 hours","It doesn't matter when"],correct:1,explain:"Acid temporarily softens the surface of your enamel. Brushing while it's softened causes abrasion damage. Wait 30 minutes for saliva to remineralize the surface, THEN brush."},
+{q:"Which matters MORE for cavity risk: the total AMOUNT of sugar you eat, or the FREQUENCY of sugar exposure?",opts:["Total amount — more sugar = more acid overall","Frequency — each exposure starts a new 20-30 minute acid attack","They're exactly equally important","Neither — it's all about genetics"],correct:1,explain:"Each sugar exposure triggers a ~30 minute acid attack. Three meals = 3 attacks with recovery time between. Constant snacking = constant acid with NO recovery. Frequency is the key variable."},
+{q:"What is the scientific name for the mineral that makes up 96% of tooth enamel?",opts:["Calcium carbonate","Fluorapatite","Hydroxyapatite","Silicon dioxide"],correct:2,explain:"Hydroxyapatite: Ca₁₀(PO₄)₆(OH)₂ — a crystal of calcium, phosphate, and hydroxide. Fluoride converts it to fluorapatite, which is more acid-resistant."},
+{q:"Antibacterial mouthwash kills bacteria. Is this always a good thing?",opts:["Yes — fewer bacteria = healthier mouth, always","No — it kills helpful bacteria too, disrupting the oral ecosystem","No — it only kills the helpful ones and leaves harmful ones","Mouthwash doesn't actually kill any bacteria"],correct:1,explain:"Strong antiseptic mouthwash wipes out the entire oral ecosystem — including helpful species that compete with harmful ones. A fluoride rinse may be better for daily use: it strengthens enamel without nuking the microbiome."},
+{q:"How can bacteria in your MOUTH cause problems in your HEART?",opts:["Sugar from food travels through blood to the heart","Bacteria enter the bloodstream through inflamed gums and travel to the heart","Tooth pain causes stress which damages the heart","The mouth and heart aren't actually connected"],correct:1,explain:"Inflamed, bleeding gums create open wounds. Oral bacteria enter the bloodstream through these wounds, travel to the heart, and can contribute to inflammation in blood vessels or infect heart valves."},
+{q:"Why did ancient humans (before agriculture) have far fewer cavities than modern humans?",opts:["They had stronger enamel due to evolution","Their diet had very little sugar or refined carbohydrates","They brushed their teeth with special plants","They didn't live long enough to get cavities"],correct:1,explain:"Pre-agriculture diets consisted of meat, nuts, roots, and fibrous plants — very little sugar. Agriculture brought grains (carbohydrates that break down into sugar), and modern food processing added massive amounts of refined sugar. Cavities are largely a disease of our changed diet."},
+{q:"Fluoride protects teeth by converting hydroxyapatite into fluorapatite. What specific advantage does this give?",opts:["Fluorapatite is 10× harder than hydroxyapatite","Fluorapatite begins dissolving at pH 4.5 instead of 5.5 — more acid-resistant","Fluorapatite can regenerate itself when damaged","Fluorapatite is invisible to bacteria"],correct:1,explain:"Fluorapatite has a lower critical pH (4.5 vs 5.5). This means enamel with fluoride can withstand more acid before demineralization begins. It doesn't make teeth invincible — just raises the threshold."},
+{q:"Sugar-free chewing gum can actually be GOOD for your teeth. Why?",opts:["The artificial sweetener kills bacteria","Chewing stimulates saliva flow, which buffers acid and provides minerals for remineralization","The gum physically scrubs plaque off teeth","Sugar-free gum contains fluoride"],correct:1,explain:"Chewing stimulates saliva production. Saliva contains calcium, phosphate (for remineralization), antibacterial enzymes, and buffering agents that neutralize acid. The mechanical action also helps dislodge food particles."}
+];
+var current=0,score=0,audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+function playTone(f,d,t){try{var c=getAudio();var o=c.createOscillator();var g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t||"sine";o.frequency.value=f;g.gain.value=.1;o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
+function playOk(){playTone(523,.08);setTimeout(function(){playTone(659,.08)},80);setTimeout(function(){playTone(784,.12)},160)}
+function playNo(){playTone(200,.15,"square")}
+var area=document.getElementById("quizArea");
+function buildQ(idx){
+var q=questions[idx];
+var card=document.createElement("div");card.className="q-card"+(idx===0?" active":"");card.id="qc-"+idx;
+var html='<div class="q-text">'+q.q+'</div>';
+if(q.note)html+='<div class="q-note">'+q.note+'</div>';
+for(var i=0;i<q.opts.length;i++){
+html+='<button class="option" data-idx="'+i+'">'+q.opts[i]+'</button>';
+}
+html+='<div class="feedback" id="fb-'+idx+'"></div>';
+html+='<button class="btn-next" id="nx-'+idx+'">Next →</button>';
+card.innerHTML=html;
+area.appendChild(card);
+var opts=card.querySelectorAll(".option");
+for(var o=0;o<opts.length;o++){
+opts[o].addEventListener("click",function(){handleAnswer(idx,parseInt(this.dataset.idx),this)});
+}
+var nxBtn=card.querySelector(".btn-next");
+nxBtn.addEventListener("click",function(){nextQ(idx)});
+}
+function handleAnswer(qIdx,optIdx,btn){
+var q=questions[qIdx];var card=document.getElementById("qc-"+qIdx);
+var opts=card.querySelectorAll(".option");
+for(var i=0;i<opts.length;i++){opts[i].classList.add("disabled");if(parseInt(opts[i].dataset.idx)===q.correct)opts[i].classList.add("show-right")}
+var fb=document.getElementById("fb-"+qIdx);
+if(optIdx===q.correct){
+btn.classList.remove("show-right");btn.classList.add("correct");
+fb.textContent="✅ "+q.explain;fb.className="feedback show fb-ok";score++;playOk();confetti();
+}else{
+btn.classList.add("wrong");
+fb.textContent="❌ "+q.explain;fb.className="feedback show fb-no";playNo();
+}
+document.getElementById("nx-"+qIdx).style.display="inline-block";
+}
+function nextQ(fromIdx){
+document.getElementById("qc-"+fromIdx).classList.remove("active");
+current=fromIdx+1;
+if(current>=questions.length){showFinal();return}
+document.getElementById("qc-"+current).classList.add("active");
+document.getElementById("prog").textContent="Question "+(current+1)+" of "+questions.length;
+window.scrollTo({top:0,behavior:"smooth"});
+}
+function showFinal(){
+document.getElementById("prog").style.display="none";
+var f=document.getElementById("finalScreen");f.classList.add("show");
+document.getElementById("fScore").textContent=score+" / "+questions.length;
+if(score>=7){document.getElementById("fIcon").textContent="🌟";document.getElementById("fMsg").textContent="Outstanding! You know more about oral science than most adults.";confetti();setTimeout(confetti,400)}
+else if(score>=5){document.getElementById("fIcon").textContent="🦷";document.getElementById("fMsg").textContent="Great work! Solid understanding of oral health science.";confetti()}
+else if(score>=3){document.getElementById("fIcon").textContent="👍";document.getElementById("fMsg").textContent="Good start — review the explanations and try again!"}
+else{document.getElementById("fIcon").textContent="🔬";document.getElementById("fMsg").textContent="Tricky questions! Read the explanations carefully and give it another go."}
+}
+for(var i=0;i<questions.length;i++)buildQ(i);
+function confetti(){var c=document.getElementById("confettiBox");var cols=["#f7d794","#2ecc71","#3498db","#e74c3c","#9b59b6","#e84393"];for(var i=0;i<25;i++){var p=document.createElement("div");p.style.cssText="position:absolute;width:"+(4+Math.random()*6)+"px;height:"+(4+Math.random()*6)+"px;background:"+cols[Math.floor(Math.random()*cols.length)]+";border-radius:"+(Math.random()>.5?"50%":"2px")+";left:"+Math.random()*100+"%;top:-10px;";var dx=Math.random()*150-75;p.animate([{transform:"translateY(0) rotate(0deg)",opacity:1},{transform:"translateY("+(window.innerHeight+40)+"px) translateX("+dx+"px) rotate("+(Math.random()*720)+"deg)",opacity:0}],{duration:1400+Math.random()*800,easing:"cubic-bezier(.25,.46,.45,.94)"});c.appendChild(p);(function(el){setTimeout(function(){el.remove()},2500)})(p)}
+}
+})();
+</script>
+
+
+</body></html>

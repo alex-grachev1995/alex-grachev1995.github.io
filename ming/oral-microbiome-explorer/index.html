@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oral Microbiome Explorer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;background:linear-gradient(180deg,#2a0a10 0%,#1a0a14 100%);min-height:100vh;padding:16px;color:#e0e0e0}
+.container{max-width:860px;margin:0 auto}
+h1{font-family:'Merriweather',serif;font-size:1.3rem;color:#f7d794;text-align:center;margin-bottom:4px}
+.sub{text-align:center;font-size:.8rem;color:#c08a8a;margin-bottom:14px}
+
+.mouth-scene{position:relative;background:linear-gradient(180deg,#6b1a2a 0%,#8b2a3f 20%,#a33a52 50%,#8b2a3f 80%,#6b1a2a 100%);border-radius:50% 50% 45% 45%/40% 40% 60% 60%;height:300px;margin-bottom:14px;overflow:hidden;border:2px solid #4a0a1a;box-shadow:inset 0 0 40px rgba(0,0,0,.4)}
+.teeth-row{position:absolute;left:8%;right:8%;display:flex;justify-content:center;gap:2px}
+.teeth-top{top:6px}.teeth-bot{bottom:6px}
+.tooth{width:26px;height:20px;background:linear-gradient(180deg,#f5edd8,#e8dcc4);border-radius:3px 3px 7px 7px;border:1px solid #c4b89a}
+.teeth-bot .tooth{border-radius:7px 7px 3px 3px}
+.tongue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:55%;height:32%;background:radial-gradient(ellipse,#c45a68 0%,#a04050 60%,#803040 100%);border-radius:50% 50% 40% 40%;opacity:.7}
+.info-dot{position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(247,215,148,.12);border:2px solid rgba(247,215,148,.35);display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;transition:all .2s;z-index:10}
+.info-dot:hover{background:rgba(247,215,148,.25);transform:scale(1.15)}
+
+.bacteria-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;min-height:50px;padding:12px;background:rgba(80,20,30,.4);border-radius:10px;border:1px dashed #5a2a3a}
+.bact-card{padding:8px 14px;background:#3a1520;border:2px solid #5a2a3a;border-radius:20px;cursor:pointer;transition:all .2s;font-size:.8rem;display:flex;align-items:center;gap:6px;user-select:none}
+.bact-card:hover{border-color:#f7d794;transform:translateY(-2px)}
+.bact-card.read{border-color:#6a4a5a}
+.bact-card .hand-icon{display:none;font-size:.9rem;cursor:grab}
+.bact-card.ready .hand-icon{display:inline}
+.bact-card.selected{border-color:#f7d794;box-shadow:0 0 10px rgba(247,215,148,.3);background:#4a1a2a}
+.bact-card.placed{opacity:.4;cursor:default;pointer-events:none}
+
+.sort-area{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sort-col{flex:1;min-width:155px}
+.sort-header{padding:8px 12px;border-radius:8px 8px 0 0;text-align:center;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:1px}
+.sh-help{background:#1a5a3a;color:#7dcea0}
+.sh-neut{background:#5a4a0a;color:#f0c040}
+.sh-harm{background:#5a1a1a;color:#f08080}
+.sort-body{min-height:80px;background:rgba(40,10,18,.5);border-radius:0 0 8px 8px;border:2px dashed #4a2a3a;padding:6px;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:border-color .2s}
+.sort-body:hover{border-color:#6a4a5a}
+.sorted-item{padding:5px 10px;background:#3a1520;border-radius:6px;font-size:.75rem;display:flex;align-items:center;gap:5px;border:1px solid #5a2a3a}
+.sorted-item.correct{border-color:#2ecc71;background:rgba(46,204,113,.08)}
+.sorted-item.wrong{border-color:#e74c3c;background:rgba(231,76,60,.08)}
+
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif}
+.btn-check{background:#4a69bd;color:#fff}.btn-check:hover{background:#3a59ad}
+.btn-reset{background:#5a3a3a;color:#c0a0a0;border:1px solid #6a4a4a}.btn-reset:hover{background:#6a4a4a;color:#e0c0c0}
+.feedback-bar{text-align:center;padding:10px;border-radius:8px;margin-top:10px;font-size:.85rem;display:none}
+.feedback-bar.show{display:block}
+.feedback-bar.success{background:rgba(46,204,113,.1);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
+.feedback-bar.error{background:rgba(231,76,60,.1);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
+
+.popup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,4,6,.85);display:none;z-index:100;align-items:center;justify-content:center;padding:20px}
+.popup-overlay.show{display:flex}
+.popup{background:#2a1018;border-radius:14px;padding:24px;max-width:420px;width:100%;border:1px solid #5a2a3a;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.popup h3{font-family:'Merriweather',serif;font-size:1rem;color:#f7d794;margin-bottom:4px}
+.popup .pronunciation{font-size:.85rem;color:#c08a9a;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.popup .speak-btn{cursor:pointer;font-size:1.1rem;transition:transform .2s;display:inline-block}
+.popup .speak-btn:hover{transform:scale(1.2)}
+.popup p{font-size:.85rem;line-height:1.65;color:#c0a0a8;margin-bottom:6px}
+.popup .tap-hint{font-size:.7rem;color:#6a4a5a;text-align:center;margin-top:14px;font-style:italic}
+
+@media(max-width:600px){.sort-area{flex-direction:column}.mouth-scene{height:220px}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🦠 The Oral Microbiome</h1>
+<p class="sub">Click each bacterium to learn about it · Then sort them into the correct category</p>
+
+<div class="mouth-scene" id="mouthScene">
+<div class="teeth-row teeth-top" id="topTeeth"></div>
+<div class="tongue"></div>
+<div class="teeth-row teeth-bot" id="botTeeth"></div>
+</div>
+
+<div class="bacteria-pool" id="bactPool"></div>
+
+<div class="sort-area">
+<div class="sort-col"><div class="sort-header sh-help">😊 Helpful</div><div class="sort-body" data-cat="helpful" id="colHelp"></div></div>
+<div class="sort-col"><div class="sort-header sh-neut">😐 Neutral / Context-Dependent</div><div class="sort-body" data-cat="neutral" id="colNeut"></div></div>
+<div class="sort-col"><div class="sort-header sh-harm">😡 Harmful</div><div class="sort-body" data-cat="harmful" id="colHarm"></div></div>
+</div>
+
+<div class="btn-row">
+<button class="btn btn-check" id="btnCheck">Check Sorting</button>
+<button class="btn btn-reset" id="btnReset">Reset</button>
+</div>
+<div class="feedback-bar" id="feedbackBar"></div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+<div class="popup" id="popup">
+<h3 id="popupTitle"></h3>
+<div class="pronunciation" id="popupPronunciation"></div>
+<p id="popupText"></p>
+<div class="tap-hint">Tap anywhere outside to close</div>
+</div>
+</div>
+
+<script>
+(function(){
+// Teeth
+var topT=document.getElementById("topTeeth"),botT=document.getElementById("botTeeth");
+for(var t=0;t<14;t++){var th=document.createElement("div");th.className="tooth";topT.appendChild(th);var tb=document.createElement("div");tb.className="tooth";botT.appendChild(tb)}
+
+// Bacteria data
+var bacteria=[
+{name:"S. salivarius K12",fullName:"Streptococcus salivarius K12",pronunciation:"strep-toh-KOK-us sal-ih-VAIR-ee-us",cat:"helpful",desc:"One of the very first bacteria to colonize a newborn's mouth. Produces powerful antimicrobial compounds (called BLIS) that fight throat and ear infections. Now used commercially in oral probiotic supplements. Competes directly with harmful species for attachment sites on oral surfaces."},
+{name:"L. reuteri",fullName:"Lactobacillus reuteri",pronunciation:"lak-toh-buh-SIL-us ROY-ter-eye",cat:"helpful",desc:"A probiotic species that actively fights harmful bacteria through multiple mechanisms: it produces antimicrobial substances, reduces gum inflammation, and helps maintain balanced microbial ecology. Found naturally in fermented foods. Clinical studies show it reduces gingivitis and plaque formation."},
+{name:"S. sanguinis",fullName:"Streptococcus sanguinis",pronunciation:"strep-toh-KOK-us SANG-gwih-nis",cat:"neutral",desc:"An early colonizer of tooth surfaces — one of the first species to set up on clean enamel. Generally peaceful and actually competes with the cavity-causing S. mutans for space (so having it around can be protective). However, if it enters the bloodstream through gum wounds, it's one of the leading causes of infective endocarditis (heart valve infection). Helpful in the mouth, dangerous in the blood."},
+{name:"Veillonella",fullName:"Veillonella parvula",pronunciation:"vay-oh-NEL-uh PAR-vyoo-lah",cat:"neutral",desc:"Has an unusual diet: it feeds on the lactic acid produced by OTHER bacteria — essentially cleaning up their waste product. This actually helps neutralize acid and raise the pH near teeth (protective effect). However, it's also an early biofilm former and contributes to plaque architecture. In thick, mature biofilms it can become part of the problem rather than the solution."},
+{name:"Actinomyces",fullName:"Actinomyces naeslundii",pronunciation:"ak-TIN-oh-my-seez nay-SLUN-dee-eye",cat:"neutral",desc:"A normal, abundant resident of the healthy mouth involved in early plaque development on root surfaces. Usually kept in check by the immune system and competing species. Can cause serious infections (actinomycosis) in damaged tissue when the ecological balance is disrupted — particularly in people with poor immune function or after dental procedures."},
+{name:"S. mutans",fullName:"Streptococcus mutans",pronunciation:"strep-toh-KOK-us MEW-tanz",cat:"harmful",desc:"The undisputed #1 cavity villain in the human mouth. Uniquely dangerous because of three abilities: (1) converts dietary sugar directly into lactic acid at high rates, (2) is highly acid-TOLERANT itself — thrives in the acidic environment it creates while other species die, (3) produces sticky glucan polymers that cement it firmly to tooth surfaces, making it extremely hard to remove. The more sugar you eat, the more it dominates your oral ecosystem."},
+{name:"P. gingivalis",fullName:"Porphyromonas gingivalis",pronunciation:"por-fih-ROH-moh-nas jin-jih-VAL-is",cat:"harmful",desc:"The keystone pathogen of severe periodontal (gum) disease. Uniquely terrifying because it doesn't even need sugar — it feeds on proteins and iron from your blood when your gums bleed. It actively suppresses your immune system to keep inflammation going. Has been found in the brain plaques of Alzheimer's patients and in atherosclerotic plaques in arteries. Linked to heart disease, stroke, and possibly dementia."},
+{name:"F. nucleatum",fullName:"Fusobacterium nucleatum",pronunciation:"fyoo-zoh-bak-TEER-ee-um noo-klee-AY-tum",cat:"harmful",desc:"Known as 'the bridge builder' of the oral biofilm. Early colonizers (like S. sanguinis) can't directly connect to late-stage pathogens (like P. gingivalis) — but F. nucleatum physically bridges them, acting as a scaffold that lets dangerous species join the community. Without it, mature pathogenic biofilms struggle to form. Also independently linked to colorectal cancer and adverse pregnancy outcomes. A key enabler of disease communities."}
+];
+
+// Info dots
+var infoDots=[
+{x:50,y:44,icon:"🔬",title:"Biofilm (Plaque)",text:"Plaque isn't just random bacteria floating around. It's a highly organized BIOFILM — a 3D community with architecture, communication channels, and protective outer walls (the extracellular matrix). This structure makes bacteria up to 1,000× more resistant to antibiotics than free-floating bacteria. That's why you must physically SCRUB it off — chemicals alone can't penetrate the matrix."},
+{x:80,y:22,icon:"🪨",title:"Tartar (Calculus)",text:"If plaque isn't removed within 24-72 hours, minerals from your saliva (calcium and phosphate) crystallize into it, forming tartar — a rock-hard deposit that can only be removed by a dentist with special ultrasonic tools. Tartar's rough surface provides ideal attachment points for MORE plaque, creating a vicious cycle of buildup."},
+{x:20,y:72,icon:"👅",title:"Clean Your Tongue",text:"Your tongue's rough, papillae-covered surface is the #1 hiding place for bacteria that produce volatile sulfur compounds — the 'rotten egg' smell of bad breath (halitosis). The very back of the tongue especially harbors anaerobic bacteria in the crevices between papillae. Brushing or scraping the tongue removes this layer and significantly reduces bad breath."},
+{x:78,y:65,icon:"💧",title:"Saliva: Your Secret Weapon",text:"Saliva isn't just water — it's a sophisticated defense fluid. Contains: calcium and phosphate ions (for remineralization), lysozyme and lactoferrin (antibacterial enzymes), immunoglobulin A (immune defense), and bicarbonate buffers that neutralize acid. You produce about 0.5-1 liter per day. Dry mouth (from medications, breathing, dehydration) dramatically increases cavity risk because this defense system stops working."},
+{x:18,y:28,icon:"🧴",title:"Antibacterial Mouthwash: A Tradeoff",text:"Chlorhexidine and similar strong antiseptic rinses kill bacteria indiscriminately — including the helpful species that compete with pathogens. This can temporarily disrupt your oral ecosystem's balance. For daily use, a fluoride rinse (strengthens enamel without killing the microbiome) or a gentle prebiotic rinse may be better. Save the nuclear option for when a dentist specifically prescribes it."},
+{x:50,y:82,icon:"🍭",title:"Diet: Frequency > Quantity",text:"It's not how MUCH sugar you eat — it's how OFTEN. Each sugar exposure triggers a 20-30 minute acid attack as bacteria metabolize it. Three meals a day = 3 attacks with recovery time between. Constant snacking or sipping sugary drinks = constant acid attack with NO recovery window. Your teeth can handle intermittent challenges; they cannot handle continuous siege."}
+];
+
+// Build scene
+var scene=document.getElementById("mouthScene");
+for(var d=0;d<infoDots.length;d++){
+var dot=document.createElement("div");dot.className="info-dot";
+dot.style.left=infoDots[d].x+"%";dot.style.top=infoDots[d].y+"%";
+dot.textContent=infoDots[d].icon;dot.dataset.idx=d;
+dot.addEventListener("click",function(ev){
+ev.stopPropagation();
+var i=parseInt(this.dataset.idx);
+showInfoPopup(infoDots[i].icon+" "+infoDots[i].title,null,null,infoDots[i].text);
+});
+scene.appendChild(dot);
+}
+
+// Build bacteria pool (shuffled)
+var shuffled=bacteria.slice();
+for(var s=shuffled.length-1;s>0;s--){var r=Math.floor(Math.random()*(s+1));var tmp=shuffled[s];shuffled[s]=shuffled[r];shuffled[r]=tmp}
+var pool=document.getElementById("bactPool");
+for(var b=0;b<shuffled.length;b++){
+var card=document.createElement("div");card.className="bact-card";
+card.dataset.name=shuffled[b].name;card.dataset.fullname=shuffled[b].fullName;
+card.dataset.cat=shuffled[b].cat;card.dataset.desc=shuffled[b].desc;
+card.dataset.pronunciation=shuffled[b].pronunciation;card.dataset.read="false";
+card.innerHTML='<span class="hand-icon">✋</span><span class="bact-name">🦠 '+shuffled[b].name+'</span>';
+pool.appendChild(card);
+}
+
+var selectedBact=null;
+var currentPopupTarget=null;
+
+// Click bacteria card
+pool.addEventListener("click",function(ev){
+var card=ev.target.closest(".bact-card");
+if(!card||card.classList.contains("placed"))return;
+
+// If clicking the hand icon on a ready card
+if(ev.target.classList.contains("hand-icon")&&card.classList.contains("ready")){
+  if(selectedBact)selectedBact.classList.remove("selected");
+  if(selectedBact===card){selectedBact=null;return}
+  card.classList.add("selected");selectedBact=card;
+  return;
+}
+
+// If card is already ready, clicking the name reopens info
+if(card.classList.contains("ready")&&!ev.target.classList.contains("hand-icon")){
+  showBactPopup(card);
+  return;
+}
+
+// First click: show info popup
+if(card.dataset.read==="false"){
+  showBactPopup(card);
+}else if(card.classList.contains("ready")){
+  // Already read, click hand to select
+}
+});
+
+function showBactPopup(card){
+currentPopupTarget=card;
+var fullName=card.dataset.fullname;
+var pron=card.dataset.pronunciation;
+var desc=card.dataset.desc;
+document.getElementById("popupTitle").textContent=fullName;
+document.getElementById("popupPronunciation").innerHTML='<span class="speak-btn" id="speakBtn">🔊</span> <em>'+pron+'</em>';
+document.getElementById("popupText").textContent=desc;
+document.getElementById("popupOverlay").classList.add("show");
+// Attach speak handler
+setTimeout(function(){
+  var sb=document.getElementById("speakBtn");
+  if(sb){sb.onclick=function(e){e.stopPropagation();speakName(fullName)}}
+},50);
+}
+
+function showInfoPopup(title,fullName,pron,text){
+currentPopupTarget=null;
+document.getElementById("popupTitle").textContent=title;
+document.getElementById("popupPronunciation").innerHTML="";
+document.getElementById("popupText").textContent=text;
+document.getElementById("popupOverlay").classList.add("show");
+}
+
+function speakName(name){
+if('speechSynthesis' in window){
+  var u=new SpeechSynthesisUtterance(name);
+  u.rate=0.8;u.pitch=1;u.lang='en-US';
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+}
+
+// Close popup
+document.getElementById("popupOverlay").addEventListener("click",function(ev){
+if(ev.target.closest(".popup")&&!ev.target.closest(".speak-btn"))return;
+if(ev.target.closest(".speak-btn"))return;
+this.classList.remove("show");
+// Mark the bacteria as read and show hand
+if(currentPopupTarget&&currentPopupTarget.dataset.read==="false"){
+  currentPopupTarget.dataset.read="true";
+  currentPopupTarget.classList.add("read","ready");
+}
+currentPopupTarget=null;
+});
+
+// Also close when clicking outside popup
+document.getElementById("popup").addEventListener("click",function(ev){
+ev.stopPropagation();
+});
+
+// Sort columns
+var cols=document.querySelectorAll(".sort-body");
+for(var c=0;c<cols.length;c++){
+cols[c].addEventListener("click",function(){
+  if(!selectedBact)return;
+  var item=document.createElement("div");item.className="sorted-item";
+  item.dataset.name=selectedBact.dataset.name;item.dataset.cat=selectedBact.dataset.cat;
+  item.innerHTML='🦠 '+selectedBact.dataset.name;
+  this.appendChild(item);
+  selectedBact.classList.remove("selected");selectedBact.classList.add("placed");
+  selectedBact=null;
+});
+}
+
+// Check
+document.getElementById("btnCheck").addEventListener("click",function(){
+var allItems=document.querySelectorAll(".sorted-item");
+var total=0,correct=0;
+for(var i=0;i<allItems.length;i++){
+  total++;
+  var parent=allItems[i].closest(".sort-body");
+  if(parent.dataset.cat===allItems[i].dataset.cat){
+    allItems[i].classList.add("correct");allItems[i].classList.remove("wrong");correct++;
+  }else{
+    allItems[i].classList.add("wrong");allItems[i].classList.remove("correct");
+  }
+}
+var fb=document.getElementById("feedbackBar");
+var unplaced=document.querySelectorAll(".bact-card:not(.placed)");
+if(unplaced.length>0){
+  fb.textContent="Sort all bacteria before checking!";fb.className="feedback-bar show error";return;
+}
+if(correct===total){
+  fb.textContent="🎉 Perfect! All "+total+" bacteria correctly categorized!";fb.className="feedback-bar show success";
+  confetti();
+}else{
+  fb.textContent="✗ "+correct+"/"+total+" correct. Red items are wrong — they'll return to the pool for re-sorting.";fb.className="feedback-bar show error";
+  setTimeout(function(){
+    var wrongs=document.querySelectorAll(".sorted-item.wrong");
+    for(var w=0;w<wrongs.length;w++){
+      var nm=wrongs[w].dataset.name;
+      var poolCards=pool.querySelectorAll(".bact-card");
+      for(var p=0;p<poolCards.length;p++){
+        if(poolCards[p].dataset.name===nm){poolCards[p].classList.remove("placed");break}
+      }
+      wrongs[w].remove();
+    }
+  },2000);
+}
+});
+
+// Reset
+document.getElementById("btnReset").addEventListener("click",function(){
+var items=document.querySelectorAll(".sorted-item");for(var i=0;i<items.length;i++)items[i].remove();
+var cards=pool.querySelectorAll(".bact-card");for(var c=0;c<cards.length;c++){cards[c].classList.remove("placed","selected")}
+selectedBact=null;
+document.getElementById("feedbackBar").className="feedback-bar";
+});
+
+function confetti(){var box=document.createElement("div");box.style.cssText="position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:999;overflow:hidden";document.body.appendChild(box);var cols=["#f7d794","#2ecc71","#3498db","#e74c3c","#9b59b6","#ff6b6b"];for(var i=0;i<30;i++){var p=document.createElement("div");p.style.cssText="position:absolute;width:"+(4+Math.random()*6)+"px;height:"+(4+Math.random()*6)+"px;background:"+cols[Math.floor(Math.random()*cols.length)]+";border-radius:"+(Math.random()>.5?"50%":"2px")+";left:"+Math.random()*100+"%;top:-10px;";var dx=Math.random()*120-60;p.animate([{transform:"translateY(0) rotate(0deg)",opacity:1},{transform:"translateY("+(window.innerHeight+30)+"px) translateX("+dx+"px) rotate("+(Math.random()*720)+"deg)",opacity:0}],{duration:1300+Math.random()*700,easing:"cubic-bezier(.25,.46,.45,.94)"});box.appendChild(p)}setTimeout(function(){box.remove()},2200)}
+})();
+</script>
+
+
+</body></html>

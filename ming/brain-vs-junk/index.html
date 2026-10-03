@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain vs. Junk — Chain Matching</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;background:#0a1a2a;min-height:100vh;padding:16px;color:#e0e0e0}
+.container{max-width:860px;margin:0 auto}
+.header{text-align:center;margin-bottom:16px}
+.header h1{font-family:'Merriweather',serif;font-size:1.3rem;color:#f7d794;margin-bottom:4px}
+.header p{font-size:.8rem;color:#7a9aba}
+.instructions{background:#122a40;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:.78rem;color:#7a9aba;border:1px solid #1e3a55;text-align:center}
+.instructions strong{color:#f7d794}
+
+.chains-area{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.chain-row{display:flex;align-items:center;gap:6px;background:#0d1e30;border-radius:10px;padding:10px 12px;border:1px solid #1a2a40;transition:all .3s}
+.chain-row.locked{background:#0a2a1a;border-color:#2ecc71;opacity:.85}
+.chain-row.locked .slot{border-color:#2ecc71;background:rgba(46,204,113,.08)}
+.chain-row.shaking{animation:rowShake .4s ease}
+@keyframes rowShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.slot{min-width:140px;min-height:44px;border:2px dashed #2a3a50;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:.78rem;color:#5a7a8a;text-align:center;cursor:pointer;transition:all .2s;line-height:1.3}
+.slot:hover:not(.filled):not(.locked-slot){border-color:#f7d794}
+.slot.filled{border:2px solid #4a69bd;background:rgba(74,105,189,.1);color:#c0d8f0;cursor:pointer}
+.slot.filled:hover:not(.locked-slot){background:rgba(74,105,189,.2)}
+.slot.locked-slot{cursor:default;border-color:#2ecc71;color:#7dcea0}
+.chain-arrow{font-size:1.2rem;color:#3a4a5a;flex-shrink:0}
+.chain-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:#3a5a6a;width:50px;text-align:center;flex-shrink:0}
+.btn-check-row{padding:8px 14px;background:#4a69bd;color:#fff;border:none;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0}
+.btn-check-row:hover{background:#3a59ad;transform:translateY(-1px)}
+.btn-check-row:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.btn-check-row.correct-btn{background:#2ecc71}
+.row-lock-icon{font-size:1rem;flex-shrink:0;display:none}
+.chain-row.locked .row-lock-icon{display:block}
+.chain-row.locked .btn-check-row{display:none}
+
+.pool-area{background:#122a40;border-radius:12px;padding:14px;border:1px solid #1e3a55;margin-bottom:14px}
+.pool-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:#4a6a7a;margin-bottom:8px;text-align:center}
+.pool-section{margin-bottom:10px}
+.pool-section-title{font-size:.7rem;color:#5a8aaa;margin-bottom:6px;font-weight:700}
+.pool-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chip{padding:7px 12px;background:#0a1a2a;border:2px solid #2a3a50;border-radius:16px;font-size:.75rem;cursor:pointer;transition:all .2s;user-select:none;color:#a0c0d8}
+.chip:hover:not(.used){border-color:#f7d794;transform:translateY(-2px)}
+.chip.selected{border-color:#f7d794;background:#1a2a3a;box-shadow:0 0 8px rgba(247,215,148,.2)}
+.chip.used{opacity:.3;cursor:default;pointer-events:none}
+
+.score-bar{text-align:center;padding:10px;background:#122a40;border-radius:8px;border:1px solid #1e3a55;font-size:.85rem;color:#5a8aaa}
+.score-bar.done{color:#2ecc71;border-color:#2ecc71;background:rgba(46,204,113,.05)}
+
+.confetti-box{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:999;overflow:hidden}
+@media(max-width:700px){.chain-row{flex-wrap:wrap;justify-content:center}.slot{min-width:110px;font-size:.72rem}.chain-label{width:40px;font-size:.55rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🧠 Brain vs. Junk — Chain Matching</h1>
+<p>Build 6 chains: Food → Molecule → Brain Effect</p>
+</div>
+<div class="instructions"><strong>How to play:</strong> Click a chip from the pool below → click an empty slot to place it. Fill all 3 slots in a row, then click ✓ to check. Correct chains lock in place!</div>
+
+<div class="chains-area" id="chainsArea"></div>
+
+<div class="pool-area">
+<div class="pool-label">Available pieces — click to select, then click a slot</div>
+<div class="pool-section"><div class="pool-section-title">🍽️ Foods</div><div class="pool-chips" id="poolFood"></div></div>
+<div class="pool-section"><div class="pool-section-title">🧬 Molecules</div><div class="pool-chips" id="poolMol"></div></div>
+<div class="pool-section"><div class="pool-section-title">⚡ Brain Effects</div><div class="pool-chips" id="poolEffect"></div></div>
+</div>
+
+<div class="score-bar" id="scoreBar">Chains locked: 0 / 6</div>
+</div>
+<div class="confetti-box" id="confettiBox"></div>
+
+<script>
+(function(){
+var chains=[
+{food:"Salmon (fatty fish)",mol:"Omega-3 DHA",effect:"Builds flexible brain cell membranes → faster signaling",type:"good"},
+{food:"Eggs (for breakfast)",mol:"Choline",effect:"Produces acetylcholine → memory formation & learning",type:"good"},
+{food:"Blueberries",mol:"Anthocyanins (antioxidants)",effect:"Neutralize free radicals → protect neurons from damage",type:"good"},
+{food:"Energy drinks at 4pm",mol:"Caffeine (high dose, late)",effect:"Blocks adenosine receptors → disrupts sleep for 10+ hours",type:"bad"},
+{food:"Soda every hour",mol:"Repeated glucose spikes",effect:"Spike-crash-spike cycle → attention crashes & irritability",type:"bad"},
+{food:"Fast food daily",mol:"Trans fats",effect:"Embed in cell membranes → make them rigid & dysfunctional",type:"bad"}
+];
+
+// Shuffle each column independently
+function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+var foodItems=shuffle(chains.map(function(c){return c.food}));
+var molItems=shuffle(chains.map(function(c){return c.mol}));
+var effectItems=shuffle(chains.map(function(c){return c.effect}));
+
+// Build chain rows
+var chainsArea=document.getElementById("chainsArea");
+var rowData=[];
+for(var r=0;r<6;r++){
+var row=document.createElement("div");row.className="chain-row";row.id="row-"+r;
+row.innerHTML='<div class="chain-label">Food</div><div class="slot" data-row="'+r+'" data-col="0">?</div><div class="chain-arrow">→</div><div class="chain-label">Molecule</div><div class="slot" data-row="'+r+'" data-col="1">?</div><div class="chain-arrow">→</div><div class="chain-label">Effect</div><div class="slot" data-row="'+r+'" data-col="2">?</div><button class="btn-check-row" data-row="'+r+'" disabled>✓</button><span class="row-lock-icon">✅</span>';
+chainsArea.appendChild(row);
+rowData.push([null,null,null]);
+}
+
+// Build pools
+function buildPool(items,containerId,col){
+var container=document.getElementById(containerId);
+for(var i=0;i<items.length;i++){
+var chip=document.createElement("div");chip.className="chip";chip.dataset.value=items[i];chip.dataset.col=col;
+chip.textContent=items[i];container.appendChild(chip);
+}
+}
+buildPool(foodItems,"poolFood","0");
+buildPool(molItems,"poolMol","1");
+buildPool(effectItems,"poolEffect","2");
+
+var selectedChip=null,locked=0,audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+function playTone(f,d,t){try{var c=getAudio();var o=c.createOscillator();var g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t||"sine";o.frequency.value=f;g.gain.value=.1;o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
+function playOk(){playTone(523,.06);setTimeout(function(){playTone(659,.06)},60);setTimeout(function(){playTone(784,.06)},120);setTimeout(function(){playTone(1047,.1)},180)}
+function playNo(){playTone(150,.2,"sawtooth")}
+function playClick(){playTone(880,.03)}
+function playPlace(){playTone(440,.05)}
+
+// Chip selection
+document.querySelectorAll(".pool-chips").forEach(function(pool){
+pool.addEventListener("click",function(ev){
+var chip=ev.target.closest(".chip");
+if(!chip||chip.classList.contains("used"))return;
+if(selectedChip)selectedChip.classList.remove("selected");
+if(selectedChip===chip){selectedChip=null;return}
+chip.classList.add("selected");selectedChip=chip;playClick();
+});
+});
+
+// Slot clicking
+chainsArea.addEventListener("click",function(ev){
+var slot=ev.target.closest(".slot");
+if(slot&&!slot.classList.contains("locked-slot")){
+var r=parseInt(slot.dataset.row),c=parseInt(slot.dataset.col);
+if(document.getElementById("row-"+r).classList.contains("locked"))return;
+// If slot already filled, clicking it removes the value
+if(slot.classList.contains("filled")){
+var val=slot.dataset.value;
+// Return chip to pool
+var chips=document.querySelectorAll('.chip[data-col="'+c+'"]');
+for(var i=0;i<chips.length;i++){if(chips[i].dataset.value===val){chips[i].classList.remove("used");break}}
+slot.textContent="?";slot.classList.remove("filled");slot.removeAttribute("data-value");
+rowData[r][c]=null;
+checkRowComplete(r);
+return;
+}
+// Place selected chip
+if(!selectedChip)return;
+var chipCol=parseInt(selectedChip.dataset.col);
+if(chipCol!==c)return;// Must match column type
+slot.textContent=selectedChip.dataset.value;
+slot.classList.add("filled");slot.dataset.value=selectedChip.dataset.value;
+rowData[r][c]=selectedChip.dataset.value;
+selectedChip.classList.remove("selected");selectedChip.classList.add("used");
+selectedChip=null;playPlace();
+checkRowComplete(r);
+return;
+}
+// Check button
+var btn=ev.target.closest(".btn-check-row");
+if(btn){
+var rowIdx=parseInt(btn.dataset.row);checkRow(rowIdx);
+}
+});
+
+function checkRowComplete(r){
+var btn=document.querySelector('.btn-check-row[data-row="'+r+'"]');
+if(rowData[r][0]&&rowData[r][1]&&rowData[r][2]){btn.disabled=false}else{btn.disabled=true}
+}
+
+function checkRow(r){
+var food=rowData[r][0],mol=rowData[r][1],eff=rowData[r][2];
+var correct=false;
+for(var i=0;i<chains.length;i++){
+if(chains[i].food===food&&chains[i].mol===mol&&chains[i].effect===eff){correct=true;break}
+}
+var row=document.getElementById("row-"+r);
+if(correct){
+row.classList.add("locked");
+var slots=row.querySelectorAll(".slot");
+for(var s=0;s<slots.length;s++)slots[s].classList.add("locked-slot");
+locked++;
+document.getElementById("scoreBar").textContent="Chains locked: "+locked+" / 6";
+playOk();confetti();
+if(locked===6){
+document.getElementById("scoreBar").textContent="🎉 All 6 chains correct! Brain chemistry mastered!";
+document.getElementById("scoreBar").classList.add("done");
+setTimeout(confetti,300);setTimeout(confetti,600);
+}
+}else{
+row.classList.add("shaking");playNo();
+setTimeout(function(){row.classList.remove("shaking")},400);
+}
+}
+
+function confetti(){var box=document.getElementById("confettiBox");var cols=["#f7d794","#2ecc71","#3498db","#e74c3c","#9b59b6","#00cec9","#ff6b6b"];for(var i=0;i<28;i++){var p=document.createElement("div");p.style.cssText="position:absolute;width:"+(4+Math.random()*7)+"px;height:"+(4+Math.random()*7)+"px;background:"+cols[Math.floor(Math.random()*cols.length)]+";border-radius:"+(Math.random()>.5?"50%":"2px")+";left:"+Math.random()*100+"%;top:-10px;";var dx=Math.random()*100-50;p.animate([{transform:"translateY(0) rotate(0deg)",opacity:1},{transform:"translateY("+(window.innerHeight+30)+"px) translateX("+dx+"px) rotate("+(Math.random()*720)+"deg)",opacity:0}],{duration:1200+Math.random()*600,easing:"cubic-bezier(.25,.46,.45,.94)"});box.appendChild(p);(function(el){setTimeout(function(){el.remove()},2000)})(p)}}
+})();
+</script>
+
+
+</body></html>

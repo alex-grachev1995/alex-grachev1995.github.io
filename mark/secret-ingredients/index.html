@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕵️ Secret Ingredients: What Is the Government Putting in Your Food?</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.top-banner {
+    background: #c0392b;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.header {
+    text-align: center;
+    padding: 40px 20px 20px;
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    color: #e74c3c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.header .subtitle {
+    font-size: 1.1rem;
+    color: #bbb;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.header .subtitle em {
+    color: #f39c12;
+}
+
+.intro-box {
+    background: #16213e;
+    border: 2px solid #e74c3c;
+    border-radius: 12px;
+    max-width: 750px;
+    margin: 20px auto 30px;
+    padding: 25px;
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.intro-box p {
+    margin-bottom: 12px;
+}
+
+.intro-box .highlight {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.score-bar {
+    text-align: center;
+    padding: 10px;
+    font-size: 1.1rem;
+    color: #f39c12;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    max-width: 850px;
+    margin: 20px auto 60px;
+    padding: 0 20px;
+}
+
+.food-card {
+    background: #16213e;
+    border: 3px solid #2c3e50;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.food-card:hover {
+    border-color: #e74c3c;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+}
+
+.food-card.solved {
+    border-color: #27ae60;
+    cursor: default;
+}
+
+.food-card.solved:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.food-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: white;
+    padding: 8px;
+}
+
+.food-card .food-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ecf0f1;
+    margin-bottom: 5px;
+}
+
+.food-card .click-hint {
+    font-size: 0.8rem;
+    color: #e74c3c;
+    font-style: italic;
+}
+
+.food-card .solved-badge {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #27ae60;
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 1.2rem;
+}
+
+.food-card.solved .solved-badge {
+    display: block;
+}
+
+.food-card.solved .click-hint {
+    display: none;
+}
+
+/* Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: #1a1a2e;
+    border: 3px solid #e74c3c;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    padding: 35px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.modal-close:hover {
+    color: #e74c3c;
+}
+
+.modal h2 {
+    color: #e74c3c;
+    margin-bottom: 8px;
+    font-size: 1.4rem;
+}
+
+.modal .question-text {
+    font-size: 1.05rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.option-btn {
+    background: #2c3e50;
+    border: 2px solid #34495e;
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: #ecf0f1;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.option-btn:hover {
+    border-color: #f39c12;
+    background: #34495e;
+}
+
+.option-btn.correct {
+    border-color: #27ae60;
+    background: #1e8449;
+    cursor: default;
+}
+
+.option-btn.wrong {
+    border-color: #c0392b;
+    background: #641e16;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.option-btn.disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.reveal-box {
+    display: none;
+    background: #0d3b0d;
+    border: 2px solid #27ae60;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    line-height: 1.7;
+}
+
+.reveal-box h3 {
+    color: #27ae60;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.reveal-box .fact {
+    color: #f39c12;
+    font-style: italic;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #27ae60;
+}
+
+.reveal-box .disease-info {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(231,76,60,0.1);
+    border-left: 3px solid #e74c3c;
+    border-radius: 4px;
+}
+
+.reveal-box .disease-info strong {
+    color: #e74c3c;
+}
+
+/* Final message */
+.final-message {
+    display: none;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 60px;
+    padding: 30px;
+    background: #0d3b0d;
+    border: 3px solid #27ae60;
+    border-radius: 16px;
+}
+
+.final-message h2 {
+    color: #27ae60;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.final-message p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #ccc;
+}
+
+.final-message .big-question {
+    margin-top: 20px;
+    padding: 15px;
+    background: #16213e;
+    border-radius: 10px;
+    color: #f39c12;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+@media (max-width: 700px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .header h1 {
+        font-size: 1.6rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">⚠️ CLASSIFIED INFORMATION ⚠️ — FOR CURIOUS MINDS ONLY</div>
+
+<div class="header">
+    <h1>🕵️ Secret Ingredients</h1>
+    <p class="subtitle">What is the government <em>putting</em> in your food?</p>
+</div>
+
+<div class="intro-box">
+    <p>Here's something most people don't know: <span class="highlight">governments around the world have been secretly adding things to everyday foods for almost 100 years.</span></p>
+    <p>That's right. The milk you drink, the bread you eat, even the water coming from your tap — they all contain things that weren't originally there. Somebody decided to put them in.</p>
+    <p>But why? Is it dangerous? Is it helpful? Let's investigate. 🔍</p>
+    <p><strong>Your mission:</strong> Click each food below to discover what's been added and why.</p>
+</div>
+
+<div class="score-bar">🔓 Foods Investigated: <span id="score">0</span> / 6</div>
+
+<div class="grid">
+    <div class="food-card" onclick="openModal(0)">
+        <div class="solved-badge">✓</div>
+        <img src="table salt.jpg" alt="Table Salt">
+        <div class="food-name">Table Salt</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+    <div class="food-card" onclick="openModal(1)">
+        <div class="solved-badge">✓</div>
+        <img src="milk.png" alt="Milk">
+        <div class="food-name">Milk</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+    <div class="food-card" onclick="openModal(2)">
+        <div class="solved-badge">✓</div>
+        <img src="bread.png" alt="Bread">
+        <div class="food-name">Bread</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+    <div class="food-card" onclick="openModal(3)">
+        <div class="solved-badge">✓</div>
+        <img src="cereal.jpg" alt="Cereal">
+        <div class="food-name">Cereal</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+    <div class="food-card" onclick="openModal(4)">
+        <div class="solved-badge">✓</div>
+        <img src="orange juice.jpg" alt="Orange Juice">
+        <div class="food-name">Orange Juice</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+    <div class="food-card" onclick="openModal(5)">
+        <div class="solved-badge">✓</div>
+        <img src="tap water.png" alt="Tap Water">
+        <div class="food-name">Tap Water</div>
+        <div class="click-hint">🔍 Click to investigate</div>
+    </div>
+</div>
+
+<div class="final-message" id="finalMessage">
+    <h2>🎉 Investigation Complete!</h2>
+    <p>You've uncovered all 6 secret ingredients. Here's the truth: <strong>this isn't really a conspiracy — it's one of the greatest public health achievements in history.</strong></p>
+    <p>Before governments started adding these nutrients to food, millions of people around the world suffered from terrible diseases — goiter, rickets, anemia, blindness, and more. Most of these diseases have almost disappeared in countries that fortify their food.</p>
+    <p>It costs less than 5 cents per person per year. No pills. No doctor visits. Just a tiny bit of the right nutrient, mixed into food you're already eating.</p>
+    <div class="big-question">🤔 Think about this: If food fortification is so cheap and effective, why do you think some countries still don't do it?</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <h2 id="modalTitle"></h2>
+        <p class="question-text" id="modalQuestion"></p>
+        <div class="options" id="modalOptions"></div>
+        <div class="reveal-box" id="revealBox">
+            <h3 id="revealTitle"></h3>
+            <p id="revealText"></p>
+            <div class="disease-info" id="diseaseInfo"></div>
+            <p class="fact" id="revealFact"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+const foods = [
+    {
+        name: "Table Salt",
+        question: "Governments require companies to add something to most table salt. What is it?",
+        options: ["Sugar", "Iodine", "Calcium", "Food coloring"],
+        correct: 1,
+        revealTitle: "🧂 SECRET INGREDIENT: Iodine",
+        revealText: "Since the 1920s, governments have required companies to add iodine to table salt. This is called \"iodized salt\" — look closely at your salt container at home and you'll probably see it written there!",
+        diseaseInfo: "<strong>Why?</strong> We are going to read a text about it later!",
+        fact: "🤯 Fun fact: You only need about ONE TEASPOON of iodine in your entire lifetime — but without it, your body will break down. Salt was chosen because everyone eats it, it's cheap, and iodine doesn't change the taste."
+    },
+    {
+        name: "Milk",
+        question: "There's a vitamin added to almost all milk sold in stores. Which one?",
+        options: ["Vitamin D", "Vitamin B12", "Vitamin H", "Vitamin S"],
+        correct: 0,
+        revealTitle: "🥛 SECRET INGREDIENT: Vitamin D",
+        revealText: "Since the 1930s, some governments have required Vitamin D to be added to milk. Your body normally makes Vitamin D when sunlight hits your skin — but in northern countries (or during winter), people don't get enough sun.",
+        diseaseInfo: "<strong>Without Vitamin D, children develop RICKETS</strong> — a disease where bones become soft and weak. Children's legs would bend into strange shapes because their bones couldn't support their weight. In the 1920s, up to 80% of children in northern European cities had some form of rickets! Once Vitamin D was added to milk, the disease almost completely disappeared.",
+        fact: "🤯 Fun fact: Vitamin D is called \"the sunshine vitamin\" because your skin manufactures it when exposed to UV rays. That's why your parents might say \"go play outside!\" — it's literally making vitamins inside your body."
+    },
+    {
+        name: "Bread",
+        question: "White flour (used to make bread) is \"enriched\" by the government with several nutrients. Which of these is one of the most important ones added?",
+        options: ["Sugar", "Protein", "Folic Acid (Vitamin B9)", "Carbohydrates"],
+        correct: 2,
+        revealTitle: "🍞 SECRET INGREDIENT: Folic Acid + Iron + B Vitamins",
+        revealText: "Since 1998 in the US, all white flour MUST have folic acid, iron, niacin, thiamin, and riboflavin added back in. When wheat is processed into white flour, the nutritious parts get stripped away — so the government forces companies to put nutrients back.",
+        diseaseInfo: "<strong>Without folic acid, babies can be born with NEURAL TUBE DEFECTS</strong> — serious problems with the brain and spine, like spina bifida (where the spine doesn't close properly).Without niacin, people used to get PELLAGRA — a terrible disease causing skin rashes, diarrhea, and confusion.",
+        fact: "🤯 Fun fact: The word \"enriched\" on bread packages is your clue! It means the government required nutrients to be added. Next time you see bread, look for the word \"ENRICHED\" in the ingredients — now you know what it really means."
+    },
+    {
+        name: "Cereal",
+        question: "Breakfast cereal is one of the MOST heavily fortified foods. What mineral can you literally pull out of cereal with a magnet?",
+        options: ["Calcium", "Zinc", "Iron", "Copper"],
+        correct: 2,
+        revealTitle: "🥣 SECRET INGREDIENT: Iron (+ many more!)",
+        revealText: "Cereal is a fortification CHAMPION. Governments and companies load it with iron, zinc, folic acid, Vitamin A, Vitamin D, Vitamin B12, and more. Some cereals contain over 100% of your daily iron needs in a single bowl!",
+        diseaseInfo: "<strong>Without iron, people develop ANEMIA</strong> — the most common nutritional deficiency in the world. Your blood needs iron to carry oxygen to every cell in your body. Without enough iron, you feel tired, weak, dizzy, and can't think clearly. Over 2 BILLION people worldwide are anemic. Children with anemia have trouble learning in school.",
+        fact: "🤯 Fun fact: There is actual metallic iron powder in your cereal! If you crush cereal into powder, mix it with water, and hold a strong magnet to the bag — you can see tiny iron particles sticking to the magnet. Try it!"
+    },
+    {
+        name: "Orange Juice",
+        question: "Orange juice naturally has lots of Vitamin C. But companies also ADD another nutrient to it. What is it?",
+        options: ["Vitamin D", "Sugar", "Sodium", "Protein"],
+        correct: 0,
+        revealTitle: "🍊 SECRET INGREDIENT: Calcium + Vitamin D",
+        revealText: "Many orange juice brands add calcium and Vitamin D — the same nutrients found in milk! This is especially helpful for people who are lactose intolerant (can't drink milk) or who are vegan.",
+        diseaseInfo: "<strong>Without calcium, people develop OSTEOPOROSIS</strong> — a disease where bones become thin, brittle, and break easily. Imagine your bones becoming like a dry sponge instead of solid rock. Older people with osteoporosis can break a hip just by falling down. Building strong bones happens mostly when you're young — which is why getting enough calcium NOW matters so much!",
+        fact: "🤯 Fun fact: Look at the nutrition label on fortified orange juice — it often has MORE calcium than actual milk! Companies also add Zinc and extra Vitamin C."
+    },
+    {
+        name: "Tap Water",
+        question: "In most cities, the government adds something to the water supply. It's not for cleaning the water — it's for YOUR body. What is it?",
+        options: ["Chlorine", "Fluoride", "Calcium", "Iodine"],
+        correct: 1,
+        revealTitle: "💧 SECRET INGREDIENT: Fluoride",
+        revealText: "Since the 1940s, most cities in the US, Canada, Australia, and other countries have added fluoride to tap water. This is called \"water fluoridation\" and it was one of the most debated public health decisions ever made.",
+        diseaseInfo: "<strong>Without fluoride, tooth decay increases dramatically.</strong> Fluoride strengthens tooth enamel (the hard outer layer of your teeth) and helps repair tiny spots of damage before they become cavities. Before water fluoridation, cavities were MUCH more common — especially in children. The CDC (Centers for Disease Control) called water fluoridation one of the \"10 greatest public health achievements of the 20th century.\"",
+        fact: "🤯 Fun fact: Scientists discovered fluoride's power by accident! In the early 1900s, a dentist noticed that people in certain towns had brown-stained teeth but almost NO cavities. He traced it to naturally high fluoride in their water. The government then figured out the perfect amount — enough to prevent cavities, but not too much to avoid staining teeth."
+    }
+];
+
+let solved = 0;
+let currentFood = null;
+
+function openModal(index) {
+    if (document.querySelectorAll('.food-card')[index].classList.contains('solved')) return;
+    
+    currentFood = index;
+    const food = foods[index];
+    
+    document.getElementById('modalTitle').textContent = '🔍 Investigating: ' + food.name;
+    document.getElementById('modalQuestion').textContent = food.question;
+    
+    const optionsDiv = document.getElementById('modalOptions');
+    optionsDiv.innerHTML = '';
+    
+    food.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(i);
+        optionsDiv.appendChild(btn);
+    });
+    
+    document.getElementById('revealBox').style.display = 'none';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function checkAnswer(selected) {
+    const food = foods[currentFood];
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach((btn, i) => {
+        btn.classList.add('disabled');
+        btn.onclick = null;
+        if (i === food.correct) {
+            btn.classList.add('correct');
+        } else if (i === selected && i !== food.correct) {
+            btn.classList.add('wrong');
+        }
+    });
+    
+    // Show reveal
+    document.getElementById('revealTitle').textContent = food.revealTitle;
+    document.getElementById('revealText').textContent = food.revealText;
+    document.getElementById('diseaseInfo').innerHTML = food.diseaseInfo;
+    document.getElementById('revealFact').textContent = food.fact;
+    document.getElementById('revealBox').style.display = 'block';
+    
+    // Mark card as solved
+    document.querySelectorAll('.food-card')[currentFood].classList.add('solved');
+    solved++;
+    document.getElementById('score').textContent = solved;
+    
+    if (solved === 6) {
+        setTimeout(() => {
+            document.getElementById('finalMessage').style.display = 'block';
+        }, 500);
+    }
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
+
+
+
+</body></html>

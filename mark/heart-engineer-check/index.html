@@ -1,0 +1,453 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❤️ Heart Engineer — Systems Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&amp;family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 50%,#ff9a9e 100%);color:#2c3e50;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;right:0;height:6px;background:rgba(255,255,255,.4);z-index:100}
+.progress-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#e84393);transition:width .4s;border-radius:0 3px 3px 0}
+.header{text-align:center;padding:20px 15px 8px;max-width:750px;margin:0 auto}
+.header h1{font-family:'Merriweather',serif;font-size:1.4em;color:#c0392b;text-shadow:0 1px 2px rgba(255,255,255,.5)}
+.score-bar{display:inline-block;background:#fff;padding:5px 18px;border-radius:20px;font-weight:700;font-size:.9em;color:#e74c3c;margin-top:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.page{display:none;max-width:750px;margin:10px auto 30px;padding:0 20px}
+.page.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}20%{transform:translateX(8px)}30%{transform:translateX(-6px)}40%{transform:translateX(6px)}50%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+.shake-it{animation:shake .5s ease}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.08)}30%{transform:scale(1)}45%{transform:scale(1.05)}60%{transform:scale(1)}}
+.beating{animation:heartbeat 1s ease infinite}
+.card{background:#fff;border-radius:16px;padding:26px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.q-num{display:inline-block;background:linear-gradient(135deg,#e74c3c,#e84393);color:#fff;padding:4px 14px;border-radius:16px;font-size:.8em;font-weight:700;margin-bottom:12px}
+.q-text{font-family:'Merriweather',serif;font-size:1.1em;line-height:1.55;margin-bottom:16px;color:#2c3e50}
+.option{display:block;width:100%;text-align:left;padding:14px 18px;margin:8px 0;background:#fafafa;border:2px solid #eee;border-radius:10px;color:#2c3e50;font-size:.95em;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif}
+.option:hover:not(.disabled){background:#fff5f5;border-color:#f5c6cb;transform:translateX(3px)}
+.option.correct{border-color:#2ecc71;background:#d4edda;transform:scale(1.02)}
+.option.incorrect{border-color:#e74c3c;background:#f8d7da}
+.option.disabled{pointer-events:none;opacity:.5}
+.option.show-correct{border-color:#2ecc71;background:#d4edda}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-weight:500;display:none;font-size:.93em}
+.feedback.show{display:block}
+.feedback.ok{background:#d4edda;color:#155724}
+.feedback.no{background:#f8d7da;color:#721c24}
+.feedback.warn{background:#fff3cd;color:#856404}
+.btn{display:inline-block;padding:11px 24px;border:none;border-radius:10px;font-size:.93em;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif}
+.btn-next{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;box-shadow:0 3px 10px rgba(46,204,113,.3)}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(46,204,113,.4)}
+.btn-prev{background:#95a5a6;color:#fff}.btn-prev:hover{background:#7f8c8d}
+.btn-check{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;box-shadow:0 3px 10px rgba(231,76,60,.3)}
+.btn-check:hover{transform:translateY(-2px)}
+.btn-restart{background:linear-gradient(135deg,#e74c3c,#e84393);color:#fff}.btn-restart:hover{transform:translateY(-2px)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:8px}
+
+/* Heart diagram shared */
+.heart-wrap{display:flex;justify-content:center;margin:16px 0}
+.heart-shape{position:relative;width:380px;height:360px}
+.heart-bg{position:absolute;top:0;left:0;width:100%;height:100%}
+.heart-bg path{fill:#fce4ec;stroke:#e74c3c;stroke-width:2.5}
+.chamber{position:absolute;border:2px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;transition:all .2s;background:rgba(255,255,255,.3);overflow:visible}
+.chamber.drag-over{border-color:#e74c3c;background:rgba(231,76,60,.08);transform:scale(1.03)}
+.chamber.ch-correct{border-color:#2ecc71;background:rgba(46,204,113,.15)}
+.chamber.ch-wrong{border-color:#e74c3c;background:rgba(231,76,60,.15);animation:shake .4s}
+.chamber-label{font-size:.75em;color:#999;position:absolute;top:4px;left:8px;font-weight:600}
+.chamber-content{font-size:.85em;font-weight:600;color:#2c3e50;line-height:1.3;word-wrap:break-word;text-align:center;padding:2px}
+/* Positions for heart chambers */
+.ch-ra{top:45px;left:15px;width:160px;height:110px}
+.ch-la{top:45px;right:15px;width:160px;height:110px}
+.ch-rv{bottom:50px;left:25px;width:150px;height:120px}
+.ch-lv{bottom:50px;right:25px;width:150px;height:120px}
+
+.heart-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.heart-chip{padding:10px 14px;background:#fff;border:2px solid #eee;border-radius:10px;cursor:grab;font-size:.88em;font-weight:600;transition:all .2s;user-select:none;max-width:200px;text-align:center}
+.heart-chip:hover:not(.used){border-color:#e74c3c;background:#fff5f5}
+.heart-chip.used{opacity:.25;pointer-events:none}
+.heart-chip.dragging{opacity:.2}
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;padding:8px 14px;background:rgba(231,76,60,.92);border:2px solid #c0392b;border-radius:10px;color:#fff;font-weight:600;font-size:.85em;box-shadow:0 6px 25px rgba(0,0,0,.3);transform:translate(-50%,-50%);max-width:200px;text-align:center;line-height:1.3}
+
+/* Results */
+.res-icon{font-size:5em;text-align:center;display:block;margin-bottom:10px}
+.res-score{font-size:3em;font-weight:700;text-align:center;color:#e74c3c;margin:10px 0}
+.res-sub{text-align:center;color:#6c757d;font-size:1em}
+.res-msg{text-align:center;font-size:1.05em;line-height:1.6;margin:14px 0;color:#495057}
+.stars-bg{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden}
+.float-heart{position:absolute;opacity:.12;animation:floatUp 8s linear infinite}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:.12}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
+@media(max-width:600px){.page{padding:0 12px}.q-text{font-size:1em}.heart-shape{width:320px;height:300px}.ch-ra,.ch-la{width:135px;height:95px}.ch-rv,.ch-lv{width:130px;height:100px}.chamber-content{font-size:.78em}.heart-chip{font-size:.82em;padding:8px 10px}}
+</style>
+</head>
+<body>
+<div class="stars-bg" id="floats"></div>
+<div class="progress-bar"><div class="progress-fill" id="pf" style="width:0%"></div></div>
+<div class="header">
+<h1>❤️ Heart Engineer — Systems Check</h1>
+<div class="score-bar">💓 Score: <span id="scoreNum">0</span> / 10</div>
+</div>
+
+<!-- Q1 -->
+<div class="page active" id="p0">
+<div class="card">
+<span class="q-num">1 of 10</span>
+<p class="q-text">The heart is best described as...</p>
+<button class="option" data-correct="false" onclick="doMC(0,this)">A bone that protects the lungs</button>
+<button class="option" data-correct="false" onclick="doMC(0,this)">An organ that moves oxygen directly into cells</button>
+<button class="option" data-correct="true" onclick="doMC(0,this)">A strong muscle that pumps blood through the body</button>
+<button class="option" data-correct="false" onclick="doMC(0,this)">A filter that cleans dirty blood</button>
+<div class="feedback" id="fb0"></div>
+</div>
+<div class="nav-row"><div></div><button class="btn btn-next" id="nx0" style="display:none" onclick="go(1)">Next →</button></div>
+</div>
+
+<!-- Q2 -->
+<div class="page" id="p1">
+<div class="card">
+<span class="q-num">2 of 10</span>
+<p class="q-text">When blood passes through the lungs, what does it pick up?</p>
+<button class="option" data-correct="false" onclick="doMC(1,this)">Carbon dioxide — cells need it to rest</button>
+<button class="option" data-correct="true" onclick="doMC(1,this)">Oxygen — every cell needs it to produce energy</button>
+<button class="option" data-correct="false" onclick="doMC(1,this)">Nitrogen — it makes up most of the air</button>
+<button class="option" data-correct="false" onclick="doMC(1,this)">Water vapor — to keep blood flowing smoothly</button>
+<div class="feedback" id="fb1"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(0)">← Back</button><button class="btn btn-next" id="nx1" style="display:none" onclick="go(2)">Next →</button></div>
+</div>
+
+<!-- Q3 -->
+<div class="page" id="p2">
+<div class="card">
+<span class="q-num">3 of 10</span>
+<p class="q-text">What is the correct path that blood takes through the body?</p>
+<button class="option" data-correct="false" onclick="doMC(2,this)">Heart → body → lungs → heart</button>
+<button class="option" data-correct="false" onclick="doMC(2,this)">Heart → lungs → body → heart</button>
+<button class="option" data-correct="true" onclick="doMC(2,this)">Right heart → lungs → left heart → body → back to right heart</button>
+<button class="option" data-correct="false" onclick="doMC(2,this)">Lungs → heart → body → lungs</button>
+<div class="feedback" id="fb2"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(1)">← Back</button><button class="btn btn-next" id="nx2" style="display:none" onclick="go(3)">Next →</button></div>
+</div>
+
+<!-- Q4: Heart NAMES drag -->
+<div class="page" id="p3">
+<div class="card">
+<span class="q-num">4 of 10</span>
+<p class="q-text">🫀 Drag the correct <strong>name</strong> into each chamber of the heart:</p>
+<div class="heart-wrap">
+<div class="heart-shape" id="heart1">
+<svg class="heart-bg" viewBox="0 0 380 360"><path d="M190 330 C190 330 20 230 20 130 C20 60 70 20 120 20 C155 20 180 40 190 60 C200 40 225 20 260 20 C310 20 360 60 360 130 C360 230 190 330 190 330Z"></path></svg>
+<div class="chamber ch-ra" id="h1-ra" data-answer="right atrium"><span class="chamber-label">← RIGHT, TOP</span><span class="chamber-content" id="h1-ra-txt">?</span></div>
+<div class="chamber ch-la" id="h1-la" data-answer="left atrium"><span class="chamber-label">LEFT, TOP →</span><span class="chamber-content" id="h1-la-txt">?</span></div>
+<div class="chamber ch-rv" id="h1-rv" data-answer="right ventricle"><span class="chamber-label">← RIGHT, BOTTOM</span><span class="chamber-content" id="h1-rv-txt">?</span></div>
+<div class="chamber ch-lv" id="h1-lv" data-answer="left ventricle"><span class="chamber-label">LEFT, BOTTOM →</span><span class="chamber-content" id="h1-lv-txt">?</span></div>
+</div>
+</div>
+<div class="heart-pool" id="pool1">
+<div class="heart-chip" draggable="true" data-word="left ventricle" data-pool="1">Left Ventricle</div>
+<div class="heart-chip" draggable="true" data-word="right atrium" data-pool="1">Right Atrium</div>
+<div class="heart-chip" draggable="true" data-word="left atrium" data-pool="1">Left Atrium</div>
+<div class="heart-chip" draggable="true" data-word="right ventricle" data-pool="1">Right Ventricle</div>
+</div>
+<div class="feedback" id="fb3"></div>
+<button class="btn btn-check" id="chk3" onclick="checkH(1)">Check ❤️</button>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(2)">← Back</button><button class="btn btn-next" id="nx3" style="display:none" onclick="go(4)">Next →</button></div>
+</div>
+
+<!-- Q5: Heart FUNCTIONS drag -->
+<div class="page" id="p4">
+<div class="card">
+<span class="q-num">5 of 10</span>
+<p class="q-text">🫀 Drag each <strong>job</strong> to the correct part of the heart. If all jobs are right, the heart will start beating!</p>
+<div class="heart-wrap">
+<div class="heart-shape" id="heart2">
+<svg class="heart-bg" viewBox="0 0 380 360"><path d="M190 330 C190 330 20 230 20 130 C20 60 70 20 120 20 C155 20 180 40 190 60 C200 40 225 20 260 20 C310 20 360 60 360 130 C360 230 190 330 190 330Z"></path></svg>
+<div class="chamber ch-ra" id="h2-ra" data-answer="receives body"><span class="chamber-label">Right Atrium</span><span class="chamber-content" id="h2-ra-txt">?</span></div>
+<div class="chamber ch-la" id="h2-la" data-answer="receives lungs"><span class="chamber-label">Left Atrium</span><span class="chamber-content" id="h2-la-txt">?</span></div>
+<div class="chamber ch-rv" id="h2-rv" data-answer="pumps lungs"><span class="chamber-label">Right Ventricle</span><span class="chamber-content" id="h2-rv-txt">?</span></div>
+<div class="chamber ch-lv" id="h2-lv" data-answer="pumps body"><span class="chamber-label">Left Ventricle</span><span class="chamber-content" id="h2-lv-txt">?</span></div>
+</div>
+</div>
+<div class="heart-pool" id="pool2">
+<div class="heart-chip" draggable="true" data-word="pumps lungs" data-pool="2">🫁 Pumps blood TO the lungs</div>
+<div class="heart-chip" draggable="true" data-word="receives lungs" data-pool="2">🫁 Receives blood FROM the lungs</div>
+<div class="heart-chip" draggable="true" data-word="receives body" data-pool="2">🔵 Receives blood FROM the body</div>
+<div class="heart-chip" draggable="true" data-word="pumps body" data-pool="2">💪 Pumps blood TO the body</div>
+</div>
+<div class="feedback" id="fb4"></div>
+<button class="btn btn-check" id="chk4" onclick="checkH(2)">Activate Heart! 🫀</button>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(3)">← Back</button><button class="btn btn-next" id="nx4" style="display:none" onclick="go(5)">Next →</button></div>
+</div>
+
+<!-- Q6 -->
+<div class="page" id="p5">
+<div class="card">
+<span class="q-num">6 of 10</span>
+<p class="q-text">What is the heart's <strong>main job</strong>?</p>
+<button class="option" data-correct="false" onclick="doMC(5,this)">Picks up energy from food, drops off waste to the skin</button>
+<button class="option" data-correct="true" onclick="doMC(5,this)">Pumps blood that delivers oxygen to every cell and carries waste away</button>
+<button class="option" data-correct="false" onclick="doMC(5,this)">Creates oxygen inside the body so cells can breathe</button>
+<button class="option" data-correct="false" onclick="doMC(5,this)">Filters bacteria and viruses out of the blood</button>
+<div class="feedback" id="fb5"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(4)">← Back</button><button class="btn btn-next" id="nx5" style="display:none" onclick="go(6)">Next →</button></div>
+</div>
+
+<!-- Q7 -->
+<div class="page" id="p6">
+<div class="card">
+<span class="q-num">7 of 10</span>
+<p class="q-text">How much aerobic exercise should kids get?</p>
+<button class="option" data-correct="false" onclick="doMC(6,this)">30 minutes per week</button>
+<button class="option" data-correct="false" onclick="doMC(6,this)">15 minutes every day</button>
+<button class="option" data-correct="true" onclick="doMC(6,this)">60 to 90 minutes every day</button>
+<button class="option" data-correct="false" onclick="doMC(6,this)">60 to 90 minutes one day a week</button>
+<div class="feedback" id="fb6"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(5)">← Back</button><button class="btn btn-next" id="nx6" style="display:none" onclick="go(7)">Next →</button></div>
+</div>
+
+<!-- Q8 -->
+<div class="page" id="p7">
+<div class="card">
+<span class="q-num">8 of 10</span>
+<p class="q-text">About how much of the air we breathe is actually oxygen?</p>
+<button class="option" data-correct="false" onclick="doMC(7,this)">About 50% — half the air is oxygen</button>
+<button class="option" data-correct="false" onclick="doMC(7,this)">About 78% — almost all of it</button>
+<button class="option" data-correct="true" onclick="doMC(7,this)">About 21% — roughly one-fifth</button>
+<button class="option" data-correct="false" onclick="doMC(7,this)">About 5% — just a tiny fraction</button>
+<div class="feedback" id="fb7"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(6)">← Back</button><button class="btn btn-next" id="nx7" style="display:none" onclick="go(8)">Next →</button></div>
+</div>
+
+<!-- Q9 -->
+<div class="page" id="p8">
+<div class="card">
+<span class="q-num">9 of 10</span>
+<p class="q-text">Roughly how many times does a human heart beat in an entire <strong>lifetime</strong>?</p>
+<button class="option" data-correct="false" onclick="doMC(8,this)">About 10 million times</button>
+<button class="option" data-correct="false" onclick="doMC(8,this)">About 100 million times</button>
+<button class="option" data-correct="true" onclick="doMC(8,this)">About 2.5 to 3 billion times</button>
+<button class="option" data-correct="false" onclick="doMC(8,this)">About 50 billion times</button>
+<div class="feedback" id="fb8"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(7)">← Back</button><button class="btn btn-next" id="nx8" style="display:none" onclick="go(9)">Next →</button></div>
+</div>
+
+<!-- Q10 -->
+<div class="page" id="p9">
+<div class="card">
+<span class="q-num">10 of 10</span>
+<p class="q-text">What makes human blood <strong>red</strong>?</p>
+<button class="option" data-correct="false" onclick="doMC(9,this)">The oxygen dissolved in it — oxygen is naturally red</button>
+<button class="option" data-correct="true" onclick="doMC(9,this)">A protein called hemoglobin that contains iron</button>
+<button class="option" data-correct="false" onclick="doMC(9,this)">Red blood cells are dyed red by the bone marrow</button>
+<button class="option" data-correct="false" onclick="doMC(9,this)">The walls of blood vessels reflect red light into the blood</button>
+<div class="feedback" id="fb9"></div>
+</div>
+<div class="nav-row"><button class="btn btn-prev" onclick="go(8)">← Back</button><button class="btn btn-next" id="nx9" style="display:none" onclick="go(10)">See Results ❤️ →</button></div>
+</div>
+
+<!-- Results -->
+<div class="page" id="p10">
+<div class="card" style="text-align:center">
+<span class="res-icon" id="rI"></span>
+<h1 id="rT" style="font-family:'Merriweather',serif;color:#c0392b"></h1>
+<div class="res-score" id="rS"></div>
+<div class="res-sub">out of 10</div>
+<p class="res-msg" id="rM"></p>
+<div class="nav-row" style="justify-content:center"><button class="btn btn-restart" onclick="location.reload()">🔄 Try Again</button></div>
+</div>
+</div>
+
+<script>
+let score=0,ans={};
+const heartState={1:{},2:{}};
+
+// Floating hearts background
+(function(){const c=document.getElementById('floats');const em=['❤️','💓','💗','🫀','💪','🩺'];for(let i=0;i<12;i++){const h=document.createElement('div');h.className='float-heart';h.textContent=em[Math.floor(Math.random()*em.length)];h.style.left=Math.random()*100+'%';h.style.animationDelay=Math.random()*8+'s';h.style.animationDuration=(6+Math.random()*6)+'s';h.style.fontSize=(1.2+Math.random()*1.5)+'em';c.appendChild(h);}})();
+
+function updS(){document.getElementById('scoreNum').textContent=score;}
+function go(n){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById('p'+n).classList.add('active');
+document.getElementById('pf').style.width=(n/10*100)+'%';
+window.scrollTo({top:0,behavior:'smooth'});
+if(n===10)showRes();
+}
+
+function confetti(){
+const c=document.createElement('div');c.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;overflow:hidden';
+document.body.appendChild(c);const cols=['#e74c3c','#e84393','#fd79a8','#fab1a0','#ff7675','#ffeaa7','#55efc4','#74b9ff','#a29bfe'];
+for(let i=0;i<55;i++){const p=document.createElement('div');const col=cols[Math.floor(Math.random()*cols.length)];const sz=Math.random()*10+5;const x=window.innerWidth/2;const y=window.innerHeight/2;const a=Math.random()*Math.PI*2;const v=Math.random()*300+120;const dx=Math.cos(a)*v;const dy=Math.sin(a)*v-260;const r=Math.random()*720-360;
+p.style.cssText=`position:absolute;left:${x}px;top:${y}px;width:${sz}px;height:${sz*(.5+Math.random()*.8)}px;background:${col};border-radius:${Math.random()>.5?'50%':'3px'};`;
+p.animate([{transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy+500}px)) scale(.15) rotate(${r}deg)`,opacity:0}],{duration:1500+Math.random()*700,easing:'cubic-bezier(.25,.46,.45,.94)'});c.appendChild(p);}
+setTimeout(()=>c.remove(),2400);
+}
+function screenShake(){document.body.classList.add('shake-it');setTimeout(()=>document.body.classList.remove('shake-it'),500);}
+
+// MC
+function doMC(q,btn){
+if(ans[q])return;ans[q]=true;
+const card=btn.closest('.card');const opts=card.querySelectorAll('.option');const ok=btn.dataset.correct==='true';const fb=document.getElementById('fb'+q);
+opts.forEach(o=>{o.classList.add('disabled');if(o.dataset.correct==='true')o.classList.add('show-correct');});
+if(ok){btn.classList.remove('show-correct');btn.classList.add('correct');fb.textContent='✅ Correct!';fb.className='feedback show ok';score++;confetti();}
+else{btn.classList.add('incorrect');fb.textContent='❌ Not quite — see the green answer.';fb.className='feedback show no';screenShake();}
+updS();document.getElementById('nx'+q).style.display='inline-block';
+}
+
+// ===== HEART DRAG-AND-DROP (shared logic for both hearts) =====
+let hDrag=null,hGhost=null,hPool=null;
+
+document.addEventListener('DOMContentLoaded',()=>{
+initHeartDrag(1);initHeartDrag(2);
+});
+
+function initHeartDrag(hNum){
+const pool=document.getElementById('pool'+hNum);
+const heart=document.getElementById('heart'+hNum);
+const chambers=heart.querySelectorAll('.chamber');
+const chips=pool.querySelectorAll('.heart-chip');
+
+chips.forEach(chip=>{
+chip.addEventListener('dragstart',e=>{
+hDrag=chip;hPool=pool;setTimeout(()=>chip.classList.add('dragging'),0);
+e.dataTransfer.setDragImage(new Image(),0,0);
+hGhost=document.createElement('div');hGhost.className='drag-ghost';
+hGhost.textContent=chip.textContent;document.body.appendChild(hGhost);
+mvH(e.clientX,e.clientY);
+});
+chip.addEventListener('drag',e=>{if(hGhost&&e.clientX)mvH(e.clientX,e.clientY);});
+chip.addEventListener('dragend',()=>{chip.classList.remove('dragging');hDrag=null;if(hGhost){hGhost.remove();hGhost=null;}chambers.forEach(c=>c.classList.remove('drag-over'));});
+// Touch
+chip.addEventListener('touchstart',e=>{
+hDrag=chip;hPool=pool;chip.classList.add('dragging');
+hGhost=document.createElement('div');hGhost.className='drag-ghost';
+hGhost.textContent=chip.textContent;document.body.appendChild(hGhost);
+mvH(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:true});
+chip.addEventListener('touchmove',e=>{
+e.preventDefault();if(!hDrag)return;mvH(e.touches[0].clientX,e.touches[0].clientY);
+chambers.forEach(c=>c.classList.remove('drag-over'));
+const el=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
+if(el){const ch=el.closest('.chamber');if(ch&&heart.contains(ch))ch.classList.add('drag-over');}
+},{passive:false});
+chip.addEventListener('touchend',e=>{
+if(!hDrag)return;const t=e.changedTouches[0];
+const el=document.elementFromPoint(t.clientX,t.clientY);
+const ch=el?el.closest('.chamber'):null;
+if(ch&&heart.contains(ch))placeInChamber(hNum,ch,hDrag);
+hDrag.classList.remove('dragging');chambers.forEach(c=>c.classList.remove('drag-over'));
+if(hGhost){hGhost.remove();hGhost=null;}hDrag=null;
+});
+});
+
+chambers.forEach(ch=>{
+ch.addEventListener('dragover',e=>{e.preventDefault();ch.classList.add('drag-over');});
+ch.addEventListener('dragleave',()=>ch.classList.remove('drag-over'));
+ch.addEventListener('drop',e=>{
+e.preventDefault();ch.classList.remove('drag-over');
+if(hDrag)placeInChamber(hNum,ch,hDrag);
+if(hGhost){hGhost.remove();hGhost=null;}hDrag=null;
+});
+ch.addEventListener('click',()=>{
+const qIdx=hNum===1?3:4;if(ans[qIdx])return;
+const id=ch.id;if(heartState[hNum][id]){
+const w=heartState[hNum][id];
+const chip=pool.querySelector(`.heart-chip[data-word="${w}"]`);
+if(chip)chip.classList.remove('used');
+delete heartState[hNum][id];
+ch.querySelector('.chamber-content').textContent='?';
+ch.classList.remove('ch-correct','ch-wrong');
+}
+});
+});
+
+pool.addEventListener('dragover',e=>e.preventDefault());
+pool.addEventListener('drop',e=>{
+e.preventDefault();if(hDrag){hDrag.classList.remove('used','dragging');if(hGhost){hGhost.remove();hGhost=null;}hDrag=null;}
+});
+}
+
+function mvH(x,y){if(hGhost){hGhost.style.left=x+'px';hGhost.style.top=y+'px';}}
+
+function placeInChamber(hNum,ch,chip){
+const qIdx=hNum===1?3:4;if(ans[qIdx])return;
+const id=ch.id;const pool=document.getElementById('pool'+hNum);
+// Remove old chip from this chamber
+if(heartState[hNum][id]){
+const old=pool.querySelector(`.heart-chip[data-word="${heartState[hNum][id]}"]`);
+if(old)old.classList.remove('used');
+}
+heartState[hNum][id]=chip.dataset.word;
+chip.classList.add('used');
+ch.querySelector('.chamber-content').textContent=chip.textContent;
+ch.classList.remove('ch-correct','ch-wrong');
+}
+
+function checkH(hNum){
+const qIdx=hNum===1?3:4;
+if(ans[qIdx])return;
+const heart=document.getElementById('heart'+hNum);
+const chambers=heart.querySelectorAll('.chamber');
+let allFilled=true;
+chambers.forEach(ch=>{if(!heartState[hNum][ch.id])allFilled=false;});
+if(!allFilled){
+const fb=document.getElementById('fb'+qIdx);
+fb.textContent='⚠️ Drag all labels into the heart first!';fb.className='feedback show warn';
+setTimeout(()=>fb.className='feedback',2000);return;
+}
+let allOk=true;
+chambers.forEach(ch=>{
+ch.classList.remove('ch-correct','ch-wrong');
+if(heartState[hNum][ch.id]===ch.dataset.answer){ch.classList.add('ch-correct');}
+else{ch.classList.add('ch-wrong');allOk=false;}
+});
+ans[qIdx]=true;const fb=document.getElementById('fb'+qIdx);
+if(allOk){
+score++;
+if(hNum===2){
+fb.textContent='✅ Perfect! The heart is alive!';
+heart.querySelector('.heart-bg path').style.fill='#ffcdd2';
+heart.classList.add('beating');
+}else{
+fb.textContent='✅ Perfect! You know your heart anatomy!';
+}
+fb.className='feedback show ok';confetti();
+}else{
+fb.textContent='❌ Red chambers are wrong — tap them to remove and try the correct label.';
+fb.className='feedback show no';screenShake();
+// Allow retry for wrong ones
+setTimeout(()=>{
+ans[qIdx]=false;
+chambers.forEach(ch=>{
+if(ch.classList.contains('ch-wrong')){
+const w=heartState[hNum][ch.id];
+if(w){const pool=document.getElementById('pool'+hNum);const chip=pool.querySelector(`.heart-chip[data-word="${w}"]`);if(chip)chip.classList.remove('used');}
+delete heartState[hNum][ch.id];
+ch.querySelector('.chamber-content').textContent='?';
+ch.classList.remove('ch-wrong');
+}
+});
+},1500);
+return;
+}
+const btnId=hNum===1?'chk3':'chk4';
+document.getElementById(btnId).style.display='none';
+document.getElementById('nx'+qIdx).style.display='inline-block';
+updS();
+}
+
+// Results
+function showRes(){
+const i=document.getElementById('rI'),t=document.getElementById('rT'),d=document.getElementById('rS'),m=document.getElementById('rM');
+d.textContent=score;
+if(score>=9){i.textContent='🏆';t.textContent='Master Heart Engineer!';m.textContent='Your knowledge of the cardiovascular system is incredible! Ready for the animal kingdom.';confetti();setTimeout(confetti,500);setTimeout(confetti,1000);}
+else if(score>=7){i.textContent='❤️';t.textContent='Certified Heart Engineer!';m.textContent='Excellent work! You really understand how the heart keeps us alive.';confetti();setTimeout(confetti,600);}
+else if(score>=5){i.textContent='💪';t.textContent='Good Progress!';m.textContent='You\'re getting there! Review the questions you missed and try again.';confetti();}
+else{i.textContent='🩺';t.textContent='Keep Studying!';m.textContent='The heart is complex! Go through the material again and try once more.';}
+}
+</script>
+
+
+</body></html>

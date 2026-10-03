@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural = Safe?</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(160deg,#4a69bd 0%,#35508f 55%,#2b3f70 100%);
+  color:#f4f7ff; min-height:100vh; padding:18px; }
+#wrap { max-width:880px; margin:0 auto; }
+h1 { font-size:1.7em; text-align:center; color:#f7d794; }
+.sub { text-align:center; color:#c3d0f2; font-size:.9em; margin:4px 0 14px; }
+.topbar { display:flex; justify-content:space-between; align-items:center; font-size:.9em;
+  color:#f7d794; font-weight:700; margin-bottom:10px; flex-wrap:wrap; gap:8px; }
+.bar { height:8px; background:rgba(255,255,255,.15); border-radius:99px; overflow:hidden; margin-bottom:16px; }
+.bar div { height:100%; background:linear-gradient(90deg,#f7d794,#f0b95f); width:0; transition:width .35s; }
+
+.item { background:#fdfcf7; color:#25314f; border-radius:16px; padding:20px; text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.3); animation:pop .35s; }
+.item .emo { font-size:3em; line-height:1; }
+.item h2 { font-size:1.35em; margin:6px 0 6px; }
+.item p { font-size:.95em; color:#4a5570; line-height:1.5; }
+@keyframes pop { from{transform:scale(.9);opacity:0;} to{transform:scale(1);opacity:1;} }
+
+.prompt { text-align:center; font-size:.9em; color:#c3d0f2; margin:14px 0 8px; }
+.bins { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:560px){ .bins { grid-template-columns:1fr; } }
+.bin { background:rgba(255,255,255,.09); border:2px solid rgba(255,255,255,.22); border-radius:14px;
+  padding:16px 12px; text-align:center; cursor:pointer; transition:all .15s; }
+.bin:hover { background:rgba(247,215,148,.18); border-color:#f7d794; transform:translateY(-2px); }
+.bin .bemo { font-size:1.8em; }
+.bin .btitle { font-weight:800; font-size:.98em; margin-top:4px; }
+.bin .bsub { font-size:.74em; color:#c3d0f2; margin-top:2px; }
+.bin.bad { animation:shake .45s; border-color:#e55039; }
+.bin.good { border-color:#78e08f; background:rgba(120,224,143,.2); }
+.bin.dim { opacity:.45; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);}
+  40%{transform:translateX(9px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(6px);} }
+
+.fb { display:none; margin-top:14px; background:rgba(255,255,255,.1);
+  border-left:5px solid #f7d794; border-radius:12px; padding:14px 16px; animation:pop .3s; }
+.fb h3 { font-size:1.02em; margin-bottom:6px; color:#f7d794; }
+.fb p { font-size:.94em; line-height:1.6; color:#e8eeff; }
+.btn { border:none; border-radius:10px; padding:12px 26px; font-size:1em; font-weight:800;
+  cursor:pointer; color:#25314f; background:linear-gradient(90deg,#f7d794,#f0b95f); margin-top:12px; width:100%; }
+
+.ovl { position:fixed; inset:0; background:rgba(20,30,60,.95); z-index:60; display:none;
+  align-items:center; justify-content:center; padding:20px; }
+.ovl .in { max-width:600px; background:rgba(255,255,255,.08); border:1px solid rgba(247,215,148,.4);
+  border-radius:16px; padding:26px; }
+.ovl h2 { color:#f7d794; text-align:center; font-size:1.5em; margin-bottom:12px; }
+.ovl p { line-height:1.65; margin-bottom:12px; color:#e8eeff; }
+.tallies { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0; font-size:.85em; }
+.tallies div { background:rgba(0,0,0,.25); border-radius:10px; padding:9px; text-align:center; }
+.conf { position:fixed; top:-16px; z-index:99; pointer-events:none; border-radius:2px;
+  animation:fall linear forwards; }
+@keyframes fall { to { transform:translateY(110vh) rotate(700deg); opacity:.5; } }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>🌿 NATURAL = SAFE?</h1>
+  <div class="sub">Two questions per item: was it <b>made by nature or by people</b>, and is it <b>safe as normally met</b>?</div>
+  <div class="topbar">
+    <span id="prog"></span>
+    <span id="score">First-try: 0</span>
+  </div>
+  <div class="bar"><div id="barfill"></div></div>
+
+  <div class="item" id="card">
+    <div class="emo" id="iEmo"></div>
+    <h2 id="iName"></h2>
+    <p id="iDesc"></p>
+  </div>
+
+  <div class="prompt">Which bin?</div>
+  <div class="bins" id="bins">
+    <div class="bin" data-n="1" data-s="1"><div class="bemo">🌿</div><div class="btitle">NATURAL &amp; SAFE</div><div class="bsub">grown or dug up · harmless in normal use</div></div>
+    <div class="bin" data-n="1" data-s="0"><div class="bemo">☠️</div><div class="btitle">NATURAL &amp; DEADLY</div><div class="bsub">grown or dug up · can seriously harm you</div></div>
+    <div class="bin" data-n="0" data-s="1"><div class="bemo">⚗️</div><div class="btitle">MADE BY PEOPLE &amp; SAFE</div><div class="bsub">built or modified in a lab · harmless in normal use</div></div>
+    <div class="bin" data-n="0" data-s="0"><div class="bemo">💀</div><div class="btitle">MADE BY PEOPLE &amp; DEADLY</div><div class="bsub">built or modified in a lab · can seriously harm you</div></div>
+  </div>
+
+  <div class="fb" id="fb">
+    <h3 id="fbTitle"></h3>
+    <p id="fbText"></p>
+    <button class="btn" id="btnNext">Next →</button>
+  </div>
+</div>
+
+<div class="ovl" id="endOvl">
+  <div class="in">
+    <h2>🧪 VERDICT ON A WORD</h2>
+    <p id="endScore" style="text-align:center;font-weight:800;color:#f7d794;"></p>
+    <div class="tallies" id="tallies"></div>
+    <p><b>Every bin has items in it.</b> That's the whole point. Nature invented arsenic, tobacco,
+       asbestos and the deadliest toxin known to science. Laboratories invented insulin, aspirin and
+       the vaccine that erased smallpox.</p>
+    <p>And the sharpest pair on the board: vitamin C from an orange and vitamin C from a factory are
+       the <b>identical molecule</b>. Your cells cannot tell them apart. "Natural" and "synthetic"
+       describe where a molecule was born \u2014 not what it does to you.</p>
+    <p style="color:#f7d794;"><b>"Natural" is a marketing word, not a safety test. The only safety
+       test is a safety test.</b></p>
+    <button class="btn" onclick="location.reload()">Shuffle and play again</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var ITEMS = [
+ { emo:"🍊", name:"Vitamin C in an orange", id:"orange",
+   desc:"You peel it, you eat it, you get your daily vitamin C.", n:1, s:1,
+   fact:"Natural and genuinely good for you \u2014 but hold that thought. Another item on this list is about to make an uncomfortable point about it." },
+ { emo:"💊", name:"Vitamin C tablet", id:"tablet",
+   desc:"Ascorbic acid produced industrially in a factory, pressed into a tablet.", n:0, s:1,
+   fact:"The punchline: the molecule in this tablet and the molecule in that orange are IDENTICAL \u2014 same atoms, same arrangement, same everything. Your cells cannot tell which one came from a tree. 'Natural' describes a molecule's birthplace, not its behaviour." },
+ { emo:"⛏️", name:"Arsenic", desc:"A grey element dug out of the ground; it also seeps naturally into groundwater.",
+   n:1, s:0, fact:"Utterly natural, utterly lethal \u2014 the classic poison of history. Victorians even ate it in 'complexion wafers' to look fashionably pale. It worked, by destroying their red blood cells." },
+ { emo:"💊", name:"Aspirin", desc:"Manufactured by chemically modifying a compound first found in willow bark.",
+   n:0, s:1, fact:"Willow bark works but shreds your stomach. In 1897 Bayer's chemists bolted an acetyl group onto it \u2014 and the MODIFIED, synthetic version is gentler, stronger and dosed precisely. Sometimes the lab improves on nature." },
+ { emo:"🦠", name:"Botulinum toxin", desc:"Produced by bacteria growing in badly preserved food.",
+   n:1, s:0, fact:"The most poisonous substance known to science, made by a living organism in a tin of beans. A few hundred grams could theoretically kill everyone on Earth. In doses a million times smaller, it's Botox." },
+ { emo:"🍃", name:"Tobacco leaf", desc:"A green plant, grown in fields, dried and rolled. Nothing added.",
+   n:1, s:0, fact:"Organic. Plant-based. Farm-grown. Free-range, if you like. It kills roughly 8 million people every year. Nature is not on your side \u2014 nature has no side." },
+ { emo:"🪨", name:"Asbestos", desc:"A fibrous mineral mined from rock \u2014 it can be spun into fireproof cloth.",
+   n:1, s:0, fact:"A rock. Straight out of the ground, used for thousands of years. Breathing the fibres causes lung cancer 20\u201340 years later \u2014 which is exactly why 'people have used it for centuries' proves nothing at all about safety." },
+ { emo:"🧬", name:"Insulin", desc:"Produced by bacteria that have had a human gene inserted into them in a lab.",
+   n:0, s:1, fact:"About as unnatural as medicine gets \u2014 genetically engineered bacteria brewing a human protein. Before 1922, type 1 diabetes was a death sentence for children. This keeps millions of people alive." },
+ { emo:"😴", name:"Thalidomide", desc:"A sleeping pill and morning-sickness remedy sold from 1957.",
+   n:0, s:0, fact:"Marketed as remarkably safe. Over 10,000 babies were born with severe limb differences. The scandal is precisely why the 1962 law demanded proper trials before any drug could be sold \u2014 the last card on your Trial Detective timeline." },
+ { emo:"🍯", name:"Honey", desc:"Bees make it; humans have eaten it for at least 8,000 years.",
+   n:1, s:1, fact:"One of the folk remedies that actually survived testing: it's genuinely mildly antibacterial and beats placebo for soothing a night-time cough. (Never for babies under one \u2014 spores.)" },
+ { emo:"⛽", name:"Leaded petrol", desc:"Tetraethyl lead, invented in 1921 and added to fuel to stop engines knocking.",
+   n:0, s:0, fact:"It solved the engineering problem perfectly and poisoned the air for 70 years, measurably lowering children's IQ across the entire planet. The final country stopped selling it in 2021 \u2014 within your lifetime." },
+ { emo:"🦷", name:"Fluoride toothpaste", desc:"A fluoride compound added to a paste you scrub your teeth with.",
+   n:0, s:1, fact:"Straight from our dental lesson: fluoride swaps into your enamel to make fluorapatite, which resists acid far better than the original hydroxyapatite. Safe at toothpaste doses \u2014 you would have to eat whole tubes to be harmed." },
+ { emo:"🌾", name:"Artemisinin", desc:"Extracted from sweet wormwood, following a recipe written in the 4th century.",
+   n:1, s:1, fact:"Tu Youyou's Nobel Prize. Natural, ancient, and it has saved millions of lives \u2014 because somebody finally TESTED it. Remember this one when the next item appears." },
+ { emo:"🌱", name:"Aristolochia herb", desc:"A traditional herbal remedy, used for centuries, sold for weight loss.",
+   n:1, s:0, fact:"Same herbal library as artemisinin \u2014 opposite outcome. Over 100 patients at one Belgian clinic suffered kidney failure, many later developing cancer. Two herbs, same shelf, and the shelf cannot tell you which is which. Only testing can." },
+ { emo:"🌳", name:"Willow bark tea", desc:"Bark stripped from a willow tree, boiled and drunk for aches.",
+   n:1, s:1, fact:"Contains salicin, a real painkiller, and it beats placebo in trials. Nature does sometimes deliver the goods \u2014 it just never delivers a dose label, a purity check or an ingredients list." },
+ { emo:"🧴", name:"'Miracle Mineral Solution'", desc:"A liquid sold online as a cure-all; you mix two bottles together and drink it.",
+   n:0, s:0, fact:"Advertised as a natural mineral cure. It is industrial bleach \u2014 chlorine dioxide. Health agencies on four continents have issued warnings. 'Natural-sounding' is a writing style, not a fact." },
+ { emo:"🐍", name:"Snake venom", desc:"Milked from the fangs of a pit viper.",
+   n:1, s:0, fact:"Wildly dangerous \u2014 and also the origin of captopril, a real blood-pressure drug. Scientists studied WHY the venom drops blood pressure, isolated the mechanism, and built a medicine from it. The poison had to be tested before it could become a cure." }
+];
+
+var order=[], pos=0, tries=0, firstTry=0, done=[0,0,0,0];
+
+/* audio */
+var AC=null;
+function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } } return AC; }
+function tone(f,d,dur,ty,v){ var a=ac(); if(!a) return;
+  var o=a.createOscillator(), g=a.createGain();
+  o.type=ty; o.frequency.value=f; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(v,a.currentTime+d);
+  g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d+dur);
+  o.start(a.currentTime+d); o.stop(a.currentTime+d+dur+.04); }
+function sGood(){ tone(587,0,.14,"triangle",.15); tone(784,.08,.26,"triangle",.15); }
+function sBad(){ tone(150,0,.26,"sawtooth",.13); tone(100,.09,.28,"square",.1); }
+function sEnd(){ var n=[523,659,784,1047], i; for(i=0;i<n.length;i++) tone(n[i],i*.12,.3,"triangle",.15); }
+
+function conf(n){ var c=["#f7d794","#78e08f","#4a69bd","#f0b95f","#82ccdd","#e55039"], i, d;
+  for(i=0;i<n;i++){ d=document.createElement("div"); d.className="conf";
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.width=d.style.height=(6+Math.random()*8)+"px";
+    d.style.background=c[Math.floor(Math.random()*c.length)];
+    d.style.animationDuration=(1.6+Math.random()*1.8)+"s";
+    document.body.appendChild(d);
+    (function(el){ setTimeout(function(){ el.parentNode&&el.parentNode.removeChild(el); },4000); })(d); } }
+
+function shuffle(){
+  var i,j,t;
+  order=[];
+  for(i=0;i<ITEMS.length;i++) order.push(i);
+  for(i=order.length-1;i>0;i--){ j=Math.floor(Math.random()*(i+1)); t=order[i]; order[i]=order[j]; order[j]=t; }
+  /* keep the orange before the tablet so the punchline lands */
+  var po=-1, pt=-1;
+  for(i=0;i<order.length;i++){ if(ITEMS[order[i]].id==="orange") po=i; if(ITEMS[order[i]].id==="tablet") pt=i; }
+  if(po>pt){ t=order[po]; order[po]=order[pt]; order[pt]=t; }
+}
+
+function render(){
+  var it=ITEMS[order[pos]], b=document.getElementsByClassName("bin"), i;
+  tries=0;
+  document.getElementById("iEmo").textContent=it.emo;
+  document.getElementById("iName").textContent=it.name;
+  document.getElementById("iDesc").textContent=it.desc;
+  document.getElementById("card").style.animation="none";
+  setTimeout(function(){ document.getElementById("card").style.animation="pop .35s"; },10);
+  document.getElementById("prog").textContent="Item "+(pos+1)+" of "+ITEMS.length;
+  document.getElementById("barfill").style.width=((pos)/ITEMS.length*100)+"%";
+  document.getElementById("fb").style.display="none";
+  document.getElementById("bins").style.display="grid";
+  for(i=0;i<b.length;i++) b[i].className="bin";
+}
+
+function pick(el){
+  var it=ITEMS[order[pos]], b=document.getElementsByClassName("bin"), i,
+      n=parseInt(el.getAttribute("data-n"),10), s=parseInt(el.getAttribute("data-s"),10);
+  if(document.getElementById("fb").style.display==="block") return;
+  if(n===it.n && s===it.s){
+    el.className="bin good";
+    if(tries===0){ firstTry++; conf(28); }
+    sGood();
+    reveal(true);
+  } else {
+    tries++; sBad();
+    el.className="bin bad";
+    (function(x){ setTimeout(function(){ if(x.className.indexOf("bad")>-1) x.className="bin"; },460); })(el);
+    if(tries>=2){
+      for(i=0;i<b.length;i++){
+        if(parseInt(b[i].getAttribute("data-n"),10)===it.n && parseInt(b[i].getAttribute("data-s"),10)===it.s){ b[i].className="bin good"; }
+        else { b[i].className="bin dim"; }
+      }
+      reveal(false);
+    }
+  }
+}
+function reveal(clean){
+  var it=ITEMS[order[pos]], k=(it.n?0:2)+(it.s?0:1);
+  done[k]++;
+  document.getElementById("score").textContent="First-try: "+firstTry;
+  document.getElementById("fbTitle").textContent=(clean?"✅ Correct \u2014 ":"📖 The answer: ")+
+    (it.n?"NATURAL":"MADE BY PEOPLE")+" & "+(it.s?"SAFE":"DEADLY");
+  document.getElementById("fbText").textContent=it.fact;
+  document.getElementById("fb").style.display="block";
+  document.getElementById("btnNext").textContent=(pos===ITEMS.length-1)?"See the verdict 🧪":"Next →";
+}
+function next(){
+  pos++;
+  if(pos>=ITEMS.length){
+    document.getElementById("barfill").style.width="100%";
+    document.getElementById("endScore").textContent="Sorted correctly first try: "+firstTry+" / "+ITEMS.length;
+    var lbl=["🌿 Natural &amp; safe","☠️ Natural &amp; deadly","⚗️ Made &amp; safe","💀 Made &amp; deadly"], h="", i;
+    for(i=0;i<4;i++) h+="<div>"+lbl[i]+"<br><b>"+done[i]+" items</b></div>";
+    document.getElementById("tallies").innerHTML=h;
+    document.getElementById("endOvl").style.display="flex";
+    sEnd(); conf(130);
+    return;
+  }
+  render();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  var b=document.getElementsByClassName("bin"), i;
+  for(i=0;i<b.length;i++){ (function(el){ el.onclick=function(){ pick(el); }; })(b[i]); }
+  document.getElementById("btnNext").onclick=next;
+  shuffle(); render();
+});
+})();
+</script></body></html>

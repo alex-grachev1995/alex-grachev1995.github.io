@@ -1,0 +1,374 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Poe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.50ec1b0612bf5b0c30a5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _framermotion = require('framer-motion');
+var _lucidereact = require('lucide-react');
+
+// ---------------- DATA ----------------
+
+const FLAWS = [
+  { id: 'sample', label: '🤏 Sample too small' },
+  { id: 'control', label: '🚫 No control group' },
+  { id: 'blind', label: '🙈 Not blinded' },
+  { id: 'random', label: '🎲 Not randomized' },
+  { id: 'correlation', label: '🔗 Correlation ≠ causation' },
+  { id: 'approve', label: '✅ Approve — this study is solid' },
+];
+
+const HANDBOOK = [
+  { icon: '🤏', name: 'Sample size', text: 'You need enough people for luck to even out. Two lucky patients prove nothing.' },
+  { icon: '🚫', name: 'Control group', text: 'A comparison group that does NOT get the treatment — so you can see what happens anyway.' },
+  { icon: '🙈', name: 'Blinding', text: "Patients (and ideally doctors) must not know who got the real treatment — so expectations can't fake the result." },
+  { icon: '🎲', name: 'Randomization', text: 'A coin flip or computer decides who goes in which group — so the groups start out equal.' },
+  { icon: '🔗', name: 'Correlation ≠ causation', text: "Two things happening together doesn't prove one causes the other. A hidden third thing may cause both." },
+];
+
+const STUDIES = [
+  {
+    title: 'HoneyZap Cold Syrup',
+    from: 'Submitted by: HoneyZap Ltd.',
+    text: '"My grandfather took HoneyZap syrup when he caught a cold, and he felt much better within three days! Our neighbour Mrs. Chen tried it too, and she says it definitely works. HoneyZap — proven by real people!"',
+    answer: 'sample',
+    hint: 'Count the patients in this "study". How many are there? Would you trust a coin that landed heads twice in a row?',
+    why: 'This entire study is TWO people. With numbers that small, pure luck explains everything — both of them probably just got better on their own (colds do that). You need enough people for coincidence to wash out.',
+    history: {
+      year: '1920s',
+      title: 'Statisticians take over',
+      text: 'In the 1920s, statisticians like Ronald Fisher worked out the math of how many people a study needs before its result means anything. Fun fact: the famous 1747 scurvy trial had only 12 sailors — it pointed the way, but by modern rules it mostly got lucky.',
+    },
+  },
+  {
+    title: 'ColdAway Nose Spray',
+    from: 'Submitted by: ColdAway Labs',
+    text: '"We gave our new spray to 100 people who had just caught a cold. They sprayed it three times a day. Within 7 days, 91 of them were completely better. A 91% cure rate!"',
+    answer: 'control',
+    hint: 'What usually happens to a cold after 7 days if you do absolutely nothing at all?',
+    why: 'Colds go away by themselves in about a week — spray or no spray. Without a comparison group of people who did NOT use ColdAway, "91% got better" tells us nothing. This is exactly how bloodletting survived 2,000 years: everyone who recovered gave the treatment the credit.',
+    history: {
+      year: '1747',
+      title: 'James Lind and the scurvy sailors',
+      text: 'Aboard the HMS Salisbury, ship\'s doctor James Lind took 12 sailors dying of scurvy and gave each pair a different treatment: cider, vinegar, seawater, oranges and lemons... Only the citrus pair recovered. By comparing groups side by side, Lind ran the most famous early controlled trial in history.',
+    },
+  },
+  {
+    title: 'MiracleRub Knee Cream',
+    from: 'Submitted by: MiracleRub Inc.',
+    text: '"80 patients with sore knees. Group A (40 people) received MiracleRub — the famous golden cream they had seen advertised on TV. Group B (40 people) received nothing. After two weeks, Group A reported much less knee pain than Group B."',
+    answer: 'blind',
+    hint: "There IS a control group this time, and 80 people isn't bad. But Group A knew they were getting the famous cream... Remember Haygarth's wooden tractors?",
+    why: "Group A knew they got the exciting TV-famous cream — so of course they FELT better and reported less pain. That's the placebo effect doing the work, not the cream. Group B should have received a fake cream that looked identical, and nobody should have known which was which.",
+    history: {
+      year: '1784 & 1799',
+      title: 'The invention of blinding',
+      text: 'In 1784, Benjamin Franklin\'s commission tested Mesmer\'s "animal magnetism" by literally blindfolding patients — the effects followed belief, not the treatment. In 1799, John Haygarth did the same with wooden fake tractors. Hiding the truth from patients — "blinding" — was born.',
+    },
+  },
+  {
+    title: 'VitaGlow Multivitamins',
+    from: 'Submitted by: VitaGlow Health',
+    text: '"We surveyed 10,000 adults. People who regularly buy VitaGlow multivitamins were sick 30% less often last year than people who don\'t buy them. Conclusion: VitaGlow prevents illness!"',
+    answer: 'correlation',
+    hint: 'Nobody gave anyone anything in this study — they just observed. What KIND of person spends money on vitamins every day? What ELSE do those people probably do?',
+    why: "People who buy daily vitamins are usually people who also exercise, eat vegetables, sleep well, and see doctors — THAT's probably why they're sick less. The vitamins just come along for the ride. Two things moving together doesn't mean one causes the other.",
+    history: {
+      year: '1950s–1965',
+      title: 'The smoking wars',
+      text: 'When studies showed smokers got lung cancer more often, tobacco companies argued "correlation isn\'t causation!" for years. To settle it, epidemiologist Austin Bradford Hill published a famous checklist in 1965 for deciding when a correlation really does point to a cause. (Smoking failed every excuse — it causes cancer.)',
+    },
+  },
+  {
+    title: 'SleepWell Pills',
+    from: 'Submitted by: SleepWell Clinic',
+    text: '"200 patients with sleep problems came to our clinic. Each patient chose for themselves: try the exciting new SleepWell pill, or stick with the old herbal tea. The 130 who chose SleepWell now sleep better than the 70 who chose tea. SleepWell wins!"',
+    answer: 'random',
+    hint: 'There are two groups and 200 people. But nobody flipped a coin... Who decided which group each patient joined? Might pill-choosers be different people from tea-choosers even BEFORE treatment?',
+    why: "The patients sorted THEMSELVES. People who eagerly try a new pill tend to be more hopeful, more motivated, maybe less severely ill than people who stick with old tea. The groups were different before anyone took anything — so the comparison is broken. A coin flip (or computer) must decide who goes where.",
+    history: {
+      year: '1948',
+      title: 'The first modern randomized trial',
+      text: "Testing streptomycin against tuberculosis, Britain's Austin Bradford Hill used random numbers to assign patients to drug or no drug — no doctor or patient could influence who got what. The 1948 streptomycin trial became the template for every serious drug trial since.",
+    },
+  },
+  {
+    title: 'FocusFizz Brain Drink',
+    from: 'Submitted by: FocusFizz Beverages',
+    text: '"400 students were split into two equal groups by computer, completely at random. Group 1 drank a can of FocusFizz before a memory test; Group 2 drank a glass of plain water. Group 1 scored 15% higher. FocusFizz — fuel for your brain!"',
+    answer: 'blind',
+    hint: "This one is sneaky. Sample size ✓. Control group ✓. Randomized ✓. But... could a student TELL which drink they got? What should Group 2 have been given instead of plain water?",
+    why: 'Every student knew exactly which group they were in — a sweet fizzy "brain drink" tastes nothing like plain water. Believing you drank brain fuel genuinely boosts effort and confidence on a test. Group 2 needed a fake drink that looked and tasted identical to FocusFizz. Good studies fool the participants; bad studies let participants fool the results.',
+    history: {
+      year: '1950s',
+      title: 'Placebo controls become the standard',
+      text: 'By the 1950s, researchers made identical-looking dummy treatments — sugar pills, flavored drinks, even sham surgeries — the standard comparison in trials. A new treatment doesn\'t just have to work; it has to beat a perfect fake.',
+    },
+  },
+  {
+    title: 'DreamEase Insomnia Pill',
+    from: 'Submitted by: University Hospital Research Group',
+    text: '"500 patients with insomnia. A computer randomly assigned each one to DreamEase or to a placebo pill that looked and tasted identical. Neither the patients nor the doctors knew who was taking which until the study ended. Result: the DreamEase group fell asleep on average 21 minutes faster than the placebo group."',
+    answer: 'approve',
+    hint: "Check every rule, one by one: enough people? control group? randomized? blinded? ... What if there's nothing wrong with it?",
+    why: "Big sample ✓ Placebo control ✓ Randomized by computer ✓ Double-blind ✓ — this is the gold standard: a randomized, double-blind, placebo-controlled trial. A detective who rejects EVERYTHING is as useless as one who approves everything. Recognizing good science is the whole point of having rules.",
+    history: {
+      year: '1962',
+      title: 'Proof becomes the law',
+      text: 'After the thalidomide disaster, the US passed a law in 1962: no medicine could be sold without "adequate and well-controlled" trials proving it actually works. The design you just approved became the legal gold standard worldwide — about 160 years after Haygarth carved his wooden tractors.',
+    },
+  },
+];
+
+const TIMELINE = [
+  { year: '1747', text: 'Control groups — Lind compares scurvy treatments side by side' },
+  { year: '1784–1799', text: 'Blinding — Franklin blindfolds patients; Haygarth carves fake tractors' },
+  { year: '1920s', text: 'Sample size math — Fisher works out how many people a study needs' },
+  { year: '1948', text: 'Randomization — the streptomycin trial lets chance assign patients' },
+  { year: '1950s', text: 'Placebo controls — new drugs must beat a perfect fake' },
+  { year: '1962', text: 'The law — no proof, no medicine' },
+];
+
+// ---------------- COMPONENT ----------------
+
+ function TrialDetective() {
+  const [phase, setPhase] = _react.useState.call(void 0, 'intro'); // intro | play | done
+  const [idx, setIdx] = _react.useState.call(void 0, 0);
+  const [stage, setStage] = _react.useState.call(void 0, 'reading'); // reading | options | resolved
+  const [eliminated, setEliminated] = _react.useState.call(void 0, []);
+  const [wrongPick, setWrongPick] = _react.useState.call(void 0, { id: null, n: 0 });
+  const [outcome, setOutcome] = _react.useState.call(void 0, null); // 'first' | 'second' | 'revealed'
+  const [results, setResults] = _react.useState.call(void 0, []);
+  const [showHandbook, setShowHandbook] = _react.useState.call(void 0, false);
+
+  const study = STUDIES[idx];
+
+  const pick = (id) => {
+    if (stage !== 'options') return;
+    if (id === study.answer) {
+      setOutcome(eliminated.length === 0 ? 'first' : 'second');
+      setStage('resolved');
+    } else {
+      const elim = [...eliminated, id];
+      setEliminated(elim);
+      setWrongPick({ id, n: wrongPick.n + 1 });
+      if (elim.length >= 2) {
+        setOutcome('revealed');
+        setStage('resolved');
+      }
+    }
+  };
+
+  const nextCase = () => {
+    setResults([...results, outcome]);
+    if (idx >= STUDIES.length - 1) {
+      setPhase('done');
+    } else {
+      setIdx(idx + 1);
+      setStage('reading');
+      setEliminated([]);
+      setOutcome(null);
+    }
+  };
+
+  const restart = () => {
+    setPhase('intro');
+    setIdx(0);
+    setStage('reading');
+    setEliminated([]);
+    setOutcome(null);
+    setResults([]);
+  };
+
+  // ---------- INTRO ----------
+  if (phase === 'intro') {
+    return (
+      _react2.default.createElement('div', { className: "min-h-screen bg-stone-900 flex items-center justify-center p-4 md:p-6"      ,}
+        , _react2.default.createElement('div', { className: "max-w-2xl w-full bg-amber-50 rounded-2xl shadow-2xl p-6 md:p-8 border-4 border-amber-900"        ,}
+          , _react2.default.createElement('div', { className: "text-center mb-6" ,}
+            , _react2.default.createElement(_lucidereact.Search, { className: "w-12 h-12 text-amber-800 mx-auto mb-3"    ,} )
+            , _react2.default.createElement('h1', { className: "text-3xl font-black text-stone-900"  ,}, "TRIAL DETECTIVE" )
+            , _react2.default.createElement('p', { className: "text-amber-800 font-semibold italic"  ,}, "The Journal of Actually Checking Things"     )
+          )
+          , _react2.default.createElement('div', { className: "bg-white rounded-xl p-5 border border-amber-300 mb-5 text-stone-800 space-y-2"       ,}
+            , _react2.default.createElement('p', null, "🕵️ You are the journal's newest reviewer. Seven studies have landed on your desk. Companies want you to approve them."                   )
+            , _react2.default.createElement('p', { className: "font-semibold",}, "Your job: find the flaw in each one — or, if a study is genuinely solid, approve it."                 )
+            , _react2.default.createElement('p', { className: "text-stone-600 text-sm" ,}, "First read the study and say out loud what smells fishy. Then open the flaw options and make your call. You get two tries per case."                         )
+          )
+          , _react2.default.createElement('div', { className: "bg-stone-100 rounded-xl p-5 border border-stone-300 mb-6"     ,}
+            , _react2.default.createElement('h2', { className: "font-bold text-stone-900 mb-3 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.BookOpen, { className: "w-5 h-5" ,} ), " Detective's Handbook — the 5 rules of a fair test"          )
+            , _react2.default.createElement('div', { className: "space-y-2",}
+              , HANDBOOK.map((h) => (
+                _react2.default.createElement('div', { key: h.name, className: "flex gap-3 text-sm text-stone-700"   ,}
+                  , _react2.default.createElement('span', { className: "text-lg",}, h.icon)
+                  , _react2.default.createElement('p', null, _react2.default.createElement('span', { className: "font-bold",}, h.name, ":"), " " , h.text)
+                )
+              ))
+            )
+          )
+          , _react2.default.createElement('button', { onClick: () => setPhase('play'), className: "w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-3 rounded-xl text-lg transition-colors"        ,}, "Open Case File #1 "
+                , _react2.default.createElement(_lucidereact.ArrowRight, { className: "inline w-5 h-5 ml-1"   ,} )
+          )
+        )
+      )
+    );
+  }
+
+  // ---------- DONE ----------
+  if (phase === 'done') {
+    const firstTries = results.filter((r) => r === 'first').length;
+    const solved = results.filter((r) => r !== 'revealed').length;
+    const rank = firstTries >= 6 ? '🏆 Chief Editor' : firstTries >= 4 ? '🥇 Senior Detective' : solved >= 5 ? '🕵️ Junior Detective' : '📖 Detective in Training';
+    return (
+      _react2.default.createElement('div', { className: "min-h-screen bg-stone-900 flex items-center justify-center p-4 md:p-6"      ,}
+        , _react2.default.createElement('div', { className: "max-w-2xl w-full bg-amber-50 rounded-2xl shadow-2xl p-6 md:p-8 border-4 border-amber-900"        ,}
+          , _react2.default.createElement('div', { className: "text-center mb-6" ,}
+            , _react2.default.createElement(_lucidereact.Award, { className: "w-12 h-12 text-amber-700 mx-auto mb-2"    ,} )
+            , _react2.default.createElement('h1', { className: "text-3xl font-black text-stone-900"  ,}, "CASES CLOSED" )
+            , _react2.default.createElement('p', { className: "text-xl font-bold text-amber-800 mt-2"   ,}, rank)
+            , _react2.default.createElement('p', { className: "text-stone-600 mt-1" ,}, firstTries, " of 7 solved on the first try · "         , solved, " of 7 without help"    )
+          )
+          , _react2.default.createElement('div', { className: "bg-white rounded-xl p-5 border border-amber-300 mb-5"     ,}
+            , _react2.default.createElement('h2', { className: "font-bold text-stone-900 mb-1 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.ScrollText, { className: "w-5 h-5" ,} ), " What you just rebuilt"    )
+            , _react2.default.createElement('p', { className: "text-sm text-stone-600 mb-4"  ,}, "Every rule you used was invented by medicine — painfully, one disaster at a time — over 200+ years:"                  )
+            , _react2.default.createElement('div', { className: "space-y-2",}
+              , TIMELINE.map((t) => (
+                _react2.default.createElement('div', { key: t.year, className: "flex gap-3 items-baseline"  ,}
+                  , _react2.default.createElement('span', { className: "font-mono font-bold text-amber-800 w-20 shrink-0 text-right"     ,}, t.year)
+                  , _react2.default.createElement('span', { className: "text-stone-800 text-sm" ,}, t.text)
+                )
+              ))
+            )
+          )
+          , _react2.default.createElement('p', { className: "text-center text-stone-700 italic mb-6"   ,}, "Washington's doctors had none of these rules. You now have all of them."            )
+          , _react2.default.createElement('button', { onClick: restart, className: "w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition-colors"       ,}
+            , _react2.default.createElement(_lucidereact.RotateCcw, { className: "inline w-4 h-4 mr-2"   ,} ), "Review the cases again"
+          )
+        )
+      )
+    );
+  }
+
+  // ---------- PLAY ----------
+  const correctFlaw = FLAWS.find((f) => f.id === study.answer);
+  return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-stone-900 p-4 md:p-6"   ,}
+      , _react2.default.createElement('div', { className: "max-w-2xl mx-auto" ,}
+        , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3 text-amber-200"    ,}
+          , _react2.default.createElement('span', { className: "font-bold flex items-center gap-2"   ,}, _react2.default.createElement(_lucidereact.Search, { className: "w-4 h-4" ,} ), " Case "  , idx + 1, " of "  , STUDIES.length)
+          , _react2.default.createElement('button', { onClick: () => setShowHandbook(!showHandbook), className: "text-sm flex items-center gap-1 bg-stone-800 hover:bg-stone-700 px-3 py-1 rounded-lg transition-colors"         ,}
+            , showHandbook ? _react2.default.createElement(_lucidereact.X, { className: "w-4 h-4" ,} ) : _react2.default.createElement(_lucidereact.BookOpen, { className: "w-4 h-4" ,} ), " Handbook"
+          )
+        )
+
+        , _react2.default.createElement(_framermotion.AnimatePresence, null
+          , showHandbook && (
+            _react2.default.createElement(_framermotion.motion.div, { initial: { opacity: 0, height: 0 }, animate: { opacity: 1, height: 'auto' }, exit: { opacity: 0, height: 0 }, className: "overflow-hidden",}
+              , _react2.default.createElement('div', { className: "bg-stone-100 rounded-xl p-4 border border-stone-300 mb-3 space-y-1"      ,}
+                , HANDBOOK.map((h) => (
+                  _react2.default.createElement('p', { key: h.name, className: "text-sm text-stone-700" ,}, h.icon, " " , _react2.default.createElement('span', { className: "font-bold",}, h.name, ":"), " " , h.text)
+                ))
+              )
+            )
+          )
+        )
+
+        /* Study card */
+        , _react2.default.createElement('div', { className: "bg-amber-50 rounded-2xl shadow-xl p-5 md:p-6 border-4 border-amber-900 relative"       ,}
+          , _react2.default.createElement('p', { className: "text-xs uppercase tracking-widest text-amber-700 font-bold mb-1"     ,}, study.from)
+          , _react2.default.createElement('h2', { className: "text-2xl font-black text-stone-900 mb-3"   ,}, study.title)
+          , _react2.default.createElement('p', { className: "text-stone-800 leading-relaxed bg-white rounded-xl p-4 border border-amber-200"      ,}, study.text)
+
+          /* stamp on resolve */
+          , _react2.default.createElement(_framermotion.AnimatePresence, null
+            , stage === 'resolved' && (
+              _react2.default.createElement(_framermotion.motion.div, {
+                initial: { scale: 3, opacity: 0, rotate: -20 },
+                animate: { scale: 1, opacity: 1, rotate: -12 },
+                className: `absolute top-4 right-4 border-4 rounded-lg px-3 py-1 font-black text-lg ${
+                  study.answer === 'approve' ? 'border-green-700 text-green-700' : 'border-red-700 text-red-700'
+                }`,}
+
+                , study.answer === 'approve' ? 'APPROVED ✓' : 'REJECTED ✗'
+              )
+            )
+          )
+        )
+
+        /* Stage: reading */
+        , stage === 'reading' && (
+          _react2.default.createElement('div', { className: "mt-4 bg-stone-800 rounded-xl p-5 border border-stone-700 text-center"      ,}
+            , _react2.default.createElement('p', { className: "text-amber-100 text-lg mb-1"  ,}, "🤔 Read it carefully. What smells fishy here?"       )
+            , _react2.default.createElement('p', { className: "text-stone-400 text-sm mb-4"  ,}, "Say your suspicion out loud FIRST — then check the options."          )
+            , _react2.default.createElement('button', { onClick: () => setStage('options'), className: "bg-amber-700 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded-xl transition-colors"       ,}, "Show me the possible flaws"
+
+            )
+          )
+        )
+
+        /* Stage: options */
+        , stage === 'options' && (
+          _react2.default.createElement('div', { className: "mt-4",}
+            , eliminated.length === 1 && (
+              _react2.default.createElement(_framermotion.motion.div, { initial: { opacity: 0, y: -8 }, animate: { opacity: 1, y: 0 }, className: "bg-yellow-900 border border-yellow-600 rounded-xl p-4 mb-3"     ,}
+                , _react2.default.createElement('p', { className: "text-yellow-100 text-sm" ,}, _react2.default.createElement('span', { className: "font-bold",}, "💡 Hint:" ), " " , study.hint)
+              )
+            )
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-2"   ,}
+              , FLAWS.map((f) => {
+                const isElim = eliminated.includes(f.id);
+                return (
+                  _react2.default.createElement(_framermotion.motion.button, {
+                    key: `${f.id}-${wrongPick.id === f.id ? wrongPick.n : 0}`,
+                    animate: wrongPick.id === f.id && isElim ? { x: [0, -10, 10, -7, 7, 0] } : {},
+                    transition: { duration: 0.45 },
+                    onClick: () => !isElim && pick(f.id),
+                    disabled: isElim,
+                    className: `text-left font-semibold px-4 py-3 rounded-xl border-2 transition-colors ${
+                      isElim
+                        ? 'bg-stone-800 border-stone-700 text-stone-600 line-through cursor-not-allowed'
+                        : f.id === 'approve'
+                        ? 'bg-green-900 border-green-600 text-green-100 hover:bg-green-800'
+                        : 'bg-stone-800 border-stone-600 text-amber-50 hover:border-amber-500 hover:bg-stone-700'
+                    }`,}
+
+                    , f.label
+                  )
+                );
+              })
+            )
+          )
+        )
+
+        /* Stage: resolved */
+        , stage === 'resolved' && (
+          _react2.default.createElement(_framermotion.motion.div, { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 }, className: "mt-4 space-y-3" ,}
+            , _react2.default.createElement('div', { className: `rounded-xl p-4 border-2 ${outcome === 'revealed' ? 'bg-stone-800 border-stone-500' : 'bg-green-950 border-green-600'}`,}
+              , _react2.default.createElement('p', { className: "font-bold text-lg text-white"  ,}
+                , outcome === 'first' && '🎯 Got it on the first try! '
+                , outcome === 'second' && '✔️ Got it! '
+                , outcome === 'revealed' && '📖 The answer was: '
+                , _react2.default.createElement('span', { className: "text-amber-300",}, correctFlaw.label)
+              )
+            )
+            , _react2.default.createElement('div', { className: "bg-amber-50 rounded-xl p-5 border border-amber-300"    ,}
+              , _react2.default.createElement('p', { className: "text-stone-800 leading-relaxed" ,}, _react2.default.createElement('span', { className: "font-bold",}, "Why it matters:"  ), " " , study.why)
+            )
+            , _react2.default.createElement('div', { className: "bg-stone-800 rounded-xl p-5 border border-amber-700"    ,}
+              , _react2.default.createElement('p', { className: "text-amber-400 font-mono font-bold text-sm mb-1"    ,}, "📜 WHEN MEDICINE LEARNED THIS — "      , study.history.year)
+              , _react2.default.createElement('p', { className: "text-white font-bold mb-1"  ,}, study.history.title)
+              , _react2.default.createElement('p', { className: "text-stone-300 text-sm leading-relaxed"  ,}, study.history.text)
+            )
+            , _react2.default.createElement('button', { onClick: nextCase, className: "w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors"       ,}
+              , idx >= STUDIES.length - 1 ? '🏁 Close the case files' : `Next case (${idx + 2} of ${STUDIES.length})`, " " , _react2.default.createElement(_lucidereact.ArrowRight, { className: "inline w-5 h-5 ml-1"   ,} )
+            )
+          )
+        )
+      )
+    )
+  );
+} exports.default = TrialDetective;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>

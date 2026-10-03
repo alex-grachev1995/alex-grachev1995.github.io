@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Human Hobbits</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+    <style>
+        /* General Body and Typography Styles */
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fdfdfd;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Main Content Container */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Heading Styles */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            text-align: center;
+            color: #7f8c8d;
+            font-weight: 400;
+            font-style: italic;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+
+        /* Paragraph Styles */
+        p {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 1.25rem;
+        }
+        
+        /* Remove bottom margin from the last paragraph in a container */
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Image and Figure Styles */
+        figure {
+            margin: 2rem 0;
+            padding: 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* New layout for the final section using Flexbox */
+        .flex-bottom-align-layout {
+            display: flex; /* Enables flexbox layout */
+            align-items: flex-end; /* Aligns items to the bottom */
+            gap: 2rem; /* Creates space between the image and text */
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .flex-bottom-align-layout figure {
+            flex: 0 0 45%; /* Sets the image container width to 45% */
+            margin: 0; /* Resets default figure margins */
+        }
+
+        .flex-bottom-align-layout .text-content {
+            flex: 1; /* Allows the text container to take the remaining space */
+        }
+
+        /* Responsive styles for mobile screens */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            /* On smaller screens, stack the flex items vertically */
+            .flex-bottom-align-layout {
+                flex-direction: column; /* Stacks items top-to-bottom */
+                align-items: stretch; /* Resets alignment for vertical stack */
+            }
+
+            .flex-bottom-align-layout figure {
+                margin-bottom: 1.5rem; /* Adds space between image and text when stacked */
+            }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+
+    <div class="container">
+        <h1>The Human Hobbits</h1>
+        <h2>How small were our ancestors?</h2>
+
+        <p>
+            In 2004, on an island in Indonesia called Flores, scientists found something incredible. Deep in a cave, they discovered the fossil bones of a very, very small person. At first, because the skeleton was so tiny, the scientists thought it must have belonged to a child.
+        </p>
+
+        <p>
+            But a good scientist always looks closely at the evidence. When they examined the skeleton’s teeth, they saw something that changed their minds. The teeth were worn down, like the teeth of a grown-up, not a child. This wasn't a child’s skeleton after all. It was a tiny, full-grown adult! She was only about as tall as a modern kindergartener. Because of their small size, scientists nicknamed these ancient people "hobbits." Their scientific name is <i>Homo floresiensis</i>, named after the island where they were found.
+        </p>
+        
+        <figure>
+            <img src="https://i.imgur.com/EnFmymk.jpeg" alt="A comparison of a Homo floresiensis skull and a modern human skull.">
+        </figure>
+
+        <p>
+            In the same cave, scientists found more surprises. They found stone tools and evidence of fire. The dates of these tools matched the age of the fossil. This was very important. It showed that these little people were smart. They could make tools, control fire, and solve problems, just like other early humans.
+        </p>
+
+        <p>
+            Perhaps the biggest surprise was learning when they lived. The "hobbits" lived on the island about 50,000 years ago—at the same time that modern humans (<i>Homo sapiens</i>) were already on the planet. For a long time, we thought we were the only kind of humans around during that period. But in reality, other types of humans were living and thriving while <i>Homo sapiens</i> were spreading from Africa.
+        </p>
+        
+        <figure>
+            <img src="https://i.imgur.com/nHtpzAV.jpeg" alt="An artist's interpretation of Homo floresiensis competing with a giant bird.">
+        </figure>
+
+        <p>
+            This discovery led to a big question that scientists debated for a long time: Was <i>Homo floresiensis</i> a whole new species of human, or were they modern humans who just happened to be very small?
+        </p>
+
+        <div class="flex-bottom-align-layout">
+            <figure>
+                <img src="https://i.imgur.com/oNldOT1.jpeg" alt="Illustration of a baby's head with microcephaly.">
+            </figure>
+            <div class="text-content">
+                <p>
+                    Some scientists had a hypothesis. They thought the first skeleton belonged to a person with a condition called microcephaly. This is a condition that causes a person to have an abnormally small head and brain. But then, the remains of seven more individuals were found on the same island. It would be odd for a whole group of people with the same rare condition to live in one place. This new evidence supported the idea that <i>Homo floresiensis</i> was a separate species.
+                </p>
+                <p>
+                    Later, to test the idea further, scientists studied the skulls of modern humans with microcephaly and compared them to the <i>Homo floresiensis</i> skulls. Their research concluded that the "hobbits" did not have this condition. While some debate still continues, most scientists now believe that <i>Homo floresiensis</i> was a separate species of human.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</body></html>

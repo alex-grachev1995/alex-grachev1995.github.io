@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prehistory: A Document</title>
+    <style>
+        /* --- Basic Page & Typography Setup --- */
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.7;
+            color: #333;
+            background-color: #f0f2f5; /* A light grey background for the page */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- Main Document Container --- */
+        .container {
+            max-width: 8.5in; /* Standard letter paper width */
+            min-height: 11in; /* Standard letter paper height */
+            margin: 2rem auto; /* Center the document on the screen */
+            padding: 5rem 4rem; /* Generous padding for a document feel */
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        /* --- Headings --- */
+        h1, h2, h3 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            font-style: italic;
+            color: #444;
+            margin-top: 2rem;
+        }
+
+        /* --- Paragraphs and Lists --- */
+        p {
+            margin-bottom: 1.2em;
+            text-align: justify;
+        }
+
+        ul {
+            padding-left: 20px;
+            list-style-type: '• '; /* A nice bullet style */
+        }
+
+        li {
+            margin-bottom: 0.8em;
+        }
+
+        /* --- Image Styling --- */
+        figure {
+            margin: 2rem 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        figcaption {
+            margin-top: 0.8em;
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* --- NEW HIERARCHICAL TIMELINE FOR CHINA --- */
+        .new-timeline-container {
+            font-family: 'Roboto', sans-serif;
+            margin: 2.5rem 0;
+        }
+        
+        .timeline-main-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .timeline-era {
+            border: 1px solid #ddd;
+            border-left-width: 5px;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #fdfdfd;
+        }
+        
+        /* Assigning colors via left border */
+        .era-stone { border-left-color: #D2B48C; }
+        .era-bronze { border-left-color: #CD7F32; }
+        .era-iron { border-left-color: #708090; }
+        .era-imperial { border-left-color: #FFD700; }
+
+        .era-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .era-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .era-dates {
+            font-size: 1em;
+            font-weight: 400;
+            color: #555;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .era-description {
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            line-height: 1.6;
+            text-align: left;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .sub-periods-container {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed #ccc;
+        }
+
+        .timeline-sub-period {
+            border: 1px solid #eee;
+            background-color: #fff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+        }
+        .timeline-sub-period:last-child {
+            margin-bottom: 0;
+        }
+
+        .sub-period-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .sub-period-title {
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        .sub-period-dates {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 1rem;
+        }
+
+        .sub-period-dev {
+            font-family: 'Merriweather', serif;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        /* --- Responsive Design for Mobile/Narrow Screens --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 2rem 1.5rem;
+                box-shadow: none;
+                min-height: 100vh;
+            }
+
+            h1 { font-size: 2.2em; }
+            h2 { font-size: 1.6em; }
+            p { text-align: left; }
+
+            .era-header, .sub-period-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .era-dates, .sub-period-dates {
+                margin-left: 0;
+                margin-top: 0.25rem;
+            }
+        }
+        
+        /* --- Print-specific styles --- */
+        @media print {
+            body {
+                background-color: #ffffff;
+            }
+            .container {
+                margin: 0;
+                padding: 1in;
+                box-shadow: none;
+                max-width: 100%;
+            }
+            *, *::before, *::after {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <h1>Prehistory</h1>
+
+        <p>Prehistory is any time that occurred before Human societies developed writing systems. Because different cultures across the world developed writing at different times, prehistory ends at different points in history depending on location.</p>
+
+        <p>Prehistory is made up of every point in time since the beginning of the universe, though for world history it is usually used to refer to the span of time between the evolution of the first Humans to the development of writing. In Egypt, prehistory is thought to have ended around 3200 BC.</p>
+
+        <p>Historians use a three-age system to divide up the ages of Human progress in Eurasia. The system traditionally consists of the Stone Age, Bronze Age, and Iron Age. For the history of China, this framework is often extended to include the pivotal Imperial Era that followed.</p>
+        
+        <div class="new-timeline-container">
+            <h2 class="timeline-main-title">Timeline of Ancient China</h2>
+
+            <div class="timeline-era era-stone">
+                <div class="era-header">
+                    <span class="era-title">1. Stone Age</span>
+                    <span class="era-dates">c. 2.5 Million BC – c. 2000 BC</span>
+                </div>
+                <p class="era-description">The longest period, characterized by stone tools, control of fire, and the transition from nomadic to settled agricultural communities.</p>
+                <div class="sub-periods-container">
+                    <div class="timeline-sub-period">
+                        <div class="sub-period-header">
+                            <span class="sub-period-title">Paleolithic (Old Stone Age)</span>
+                            <span class="sub-period-dates">c. 2.5M – c. 10,000 BC</span>
+                        </div>
+                        <p class="sub-period-dev"><strong>Key Development:</strong> Use of chipped stone tools and control of fire.</p>
+                    </div>
+                    <div class="timeline-sub-period">
+                        <div class="sub-period-header">
+                            <span class="sub-period-title">Mesolithic (Middle Stone Age)</span>
+                            <span class="sub-period-dates">c. 10,000 – c. 8,000 BC</span>
+                        </div>
+                        <p class="sub-period-dev"><strong>Key Development:</strong> Transitional period with smaller, more sophisticated microlith tools.</p>
+                    </div>
+                    <div class="timeline-sub-period">
+                        <div class="sub-period-header">
+                            <span class="sub-period-title">Neolithic (New Stone Age)</span>
+                            <span class="sub-period-dates">c. 8,000 – c. 2000 BC</span>
+                        </div>
+                        <p class="sub-period-dev"><strong>Key Development:</strong> Dawn of agriculture (millet/rice), pottery, and permanent settlements.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-era era-bronze">
+                <div class="era-header">
+                    <span class="era-title">2. Bronze Age</span>
+                    <span class="era-dates">c. 2000 BC – c. 600 BC</span>
+                </div>
+                <p class="era-description">Marked by the rise of China's first dynasties, sophisticated bronze ritual vessels, and the emergence of writing on oracle bones.</p>
+            </div>
+
+            <div class="timeline-era era-iron">
+                <div class="era-header">
+                    <span class="era-title">3. Iron Age</span>
+                    <span class="era-dates">c. 600 BC – 221 BC</span>
+                </div>
+                <p class="era-description">Defined by cast iron technology revolutionizing agriculture and warfare, dominated by the conflicts of the Warring States period.</p>
+            </div>
+
+            <div class="timeline-era era-imperial">
+                <div class="era-header">
+                    <span class="era-title">4. Imperial Era</span>
+                    <span class="era-dates">221 BC Onwards</span>
+                </div>
+                <p class="era-description">Began with unification under the Qin Dynasty, featuring standardization of writing, Legalism, and projects like the Great Wall.</p>
+            </div>
+        </div>
+
+        <h2>The Stone Age</h2>
+        <p>The Stone Age lasted for 3.4 million years and ended between 8,700 BC and 2,000 BC. During this age, Humans used stone tools such as axes. The Stone Age is divided into three periods:</p>
+
+        <figure>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Neanderthal_Flintworkers_%28Knight%2C_1920%29.jpg/960px-Neanderthal_Flintworkers_%28Knight%2C_1920%29.jpg" alt="A 1920 painting by Charles R. Knight depicting a group of Neanderthals in a cave, working on flint tools and looking out over a river valley.">
+            <figcaption>"Neanderthal Flintworkers" (Charles R. Knight, 1920). This depiction captures the essence of the Palaeolithic period: family groups, cave dwellings, and the crafting of stone tools.</figcaption>
+        </figure>
+
+        <h3>The Palaeolithic or 'Old Stone' period - Five Essential Facts</h3>
+        <ul>
+            <li>Humans originated in Africa</li>
+            <li>Humans were nomadic and lived in temporary huts or caves.</li>
+            <li>Small tribes of Humans would travel to look for food, usually berries, deer or bison.</li>
+            <li>Humans would paint depictions of hunts on cave walls, some of these cave paintings can still be seen today</li>
+            <li>Fire was discovered in this era</li>
+        </ul>
+
+        <h3>The Mesolithic or 'Middle Stone' period - Five Essential Facts</h3>
+        <ul>
+            <li>This period lasted from the end of the Ice Age until the discovery of farming</li>
+            <li>Humans developed hunting techniques by carving small pointed stones for arrows and spears</li>
+            <li>Humans began to domesticate animals in this period</li>
+            <li>Though Humans were still hunter-gatherers, they began to settle in more permanent structures</li>
+            <li>In some places, the invention of pottery happened in the Mesolithic era</li>
+        </ul>
+
+        <h3>The Neolithic or 'New Stone' period - Five Essential Facts</h3>
+        <ul>
+            <li>In this period Humans began to cultivate land and grow crops, this is called agriculture</li>
+            <li>The wheel was invention, making it easier to transport things across long distances</li>
+            <li>The sail was invented, allowing Humans to cross oceans and improve fishing techniques</li>
+            <li>The plough was invented which in turn led to increased food</li>
+            <li>The increase in food led to an increase in population</li>
+        </ul>
+        <p>The Stone Age ended with the discovery of metalworking, which led to the Bronze Age.</p>
+        
+        <h2>The Bronze Age</h2>
+        <p>The Bronze Age started at around 3300 BC and ended between 1200 BC and 600 BC. During this age, Humans discovered how to work metals with low melting points such as copper and tin, and this led to the discovery of bronze.</p>
+        
+        <figure>
+            <img src="https://i.imgur.com/FzmLwnu.png" alt="An elaborate ancient Chinese bronze ritual vessel with intricate patterns and a lid.">
+            <figcaption>A Chinese ritual bronze vessel from the Shang Dynasty (c. 1600–1046 BC). The sophisticated piece-mold casting technique was a hallmark of the era.</figcaption>
+        </figure>
+
+        <p>Although Humans were still unable to use iron due to its high melting point, working with bronze allowed them to refine their techniques and create more effective tools and weapons. This led to further improvements in hunting techniques and agriculture.</p>
+        <p>Human society further evolved with the rise of trade. Early trading systems involved Human settlements exchanging excess food or resources for things they needed, in a system called bartering. Trade routes appeared both on land and across seas.</p>
+
+        <h2>The Iron Age</h2>
+        <p>The Iron Age started in about 1200 BC and has different end points for different countries across the world, with some moving out of the Iron Age as early as 700 BC.</p>
+        <p>When Humans discovered how to use iron to make tools, bronze was soon replaced as iron was cheaper and more plentiful, meaning many more people had access to the tools they needed.</p>
+        
+        <figure>
+            <img src="https://i.imgur.com/5anDrhf.jpg" alt="A collection of rusted Iron Age artifacts, including a sword, axe heads, and other tools.">
+            <figcaption>Iron artifacts, which were stronger and more accessible than their bronze predecessors, leading to significant advances in agriculture and warfare.</figcaption>
+        </figure>
+
+        <p>Iron is a much stronger metal than bronze and the ability to make tools and weapons from iron led to a period of significant technological progress for humanity.</p>
+        <p>During the Iron Age Humans began to build forts, establish large religions, wage wars and develop their society with advancements in language and medicine.</p>
+    </main>
+
+</body>
+</html>

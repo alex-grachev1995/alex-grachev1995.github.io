@@ -1,0 +1,754 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Detective: Sort the Evidence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&amp;family=Special+Elite&amp;display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            font-family: 'Special Elite', cursive;
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #b8c6db;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .instructions {
+            background: rgba(243, 156, 18, 0.15);
+            border: 1px solid rgba(243, 156, 18, 0.4);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #f5d89a;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .instructions strong { color: #f39c12; }
+
+        .score-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .score-bar .score {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .score-bar .remaining {
+            color: #b8c6db;
+        }
+
+        .game-area {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .zones-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .drop-zone {
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 16px 12px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .drop-zone.highlight {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone .zone-header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            width: 100%;
+        }
+
+        .drop-zone .zone-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        .drop-zone .zone-title {
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .drop-zone .zone-desc {
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.7;
+            color: #ccc;
+        }
+
+        .zone-renewable .zone-title { color: #2ecc71; }
+        .zone-renewable { border-color: rgba(46, 204, 113, 0.4); }
+        
+        .zone-nonrenewable .zone-title { color: #e74c3c; }
+        .zone-nonrenewable { border-color: rgba(231, 76, 60, 0.4); }
+        
+        .zone-danger .zone-title { color: #f39c12; }
+        .zone-danger { border-color: rgba(243, 156, 18, 0.4); }
+
+        .drop-zone .placed-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .placed-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: white;
+            text-align: center;
+            animation: popIn 0.3s ease;
+        }
+
+        .placed-card.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+        }
+
+        .placed-card.wrong {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .cards-pool {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .pool-label {
+            color: #b8c6db;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255,255,255,0.5);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .resource-card.selected {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+        }
+
+        .resource-card.placed {
+            opacity: 0.3;
+            pointer-events: none;
+            transform: scale(0.9);
+        }
+
+        .resource-card .card-icon {
+            font-size: 20px;
+        }
+
+        /* Feedback toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.correct {
+            background: #27ae60;
+            color: white;
+        }
+
+        .toast.wrong {
+            background: #e74c3c;
+            color: white;
+            animation: shakeToast 0.4s ease;
+        }
+
+        @keyframes shakeToast {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            25% { transform: translateX(calc(-50% - 10px)) translateY(0); }
+            75% { transform: translateX(calc(-50% + 10px)) translateY(0); }
+        }
+
+        /* Explanation popup (only for correct answers) */
+        .explanation-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .explanation-overlay.show {
+            display: flex;
+        }
+
+        .explanation-popup {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: bounceIn 0.4s ease;
+            border-top: 4px solid #27ae60;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .explanation-popup h3 {
+            font-size: 18px;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .explanation-popup p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .explanation-popup button {
+            background: #4a69bd;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .explanation-popup button:hover {
+            background: #3854a6;
+        }
+
+        /* Results screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-screen.show { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-screen h2 {
+            font-family: 'Special Elite', cursive;
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .results-score {
+            font-size: 64px;
+            font-weight: 900;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .results-message {
+            font-size: 16px;
+            color: #b8c6db;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .results-detail {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+        }
+
+        .result-item:last-child { border-bottom: none; }
+        .result-item .ri-status.correct { color: #2ecc71; }
+        .result-item .ri-status.wrong { color: #e74c3c; }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2000;
+            animation: confettiDrop 1.8s forwards;
+        }
+
+        @keyframes confettiDrop {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 700px) {
+            .zones-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .drop-zone {
+                min-height: 80px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                padding: 12px;
+            }
+
+            .drop-zone .zone-header {
+                width: 100%;
+                text-align: left;
+                margin-bottom: 8px;
+                padding-bottom: 6px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .drop-zone .zone-icon { font-size: 20px; margin-bottom: 0; }
+            .drop-zone .placed-items { flex-direction: row; flex-wrap: wrap; }
+            .placed-card { font-size: 11px; padding: 4px 8px; }
+
+            .header h1 { font-size: 22px; }
+            .resource-card { padding: 10px 14px; font-size: 13px; }
+            .resource-card .card-icon { font-size: 16px; }
+            .cards-grid { gap: 8px; }
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🔍 Resource Detective: Sort the Evidence</h1>
+    <p>Sort these resources into the correct category. Watch out for the <strong>Danger Zone</strong> — some resources are trickier than they look!</p>
+</div>
+
+<div class="instructions">
+    <strong>How to play:</strong> Tap a resource card to select it, then tap the zone where it belongs.
+</div>
+
+<div class="score-bar">
+    <span class="score">Score: <span id="scoreDisplay">0</span> / 11</span>
+    <span class="remaining"><span id="remainingDisplay">11</span> remaining</span>
+</div>
+
+<div class="game-area" id="gameArea">
+    <div class="zones-container">
+        <div class="drop-zone zone-renewable" id="zone-renewable" onclick="placeInZone('renewable')">
+            <div class="zone-header">
+                <div class="zone-icon">🟢</div>
+                <div class="zone-title">Renewable</div>
+                <div class="zone-desc">Replenishes naturally, won't run out</div>
+            </div>
+            <div class="placed-items" id="placed-renewable"></div>
+        </div>
+
+        <div class="drop-zone zone-nonrenewable" id="zone-nonrenewable" onclick="placeInZone('nonrenewable')">
+            <div class="zone-header">
+                <div class="zone-icon">🔴</div>
+                <div class="zone-title">Nonrenewable</div>
+                <div class="zone-desc">Once it's gone, it's gone</div>
+            </div>
+            <div class="placed-items" id="placed-nonrenewable"></div>
+        </div>
+
+        <div class="drop-zone zone-danger" id="zone-danger" onclick="placeInZone('danger')">
+            <div class="zone-header">
+                <div class="zone-icon">⚠️</div>
+                <div class="zone-title">Danger Zone</div>
+                <div class="zone-desc">Renewable BUT can run out if misused</div>
+            </div>
+            <div class="placed-items" id="placed-danger"></div>
+        </div>
+    </div>
+
+    <div class="cards-pool">
+        <div class="pool-label">🗂️ Resources to Sort</div>
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+</div>
+
+<!-- Results screen -->
+<div class="results-screen" id="resultsScreen">
+    <h2 id="resultsTitle">Investigation Complete!</h2>
+    <div class="results-score" id="resultsFinalScore">0/11</div>
+    <p class="results-message" id="resultsMessage"></p>
+    <div class="results-detail" id="resultsDetail"></div>
+    <button class="restart-btn" onclick="location.reload()">🔄 Try Again</button>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- Explanation popup (only for correct) -->
+<div class="explanation-overlay" id="explanationOverlay">
+    <div class="explanation-popup">
+        <h3 id="explTitle">✅ Correct!</h3>
+        <p id="explText"></p>
+        <button onclick="closeExplanation()">Got it</button>
+    </div>
+</div>
+
+<script>
+    const resources = [
+        { id: 'sunlight', name: 'Sunlight', icon: '☀️', zone: 'renewable', feedback: 'The sun will keep shining for billions of years. It\'s the most reliable renewable resource we have!' },
+        { id: 'coal', name: 'Coal', icon: '⚫', zone: 'nonrenewable', feedback: 'Coal took millions of years to form from ancient plants. Once we burn it, it\'s gone.' },
+        { id: 'wind', name: 'Wind', icon: '💨', zone: 'renewable', feedback: 'Wind is driven by the sun heating the atmosphere. As long as the sun shines, wind will blow!' },
+        { id: 'oil', name: 'Oil', icon: '🛢️', zone: 'nonrenewable', feedback: 'Oil formed from ancient sea creatures over millions of years. We\'re using it much faster than it can form.' },
+        { id: 'gold', name: 'Gold', icon: '🥇', zone: 'nonrenewable', feedback: 'Gold was created in exploding stars billions of years ago. The Earth has a fixed amount — it doesn\'t grow back!' },
+        { id: 'trees', name: 'Trees', icon: '🌴', zone: 'danger', feedback: 'THIS is the lesson of Rapa Nui! Trees ARE renewable — they grow back. But if you cut them faster than they regrow, AND rats eat the seeds... they\'re gone forever.' },
+        { id: 'fish', name: 'Fish', icon: '🐟', zone: 'danger', feedback: 'Fish reproduce — they\'re renewable! But overfishing can collapse entire populations. Many fish species have been driven to near-extinction.' },
+        { id: 'water', name: 'Fresh Water', icon: '💧', zone: 'danger', feedback: 'Water cycles through rain, but underground aquifers can take thousands of years to refill. Many places on Earth are running out of fresh water RIGHT NOW.' },
+        { id: 'soil', name: 'Soil', icon: '🟫', zone: 'danger', feedback: 'Soil technically renews, but it takes about 1,000 years to form just 3 centimeters. On Rapa Nui, once the trees were gone, the soil washed into the sea.' },
+        { id: 'naturalgas', name: 'Natural Gas', icon: '🔥', zone: 'nonrenewable', feedback: 'Natural gas formed alongside oil from ancient organisms. It takes millions of years to create — we can\'t make more.' },
+        { id: 'palmnuts', name: 'Rapa Nui Palm Nuts', icon: '🥥', zone: 'danger', feedback: 'The palm nuts SHOULD have been renewable — trees make seeds, seeds grow into new trees. But the Polynesian rats ate every single nut before it could sprout. A renewable resource, destroyed by an invasive species.' }
+    ];
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    let shuffledResources = shuffle(resources);
+    let selectedCard = null;
+    let score = 0;
+    let placed = 0;
+    let attempts = {};
+    let results = [];
+
+    function renderCards() {
+        const grid = document.getElementById('cardsGrid');
+        grid.innerHTML = '';
+        shuffledResources.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'resource-card';
+            card.id = `card-${r.id}`;
+            card.innerHTML = `<span class="card-icon">${r.icon}</span>${r.name}`;
+            card.onclick = () => selectCard(r.id);
+            grid.appendChild(card);
+        });
+    }
+
+    function selectCard(id) {
+        document.querySelectorAll('.resource-card').forEach(c => c.classList.remove('selected'));
+        const cardEl = document.getElementById(`card-${id}`);
+        if (cardEl.classList.contains('placed')) return;
+        cardEl.classList.add('selected');
+        selectedCard = id;
+        document.querySelectorAll('.drop-zone').forEach(z => z.classList.add('highlight'));
+    }
+
+    function placeInZone(zone) {
+        if (!selectedCard) return;
+        const resource = resources.find(r => r.id === selectedCard);
+        if (!resource) return;
+
+        document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('highlight'));
+
+        if (!attempts[selectedCard]) attempts[selectedCard] = 0;
+        attempts[selectedCard]++;
+
+        const isCorrect = resource.zone === zone;
+
+        if (isCorrect) {
+            const cardEl = document.getElementById(`card-${selectedCard}`);
+            cardEl.classList.remove('selected');
+            cardEl.classList.add('placed');
+
+            const placedDiv = document.getElementById(`placed-${zone}`);
+            const placedCard = document.createElement('div');
+            placedCard.className = 'placed-card correct';
+            placedCard.textContent = `${resource.icon} ${resource.name}`;
+            placedDiv.appendChild(placedCard);
+
+            if (attempts[selectedCard] === 1) score++;
+            placed++;
+            results.push({ resource, correct: true, firstTry: attempts[selectedCard] === 1 });
+
+            updateDisplay();
+            showExplanation(resource.name, resource.feedback);
+            fireConfetti();
+            selectedCard = null;
+
+            if (placed === resources.length) setTimeout(showResults, 1500);
+        } else {
+            showToast('wrong', '❌ Wrong! Think again.');
+            
+            if (attempts[selectedCard] >= 3) {
+                // After 3 wrong attempts, auto-place
+                const cardEl = document.getElementById(`card-${selectedCard}`);
+                cardEl.classList.remove('selected');
+                cardEl.classList.add('placed');
+
+                const placedDiv = document.getElementById(`placed-${resource.zone}`);
+                const placedCard = document.createElement('div');
+                placedCard.className = 'placed-card wrong';
+                placedCard.textContent = `${resource.icon} ${resource.name}`;
+                placedDiv.appendChild(placedCard);
+
+                placed++;
+                results.push({ resource, correct: false, firstTry: false });
+                updateDisplay();
+                showExplanation(resource.name, resource.feedback);
+                selectedCard = null;
+
+                if (placed === resources.length) setTimeout(showResults, 1500);
+            }
+        }
+    }
+
+    function updateDisplay() {
+        document.getElementById('scoreDisplay').textContent = score;
+        document.getElementById('remainingDisplay').textContent = resources.length - placed;
+    }
+
+    function showToast(type, text) {
+        const toast = document.getElementById('toast');
+        toast.className = `toast ${type}`;
+        toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function showExplanation(name, text) {
+        document.getElementById('explTitle').textContent = `${name}`;
+        document.getElementById('explText').textContent = text;
+        document.getElementById('explanationOverlay').classList.add('show');
+    }
+
+    function closeExplanation() {
+        document.getElementById('explanationOverlay').classList.remove('show');
+    }
+
+    function showResults() {
+        document.getElementById('gameArea').style.display = 'none';
+        document.querySelector('.score-bar').style.display = 'none';
+        document.querySelector('.instructions').style.display = 'none';
+        
+        const screen = document.getElementById('resultsScreen');
+        screen.classList.add('show');
+        document.getElementById('resultsFinalScore').textContent = `${score} / ${resources.length}`;
+
+        let message, title;
+        if (score >= 10) {
+            title = '🏆 Outstanding, Detective!';
+            message = 'You\'ve mastered the difference between renewable, nonrenewable, and the tricky Danger Zone. The case of Rapa Nui taught you well!';
+            fireConfettiBurst();
+        } else if (score >= 7) {
+            title = '👏 Great Work!';
+            message = 'Solid understanding! Remember: "renewable" doesn\'t always mean "safe."';
+        } else if (score >= 4) {
+            title = '🔍 Good Effort!';
+            message = 'The key lesson from Rapa Nui: even renewable resources can run out if we use them faster than they regenerate.';
+        } else {
+            title = '📋 Keep Investigating!';
+            message = 'The Danger Zone is tricky — and that\'s the whole point! Try again and see if you can beat your score.';
+        }
+
+        document.getElementById('resultsTitle').textContent = title;
+        document.getElementById('resultsMessage').textContent = message;
+
+        const detail = document.getElementById('resultsDetail');
+        detail.innerHTML = '';
+        results.forEach(r => {
+            const item = document.createElement('div');
+            item.className = 'result-item';
+            const statusText = r.firstTry ? '✅' : (r.correct ? '⚠️' : '❌');
+            const statusClass = r.firstTry ? 'correct' : 'wrong';
+            item.innerHTML = `<span>${r.resource.icon} ${r.resource.name}</span><span class="ri-status ${statusClass}">${statusText}</span>`;
+            detail.appendChild(item);
+        });
+    }
+
+    function fireConfetti() {
+        const colors = ['#2ecc71', '#f39c12', '#3498db', '#9b59b6', '#e74c3c', '#1abc9c'];
+        const shapes = ['●', '■', '▲', '◆', '★'];
+        for (let i = 0; i < 20; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti';
+            piece.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+            piece.style.color = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.left = `${30 + Math.random() * 40}%`;
+            piece.style.top = `${20 + Math.random() * 30}%`;
+            piece.style.fontSize = `${12 + Math.random() * 18}px`;
+            piece.style.animationDuration = `${1.2 + Math.random() * 1.2}s`;
+            piece.style.animationDelay = `${Math.random() * 0.3}s`;
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 3000);
+        }
+    }
+
+    function fireConfettiBurst() {
+        for (let wave = 0; wave < 3; wave++) setTimeout(() => fireConfetti(), wave * 400);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.resource-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('highlight'));
+            selectedCard = null;
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+            if (document.getElementById('explanationOverlay').classList.contains('show')) closeExplanation();
+        }
+    });
+
+    renderCards();
+</script>
+
+
+</body></html>

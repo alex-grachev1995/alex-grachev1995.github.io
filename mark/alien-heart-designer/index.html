@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👽 Alien Heart Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&amp;family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;min-height:100vh;transition:background .8s ease}
+.bg-welcome{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+.bg-abyssia{background:linear-gradient(135deg,#0c3547 0%,#1a6b8a 40%,#2d9cdb 100%)}
+.bg-skypeak{background:linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 40%,#e0c3fc 100%)}
+.bg-furnace{background:linear-gradient(135deg,#f83600 0%,#f9d423 60%,#ffe259 100%)}
+.bg-mistworld{background:linear-gradient(135deg,#e0eafc 0%,#cfdef3 40%,#d4fc79 100%)}
+.bg-results{background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%)}
+
+.progress-bar{position:fixed;top:0;left:0;right:0;height:6px;background:rgba(255,255,255,.2);z-index:100}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ffd452,#f5576c,#6c5ce7);transition:width .4s;border-radius:0 3px 3px 0}
+.header{text-align:center;padding:14px 15px 6px;max-width:750px;margin:0 auto}
+.header h1{font-family:'Merriweather',serif;font-size:1.3em;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+.score-bar{display:inline-block;background:rgba(255,255,255,.9);padding:5px 18px;border-radius:20px;font-weight:700;font-size:.88em;color:#6c5ce7;margin-top:6px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.page{display:none;max-width:720px;margin:10px auto 40px;padding:0 20px}
+.page.active{display:block;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}10%{transform:translateX(-10px)}20%{transform:translateX(10px)}30%{transform:translateX(-7px)}40%{transform:translateX(7px)}50%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+.shake-it{animation:shake .55s ease}
+@keyframes bounceIn{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+
+.card{background:rgba(255,255,255,.92);border-radius:18px;padding:26px;margin-bottom:16px;box-shadow:0 6px 30px rgba(0,0,0,.12);backdrop-filter:blur(8px)}
+.card-dark{background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.15)}
+.card-dark .q-text,.card-dark .creature-name,.card-dark .creature-desc{color:#f0f0f0}
+.card-dark .option-card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#f0f0f0}
+.card-dark .option-card:hover:not(.disabled):not(.locked){background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
+.card-dark .feedback.ok{background:rgba(46,204,113,.2);color:#7dffb3;border-color:rgba(46,204,113,.4)}
+.card-dark .feedback.meh{background:rgba(243,156,18,.15);color:#ffd97d;border-color:rgba(243,156,18,.3)}
+.card-dark .feedback.no{background:rgba(231,76,60,.2);color:#ffb3aa;border-color:rgba(231,76,60,.3)}
+.card-dark .prev-answer{background:rgba(255,255,255,.08);border-left-color:rgba(255,255,255,.4);color:#ddd}
+.card-dark .toggle-prev{color:#a29bfe}
+.card-dark .prompt-box{background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.15);color:#c8b6ff}
+
+.creature-header{text-align:center;margin-bottom:14px}
+.creature-emoji{font-size:3.5em;display:block;margin-bottom:8px;animation:bounceIn .5s ease}
+.creature-name{font-family:'Merriweather',serif;font-size:1.2em;color:#2c3e50;margin-bottom:6px}
+.creature-desc{font-size:.92em;color:#555;line-height:1.6;max-width:560px;margin:0 auto}
+.q-num{display:inline-block;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:4px 14px;border-radius:16px;font-size:.78em;font-weight:700;margin-bottom:10px}
+.q-text{font-family:'Merriweather',serif;font-size:1.05em;line-height:1.5;margin-bottom:14px;color:#2c3e50}
+
+.option-card{display:block;width:100%;text-align:left;padding:15px 18px;margin:9px 0;background:#fff;border:2.5px solid #e0e0e0;border-radius:12px;color:#2c3e50;font-size:.92em;cursor:pointer;transition:all .25s;font-family:'Roboto',sans-serif;line-height:1.5}
+.option-card:hover:not(.disabled):not(.locked){background:#f8f4ff;border-color:#a29bfe;transform:translateX(4px);box-shadow:0 3px 12px rgba(108,92,231,.12)}
+.option-card.optimal{border-color:#2ecc71;background:rgba(46,204,113,.12);transform:scale(1.01);box-shadow:0 3px 14px rgba(46,204,113,.15)}
+.option-card.suboptimal{border-color:#f39c12;background:rgba(243,156,18,.1)}
+.option-card.wrong-flash{border-color:#e74c3c;background:rgba(231,76,60,.1)}
+.option-card.disabled{pointer-events:none;opacity:.35}
+.option-card.locked{pointer-events:none}
+.opt-label{font-weight:700;margin-right:5px}
+
+.feedback{margin-top:11px;padding:12px 15px;border-radius:10px;font-weight:500;display:none;font-size:.9em;line-height:1.55;border:1px solid transparent}
+.feedback.show{display:block;animation:bounceIn .3s ease}
+.feedback.ok{background:#d4edda;color:#155724;border-color:#c3e6cb}
+.feedback.meh{background:#fef9e7;color:#7d6608;border-color:#fdecc8}
+.feedback.no{background:#fdedec;color:#922b21;border-color:#f5c6cb}
+.retry-prompt{font-weight:700;color:#e74c3c;margin-top:6px;font-size:.88em}
+
+.prev-answer{margin-top:10px;padding:9px 13px;background:rgba(108,92,231,.06);border-radius:8px;border-left:3px solid #6c5ce7;font-size:.83em;color:#555;display:none;line-height:1.5}
+.prev-answer.show{display:block}
+.toggle-prev{font-size:.8em;color:#6c5ce7;cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
+
+.btn{display:inline-block;padding:11px 24px;border:none;border-radius:10px;font-size:.93em;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Roboto',sans-serif}
+.btn-start{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;font-size:1.05em;padding:14px 30px;box-shadow:0 4px 16px rgba(108,92,231,.3)}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 6px 22px rgba(108,92,231,.4)}
+.btn-next{background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;box-shadow:0 3px 10px rgba(46,204,113,.25)}
+.btn-next:hover{transform:translateY(-2px)}
+.btn-back{background:rgba(255,255,255,.7);color:#555;border:2px solid #ccc}
+.btn-back:hover{background:#fff;border-color:#999}
+.btn-restart{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
+.btn-restart:hover{transform:translateY(-2px)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:8px}
+
+.planet-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.planet-card{background:rgba(255,255,255,.12);border:2.5px solid rgba(255,255,255,.25);border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .3s;color:#fff}
+.planet-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.2);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.planet-card .p-emoji{font-size:2.5em;display:block;margin-bottom:8px}
+.planet-card .p-name{font-weight:700;font-size:1em;margin-bottom:5px}
+.planet-card .p-desc{font-size:.78em;opacity:.85;line-height:1.4}
+
+.prompt-box{background:#1a1a2e;color:#a29bfe;padding:14px;border-radius:10px;font-family:monospace;font-size:.8em;line-height:1.6;word-break:break-word;margin:10px 0;border:1px solid #333}
+.prompt-label{font-size:.72em;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:5px;font-family:'Roboto',sans-serif}
+.copy-btn{background:#6c5ce7;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8em;font-weight:600;margin-top:8px;transition:all .2s}
+.copy-btn:hover{background:#5a4bd1}
+
+.summary-list{list-style:none;margin:12px 0}
+.summary-list li{padding:8px 12px;margin:5px 0;background:rgba(108,92,231,.06);border-radius:8px;font-size:.88em;line-height:1.5;border-left:3px solid #6c5ce7}
+.summary-list li.s-optimal{border-left-color:#2ecc71}
+.summary-list li.s-sub{border-left-color:#f39c12}
+
+.particles{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;opacity:.12;animation:drift 12s linear infinite}
+@keyframes drift{0%{transform:translateY(100vh) translateX(0) rotate(0deg)}50%{transform:translateY(50vh) translateX(25px) rotate(180deg)}100%{transform:translateY(-60px) translateX(-15px) rotate(360deg)}}
+
+.welcome-wrap{text-align:center;color:#fff;padding:10px 0 20px}
+.welcome-wrap h1{font-family:'Merriweather',serif;color:#fff;font-size:1.8em;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.welcome-wrap p{color:rgba(255,255,255,.9);font-size:1.05em;line-height:1.7;max-width:540px;margin:0 auto 14px}
+.welcome-emoji{font-size:4.5em;display:block;margin-bottom:12px}
+@media(max-width:600px){.page{padding:0 14px;margin:10px auto 30px}.planet-grid{grid-template-columns:1fr}.creature-emoji{font-size:2.8em}.welcome-wrap h1{font-size:1.4em}}
+</style>
+</head>
+<body class="bg-welcome">
+<div class="particles" id="particles"></div>
+<div class="progress-bar"><div class="progress-fill" id="pf" style="width:0%"></div></div>
+<div class="header">
+<h1>👽 Alien Heart Designer</h1>
+<div class="score-bar">🧬 Score: <span id="scoreNum">0</span> / <span id="totalNum">4</span></div>
+</div>
+
+<!-- Welcome Page -->
+<div class="page active" id="pWelcome">
+<div class="welcome-wrap">
+<span class="welcome-emoji">🪐</span>
+<h1>Design Challenge</h1>
+<p>You're a <strong>bio-engineer</strong> hired by alien civilizations across the galaxy. Design a circulatory system that keeps each creature alive!</p>
+<p style="font-size:.9em;opacity:.8">Choose your alien's planet:</p>
+</div>
+<div class="planet-grid" id="planetGrid">
+<div class="planet-card" onclick="startPlanet('abyssia')"><span class="p-emoji">🌊</span><div class="p-name">Planet Abyssia</div><div class="p-desc">Deep cold ocean. 8m predator with 6 tentacles. Low oxygen.</div></div>
+<div class="planet-card" onclick="startPlanet('skypeak')"><span class="p-emoji">🏔️</span><div class="p-name">Planet Skypeak</div><div class="p-desc">Tall mountains, thin air. 12m tall on 4 legs. Very little oxygen.</div></div>
+<div class="planet-card" onclick="startPlanet('furnace')"><span class="p-emoji">🔥</span><div class="p-name">Planet Furnace</div><div class="p-desc">Scorching desert. Small (30cm), underground, conserves energy.</div></div>
+<div class="planet-card" onclick="startPlanet('mistworld')"><span class="p-emoji">☁️</span><div class="p-name">Planet Mistworld</div><div class="p-desc">Thick gas. Flat kite-creature (2m wide, 3cm thick). Floats forever.</div></div>
+</div>
+</div>
+
+<!-- Question Page (dynamically filled) -->
+<div class="page" id="pQuestion">
+<div id="qContent"></div>
+</div>
+
+<!-- Results Page -->
+<div class="page" id="pResults">
+<div id="resContent"></div>
+</div>
+
+<script>
+const planets={
+abyssia:{bg:'bg-abyssia',dark:true,emoji:'🌊',name:'Planet Abyssia',creature:'Kraken-Vex',creatureEmoji:'🐙',
+desc:'An 8-meter deep-sea predator with 6 muscular tentacles. Hunts fast prey in freezing water with very low oxygen. Lives in total darkness at extreme pressure.',
+questions:[
+{q:'What type of circulatory system should Kraken-Vex have?',
+optimal:{text:'Closed system — blood stays in vessels, pumped at high pressure to reach all tentacles',fb:'✅ Perfect! A closed system delivers oxygen efficiently at high pressure — essential for a large, active predator in low-oxygen water.'},
+sub:{text:'Open system — hemolymph sloshes freely around the body cavity',fb:'🟠 This works for small, slow creatures, but an 8-meter active hunter needs high-pressure directed flow. Closed is far more efficient here.'},
+wrong:{text:'No circulatory system — let nutrients diffuse from the water through its skin',fb:'That doesn\'t make evolutionary sense! An 8-meter creature is way too thick for diffusion. Oxygen could never reach internal organs.'}},
+{q:'What type of blood should carry oxygen in this cold, low-oxygen deep ocean?',
+optimal:{text:'Blue blood using copper (hemocyanin) — binds oxygen better in cold, low-O₂ water',fb:'✅ Brilliant! Copper-based hemocyanin works more efficiently in cold, low-oxygen conditions. Exactly what real deep-sea octopuses use!'},
+sub:{text:'Red blood using iron (hemoglobin) — the proven Earth system',fb:'🟠 Hemoglobin works, but it\'s less efficient at binding oxygen in cold, low-O₂ environments. Copper blood is the better match — deep-ocean creatures figured this out!'},
+wrong:{text:'Clear fluid with no oxygen-carrying molecule — just dissolve O₂ directly',fb:'That doesn\'t make evolutionary sense! Dissolved oxygen alone carries far too little — this creature would suffocate during any activity.'}},
+{q:'How many hearts, and where should they go?',
+optimal:{text:'Multiple: 1 main heart + booster hearts at the base of each tentacle',fb:'✅ Excellent! Each tentacle is 4+ meters long. Booster hearts at each base (like an octopus\'s gill hearts) ensure blood reaches every tip!'},
+sub:{text:'One very large, powerful heart in the center',fb:'🟠 One big heart works, but pressure drops over 4m tentacles. Booster hearts solve this distance problem much more elegantly.'},
+wrong:{text:'No heart — rely on tentacle muscle contractions to push blood',fb:'That doesn\'t make evolutionary sense! Tentacles need blood whether moving or not. A resting creature would have no flow to its extremities.'}},
+{q:'What special adaptation helps survive extreme deep-sea pressure?',
+optimal:{text:'Flexible reinforced vessels + slow resting heart rate (energy conservation), with burst speed for hunting',fb:'✅ Perfect! Pressure-resistant flexible vessels + slow metabolism between hunts = classic deep-sea survival. Just like real deep-sea predators!'},
+sub:{text:'Extra-thick rigid blood vessels that resist crushing',fb:'🟠 Thick vessels resist pressure, but rigidity prevents movement. Flexible reinforced vessels (like tough rubber vs. steel) are better for a creature that needs to hunt.'},
+wrong:{text:'Very fast heart rate at all times to force blood through despite pressure',fb:'That doesn\'t make evolutionary sense! Constantly racing heart burns huge energy. Deep-sea creatures do the opposite — slow metabolism in a food-scarce environment.'}}
+]},
+skypeak:{bg:'bg-skypeak',dark:false,emoji:'🏔️',name:'Planet Skypeak',creature:'Stridosaur',creatureEmoji:'🦕',
+desc:'A 12-meter tall creature on 4 thick legs, walking across mountain peaks. Extremely thin air with very little oxygen. Strong gravity (1.4× Earth). Moves slowly but steadily.',
+questions:[
+{q:'What\'s the biggest circulatory challenge for a 12m tall creature in strong gravity?',
+optimal:{text:'Pumping blood 12 meters UP to the brain against 1.4× gravity',fb:'✅ Exactly! Like a giraffe but 2× taller with stronger gravity. Blood is heavy and wants to fall — getting it to the brain is the critical challenge.'},
+sub:{text:'Getting blood evenly to all 4 legs',fb:'🟠 Leg circulation matters, but gravity actually HELPS blood flow down to legs. The real killer problem is pushing blood UP 12 meters to the brain.'},
+wrong:{text:'Keeping blood warm in the thin mountain air',fb:'That doesn\'t make evolutionary sense as the primary problem! The creature would die from brain oxygen loss long before cold blood became critical.'}},
+{q:'How should Stridosaur get blood to its brain 12m above its heart?',
+optimal:{text:'Multiple hearts stacked along its neck — each boosts blood to the next level',fb:'✅ Brilliant! Like relay stations — each heart pushes blood a few meters up. Prevents dangerously high pressure from any single pump. Nature did this with earthworms!'},
+sub:{text:'One enormous heart at the base with incredibly high blood pressure',fb:'🟠 The giraffe solution — it works! But at 12m in 1.4× gravity, the required pressure risks bursting leg vessels. Multiple hearts spread the load more safely.'},
+wrong:{text:'Thin, lightweight blood that floats upward naturally',fb:'That doesn\'t make evolutionary sense! Blood carries oxygen molecules and has mass. You can\'t make it defy gravity — physics doesn\'t work that way.'}},
+{q:'How should Stridosaur handle very thin, low-oxygen air?',
+optimal:{text:'Enormous lungs + blood with extra hemoglobin concentration + slow metabolism',fb:'✅ Perfect triple solution! Big lungs capture more air, concentrated blood carries more O₂, slow metabolism means less demand. Exactly how high-altitude animals adapt!'},
+sub:{text:'Breathe extremely fast to compensate',fb:'🟠 Fast breathing helps short-term, but is exhausting long-term and causes CO₂ problems. Better to adapt the blood itself to carry more oxygen per cell.'},
+wrong:{text:'Absorb oxygen through its thick skin instead of lungs',fb:'That doesn\'t make evolutionary sense! Thick protective skin + thin atmosphere + massive body = basically zero oxygen absorption through skin. Lungs are essential.'}},
+{q:'When Stridosaur bends its neck down to drink, what prevents blood rushing to its brain?',
+optimal:{text:'One-way valves in neck veins + a "rete mirabile" spongy network that absorbs pressure surges',fb:'✅ Exactly what giraffes have! Valves prevent backflow, the rete mirabile ("wonderful net") cushions the brain from sudden pressure. Brilliant evolutionary engineering!'},
+sub:{text:'The neck hearts simply slow down when the head drops',fb:'🟠 Slowing hearts helps, but blood already in the neck rushes down by gravity. You need physical valves and buffers to catch that surge — pump speed alone isn\'t fast enough.'},
+wrong:{text:'A completely stiff neck that cannot bend',fb:'That doesn\'t make evolutionary sense! It needs to drink, eat, and interact with its world. A rigid neck would be a massive survival disadvantage.'}}
+]},
+furnace:{bg:'bg-furnace',dark:false,emoji:'🔥',name:'Planet Furnace',creature:'Burrowkin',creatureEmoji:'🦎',
+desc:'A 30cm lizard-like creature living underground in extreme heat. Only surfaces briefly to grab food. Conserves every bit of energy. Normal oxygen above ground, but can\'t breathe underground.',
+questions:[
+{q:'Burrowkin is only 30cm and lives slowly underground. What circulatory system fits best?',
+optimal:{text:'Simple open system — hemolymph sloshes around body cavity with a basic tube-heart',fb:'✅ Perfect! For a small, slow creature focused on energy conservation, an open system is ideal. Low cost, "good enough" for a tiny body. Many insects and crustaceans use this!'},
+sub:{text:'Closed system with a small 2-chambered heart',fb:'🟠 A closed system works, but costs more energy to build and maintain. For a 30cm energy-miser, the simpler open system does the job with less metabolic cost.'},
+wrong:{text:'Massive 4-chambered heart with high-pressure blood for maximum performance',fb:'That doesn\'t make evolutionary sense! A 30cm creature that barely moves doesn\'t need a performance heart. Like putting a race car engine in a shopping cart — massive energy waste.'}},
+{q:'Burrowkin lives in extreme heat. How should its circulatory system help with temperature?',
+optimal:{text:'Adjustable blood vessels near the skin: widen to dump heat on surface, narrow underground to retain it',fb:'✅ Excellent! Adjustable blood flow near skin = adjustable thermostat. This is exactly how lizards, elephants, and jackrabbits manage heat!'},
+sub:{text:'Thick insulating blood that resists temperature changes',fb:'🟠 "Insulating blood" isn\'t how real biology works — blood conducts heat. Using vessel width to control heat transfer is far more realistic and effective.'},
+wrong:{text:'Faster heart rate in heat to cool down the blood',fb:'That doesn\'t make evolutionary sense! A faster heart generates MORE heat from muscle work. It would make overheating worse and waste the energy Burrowkin needs to conserve.'}},
+{q:'Burrowkin surfaces for minutes, then goes underground where it can\'t breathe. How to handle this?',
+optimal:{text:'Oxygen-storage molecules in blood that "charge up" during surface trips and slowly release underground',fb:'✅ Brilliant! Like a rechargeable oxygen battery! This is what diving seals and whales do with myoglobin. Surface = recharge. Underground = slow release.'},
+sub:{text:'Very large lungs that hold one big breath for the underground stay',fb:'🟠 Big lungs help (crocodiles do this!), but for long underground periods even huge lungs run out. Blood-based oxygen storage gives much more capacity per body volume.'},
+wrong:{text:'Just hold its breath — it barely needs oxygen when resting',fb:'That doesn\'t make evolutionary sense! Even resting creatures need O₂ for brain, heart, and cell maintenance. With no storage adaptation, it would suffocate within minutes underground.'}},
+{q:'When Burrowkin surfaces into extreme heat, how should its heart rate change?',
+optimal:{text:'Increases briefly on surface (rapid O₂ loading + heat dumping), then drops very low underground',fb:'✅ Variable heart rate = maximum efficiency! Sprint mode on surface, near-hibernation underground. Many reptiles and diving animals do exactly this!'},
+sub:{text:'Stays constantly slow for consistent energy use',fb:'🟠 Constant slow rate conserves energy, but during the critical surface window it needs rapid oxygen loading and heat management. A brief burst is worth the cost.'},
+wrong:{text:'Stays extremely fast at all times so it\'s always ready to surface',fb:'That doesn\'t make evolutionary sense! 90% of life is underground and still. A racing heart during all that time would burn enormous energy. It would starve.'}}
+]},
+mistworld:{bg:'bg-mistworld',dark:false,emoji:'☁️',name:'Planet Mistworld',creature:'Driftveil',creatureEmoji:'🪁',
+desc:'A flat, kite-shaped creature (2m wide, 3cm thick) floating permanently in thick, oxygen-rich atmosphere. Never lands. Barely moves — drifts on currents catching tiny food particles.',
+questions:[
+{q:'Driftveil is 3cm thick and floats in oxygen-rich gas. What circulatory system does it need?',
+optimal:{text:'No circulatory system at all — oxygen and nutrients diffuse directly through its thin body',fb:'✅ Perfect! At 3cm thick in oxygen-rich gas, diffusion handles everything. No pump needed! Exactly how jellyfish survive — physics does the work for free.'},
+sub:{text:'Very simple open system with gentle fluid movement inside',fb:'🟠 Works, but totally unnecessary! At 3cm thickness in rich atmosphere, diffusion is sufficient. Why spend energy on a pump when physics provides it free?'},
+wrong:{text:'Powerful closed system with a 4-chambered heart to cover its 2m width',fb:'That doesn\'t make evolutionary sense! While 2m wide, it\'s only 3cm thick. Diffusion distance is measured by THICKNESS. No cell is more than 1.5cm from the surface — easily within diffusion range.'}},
+{q:'Driftveil has no heart. But it\'s 2m wide — how do nutrients from food reach the far edges?',
+optimal:{text:'Branching channels that use body flexing and wind currents to passively move nutrient fluid — no heart needed',fb:'✅ Excellent! Passive channels driven by movement and environment — like plant leaf veins that distribute water without a pump. Zero energy spent on circulation!'},
+sub:{text:'Slowly move food particles along its underside until they reach all areas',fb:'🟠 Physical food transport works for very simple organisms, but it\'s slow across 2 meters. Internal branching channels distribute dissolved nutrients faster and more evenly.'},
+wrong:{text:'Only eat at the center — edge cells survive on stored reserves',fb:'That doesn\'t make evolutionary sense! Edge cells would starve and die. A 2m creature can\'t survive with only its center nourished — that\'s like feeding only your torso.'}},
+{q:'How should Driftveil get rid of waste products like CO₂?',
+optimal:{text:'Waste diffuses out through its entire thin surface — the whole body is an exhaust vent',fb:'✅ Exactly! Maximum surface area + minimum thickness = waste diffuses out everywhere automatically. The entire body IS its excretory organ. Beautifully simple!'},
+sub:{text:'Collect waste in one area and release in concentrated bursts',fb:'🟠 Collection and release works, but requires energy and special organs. When you\'re 3cm thick with massive surface area, diffusion is free and constant. Why build plumbing?'},
+wrong:{text:'Store waste permanently in cells — it never needs to leave',fb:'That doesn\'t make evolutionary sense! Waste buildup is toxic. CO₂ becomes acid. Without removal, the creature poisons itself within hours. ALL life must excrete.'}},
+{q:'A windstorm tears Driftveil. How does it repair itself without blood to clot?',
+optimal:{text:'Gel-like body material that flows back together and self-seals — like a self-healing membrane',fb:'✅ Brilliant! Self-healing gel repair works without blood or platelets. Many simple organisms heal this way — semi-fluid material naturally rejoins. Elegant!'},
+sub:{text:'Special sticky repair cells along the edges that activate and glue the tear',fb:'🟠 Dedicated repair cells work (that\'s what platelets do!), but with no circulatory system, how do they reach the wound? Self-healing material that works locally is simpler and doesn\'t need transport.'},
+wrong:{text:'Cannot heal — just gets smaller each time, eventually disappears',fb:'That doesn\'t make evolutionary sense! A creature that only shrinks would vanish after a few storms. Any successful organism needs repair to survive normal wear and damage.'}}
+]}
+};
+
+let currentPlanet=null,currentQ=0,answers=[],score=0;
+
+// Particles
+(function(){const c=document.getElementById('particles');for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle';const sz=Math.random()*18+6;p.style.width=sz+'px';p.style.height=sz+'px';p.style.left=Math.random()*100+'%';p.style.background=`hsl(${Math.random()*360},60%,75%)`;p.style.animationDelay=Math.random()*12+'s';p.style.animationDuration=(9+Math.random()*10)+'s';c.appendChild(p);}})();
+
+function confetti(){
+const c=document.createElement('div');c.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;overflow:hidden';
+document.body.appendChild(c);const cols=['#6c5ce7','#a29bfe','#fd79a8','#ffeaa7','#55efc4','#74b9ff','#ff7675','#fab1a0','#81ecec'];
+for(let i=0;i<55;i++){const p=document.createElement('div');const col=cols[Math.floor(Math.random()*cols.length)];const sz=Math.random()*11+5;const x=window.innerWidth/2;const y=window.innerHeight/2;const a=Math.random()*Math.PI*2;const v=Math.random()*300+130;const dx=Math.cos(a)*v;const dy=Math.sin(a)*v-270;const r=Math.random()*720-360;
+p.style.cssText=`position:absolute;left:${x}px;top:${y}px;width:${sz}px;height:${sz*(.4+Math.random()*.8)}px;background:${col};border-radius:${Math.random()>.4?'50%':'3px'};`;
+p.animate([{transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy+550}px)) scale(.1) rotate(${r}deg)`,opacity:0}],{duration:1500+Math.random()*700,easing:'cubic-bezier(.2,.46,.45,.94)'});c.appendChild(p);}
+setTimeout(()=>c.remove(),2500);
+}
+function screenShake(){document.body.classList.add('shake-it');setTimeout(()=>document.body.classList.remove('shake-it'),550);}
+
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startPlanet(key){
+currentPlanet=key;currentQ=0;answers=[];score=0;
+const p=planets[key];
+document.getElementById('scoreNum').textContent='0';
+document.getElementById('totalNum').textContent=p.questions.length;
+document.body.className=p.bg;
+renderQuestion();
+showPage('pQuestion');
+}
+
+function renderQuestion(){
+const p=planets[currentPlanet];
+const q=p.questions[currentQ];
+const total=p.questions.length;
+const dark=p.dark?'card-dark':'';
+const container=document.getElementById('qContent');
+
+let prevHtml='';
+if(currentQ>0&&answers[currentQ-1]){
+const prev=answers[currentQ-1];
+prevHtml=`<span class="toggle-prev" id="togPrev">👁️ Check previous answer</span>
+<div class="prev-answer" id="prevBox"><strong>Q${currentQ}:</strong> ${prev.text} ${prev.tier==='optimal'?'✅':'🟠'}</div>`;
+}
+
+// Build options array and shuffle
+const options=[
+{tier:'optimal',text:q.optimal.text},
+{tier:'suboptimal',text:q.sub.text},
+{tier:'wrong',text:q.wrong.text}
+];
+for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}
+
+const labels=['A','B','C'];
+let optsHtml=options.map((o,i)=>`<button class="option-card" data-tier="${o.tier}" onclick="pickAnswer(this)"><span class="opt-label">${labels[i]})</span> ${o.text}</button>`).join('');
+
+container.innerHTML=`
+<div class="card ${dark}">
+<div class="creature-header">
+<span class="creature-emoji">${p.creatureEmoji}</span>
+<div class="creature-name">${p.creature} — ${p.name} ${p.emoji}</div>
+<div class="creature-desc">${p.desc}</div>
+</div>
+<span class="q-num">Design ${currentQ+1} of ${total}</span>
+<p class="q-text">${q.q}</p>
+${optsHtml}
+<div class="feedback" id="qFeedback"></div>
+${prevHtml}
+</div>
+<div class="nav-row">
+<button class="btn btn-back" onclick="goBack()">← Back</button>
+<button class="btn btn-next" id="btnNext" style="display:none" onclick="nextQuestion()">Next →</button>
+</div>`;
+
+// Wire up toggle
+const tog=document.getElementById('togPrev');
+if(tog){tog.addEventListener('click',()=>{const box=document.getElementById('prevBox');if(box)box.classList.toggle('show');});}
+
+document.getElementById('pf').style.width=((currentQ+1)/(total+1)*100)+'%';
+}
+
+function pickAnswer(btn){
+if(btn.classList.contains('locked')||btn.classList.contains('disabled'))return;
+const tier=btn.dataset.tier;
+const p=planets[currentPlanet];
+const q=p.questions[currentQ];
+const fb=document.getElementById('qFeedback');
+const opts=document.querySelectorAll('#qContent .option-card');
+
+if(tier==='wrong'){
+btn.classList.add('wrong-flash');
+fb.innerHTML=q.wrong.fb+'<div class="retry-prompt">🔄 That won\'t work! What\'s the most optimal solution?</div>';
+fb.className='feedback show no';
+screenShake();
+setTimeout(()=>{btn.classList.add('disabled');btn.classList.remove('wrong-flash');fb.className='feedback';fb.style.display='none';},1800);
+return;
+}
+
+opts.forEach(o=>o.classList.add('locked'));
+
+if(tier==='optimal'){
+btn.classList.add('optimal');
+fb.textContent=q.optimal.fb;fb.className='feedback show ok';
+score++;
+answers[currentQ]={tier:'optimal',text:q.optimal.text};
+confetti();
+}else{
+btn.classList.add('suboptimal');
+fb.textContent=q.sub.fb;fb.className='feedback show meh';
+score++;
+answers[currentQ]={tier:'suboptimal',text:q.sub.text};
+opts.forEach(o=>{if(o.dataset.tier==='optimal')o.style.borderColor='#2ecc71';});
+}
+
+document.getElementById('scoreNum').textContent=score;
+document.getElementById('btnNext').style.display='inline-block';
+}
+
+function nextQuestion(){
+currentQ++;
+const p=planets[currentPlanet];
+if(currentQ>=p.questions.length){showResults();return;}
+renderQuestion();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goBack(){
+if(currentQ===0){
+showPage('pWelcome');
+document.body.className='bg-welcome';
+document.getElementById('pf').style.width='0%';
+}else{
+currentQ--;
+if(answers[currentQ]){score--;answers.splice(currentQ,1);}
+document.getElementById('scoreNum').textContent=score;
+renderQuestion();
+}
+}
+
+function showResults(){
+document.body.className='bg-results';
+const p=planets[currentPlanet];
+const total=p.questions.length;
+const optCount=answers.filter(a=>a&&a.tier==='optimal').length;
+const container=document.getElementById('resContent');
+
+let listHtml='';
+answers.forEach((a,i)=>{
+if(a)listHtml+=`<li class="${a.tier==='optimal'?'s-optimal':'s-sub'}"><strong>Q${i+1}:</strong> ${a.text} ${a.tier==='optimal'?'✅':'🟠'}</li>`;
+});
+
+let icon,grade,msg;
+if(optCount===total){icon='🌟';grade='Master Bio-Engineer!';msg='Every design was optimal! You truly understand how environment shapes biology.';}
+else if(optCount>=total-1){icon='🧬';grade='Expert Bio-Engineer!';msg='Nearly perfect! Your creature will thrive. Just one design could be slightly better.';}
+else if(optCount>=Math.ceil(total/2)){icon='🔬';grade='Skilled Bio-Engineer!';msg='Good work! Creature survives, but some designs could be more efficient. Orange = works, green = optimal.';}
+else{icon='🪐';grade='Apprentice Bio-Engineer';msg='Creature is alive but struggling! Review optimal solutions and try another planet.';}
+
+const choiceTexts=answers.map((a,i)=>{if(a)return p.questions[i].q.split('?')[0]+': '+a.text;return '';}).filter(Boolean).join('. ');
+const prompt=`A bright, colorful scientific illustration of ${p.creature}, an alien creature: ${p.desc}. Designed features: ${choiceTexts}. Style: detailed biology textbook illustration, vibrant saturated colors, well-lit with soft studio lighting, light-colored background, clear anatomical details visible, semi-transparent cross-section showing internal circulatory system glowing in bioluminescent blue-green. High quality, cheerful scientific tone, NOT dark or moody.`;
+
+container.innerHTML=`
+<div class="card" style="text-align:center">
+<span style="font-size:4.5em;display:block;margin-bottom:10px">${icon}</span>
+<h1 style="font-family:'Merriweather',serif;color:#6c5ce7">${grade}</h1>
+<p style="font-size:1.1em;color:#555;margin:8px 0"><strong>${optCount}</strong> out of <strong>${total}</strong> optimal designs for <strong>${p.creature}</strong></p>
+<p style="color:#666;margin:10px 0">${msg}</p>
+<ul class="summary-list">${listHtml}</ul>
+</div>
+<div class="card">
+<h2 style="font-size:1.1em;margin-bottom:10px">🎨 Want to SEE your creature?</h2>
+<p style="font-size:.88em;color:#666;margin-bottom:8px">Copy this prompt into an AI image generator (ChatGPT, Midjourney, DALL-E):</p>
+<div class="prompt-label">AI IMAGE PROMPT:</div>
+<div class="prompt-box" id="promptBox">${prompt}</div>
+<button class="copy-btn" id="copyBtn">📋 Copy Prompt</button>
+</div>
+<div class="nav-row" style="justify-content:center;gap:12px;margin-top:16px">
+<button class="btn btn-back" onclick="backToMenu()">← Choose Another Planet</button>
+<button class="btn btn-restart" onclick="location.reload()">🔄 Start Over</button>
+</div>`;
+
+document.getElementById('copyBtn').addEventListener('click',function(){
+const text=document.getElementById('promptBox').textContent;
+navigator.clipboard.writeText(text).then(()=>{this.textContent='✅ Copied!';setTimeout(()=>{this.textContent='📋 Copy Prompt';},2000);});
+});
+
+showPage('pResults');
+document.getElementById('pf').style.width='100%';
+confetti();setTimeout(confetti,700);
+}
+
+function backToMenu(){
+showPage('pWelcome');
+document.body.className='bg-welcome';
+document.getElementById('pf').style.width='0%';
+currentPlanet=null;currentQ=0;answers=[];score=0;
+document.getElementById('scoreNum').textContent='0';
+document.getElementById('totalNum').textContent='4';
+}
+</script>
+
+
+</body></html>

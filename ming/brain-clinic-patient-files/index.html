@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Clinic — Patient Files</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Roboto',sans-serif;background:#1a2a3a;min-height:100vh;padding:16px;color:#e0e8f0}
+.container{max-width:780px;margin:0 auto}
+.header{text-align:center;margin-bottom:18px}
+.header h1{font-family:'Merriweather',serif;font-size:1.4rem;color:#f7d794;margin-bottom:4px}
+.header p{font-size:.82rem;color:#8ab4d0}
+
+#tilesScreen{}
+.tiles-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.tile{background:#243a4e;border:2px solid #2e4a60;border-radius:12px;padding:16px;transition:all .2s}
+.tile-emoji{font-size:1.8rem;margin-bottom:4px}
+.tile-name{font-family:'Merriweather',serif;font-size:.95rem;color:#f0f4f8;margin-bottom:2px}
+.tile-age{font-size:.7rem;color:#6a9ab8;margin-bottom:6px}
+.tile-symptoms{font-size:.8rem;color:#b0d0e8;line-height:1.4;margin-bottom:6px}
+.tile-diet{font-size:.72rem;color:#7a9aaa;line-height:1.3}
+.tile-diet strong{color:#e8a040}
+
+.bridge-question{background:#1e3448;border-radius:12px;padding:18px 22px;margin-bottom:16px;border:1px solid #2e4a60;text-align:center}
+.bridge-question .bq-icon{font-size:2rem;margin-bottom:8px}
+.bridge-question .bq-text{font-family:'Merriweather',serif;font-size:1.05rem;color:#f0f4f8;line-height:1.6;margin-bottom:6px}
+.bridge-question .bq-sub{font-size:.8rem;color:#6a9ab8;font-style:italic}
+
+.btn-begin{display:block;margin:0 auto;padding:14px 32px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif}
+.btn-begin:hover{background:#219a52;transform:translateY(-2px);box-shadow:0 6px 20px rgba(39,174,96,.3)}
+
+#diagScreen{display:none}
+.case-card{background:#243a4e;border-radius:14px;padding:22px;border:1px solid #2e4a60;margin-bottom:14px;display:none;animation:fadeIn .4s ease}
+.case-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.patient-profile{background:#1e3040;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #2a4a5a}
+.profile-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.profile-emoji{font-size:1.8rem}
+.profile-name{font-family:'Merriweather',serif;font-size:1.05rem;color:#f7d794}
+.profile-age{font-size:.75rem;color:#6a9ab8}
+.profile-symptoms{font-size:.82rem;color:#c0dae8;line-height:1.5;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #2a4050}
+.profile-meals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.meal-box{background:#1a2a38;border-radius:8px;padding:8px 10px;border:1px solid #253a4a}
+.meal-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:#5a8a9a;margin-bottom:3px}
+.meal-content{font-size:.75rem;color:#90b8d0;line-height:1.4}
+
+.q-block{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a3a4a}
+.q-block:last-of-type{border-bottom:none}
+.q-text{font-size:.88rem;color:#d0e4f0;margin-bottom:10px;line-height:1.5}
+.q-text strong{color:#f7d794}
+.option{display:block;width:100%;text-align:left;padding:11px 14px;margin:5px 0;background:#1a2a38;border:2px solid #2a4050;border-radius:8px;color:#a0c4d8;font-size:.8rem;cursor:pointer;transition:all .2s;font-family:'Roboto',sans-serif;line-height:1.4}
+.option:hover:not(.disabled){background:#223848;border-color:#4a7a9a}
+.option.correct{border-color:#2ecc71;background:rgba(46,204,113,.12);color:#7dcea0}
+.option.wrong{border-color:#e74c3c;background:rgba(231,76,60,.08);color:#f0a0a0;animation:shake .4s}
+.option.disabled{pointer-events:none;opacity:.5}
+.option.show-right{border-color:#2ecc71;background:rgba(46,204,113,.06)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.q-feedback{margin-top:6px;padding:8px 12px;border-radius:6px;font-size:.76rem;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.fb-ok{background:rgba(46,204,113,.08);color:#7dcea0;border:1px solid rgba(46,204,113,.2)}
+.q-feedback.fb-no{background:rgba(231,76,60,.08);color:#f0a0a0;border:1px solid rgba(231,76,60,.2)}
+.btn-next-case{display:none;margin-top:12px;padding:10px 22px;background:#4a7abd;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s}
+.btn-next-case:hover{background:#3a6aad;transform:translateY(-1px)}
+.progress-dots{display:flex;justify-content:center;gap:8px;margin-bottom:14px}
+.p-dot{width:10px;height:10px;border-radius:50%;background:#2a4050;border:2px solid #3a5a6a;transition:all .3s}
+.p-dot.active{background:#f7d794;border-color:#f7d794;transform:scale(1.2)}
+.p-dot.done{background:#2ecc71;border-color:#2ecc71}
+.final-card{display:none;text-align:center;padding:30px;background:#243a4e;border-radius:14px;border:1px solid #2e4a60}
+.final-card.show{display:block;animation:fadeIn .4s}
+.final-icon{font-size:3rem;margin-bottom:8px}
+.final-score{font-family:'Merriweather',serif;font-size:1.8rem;color:#f7d794;margin-bottom:6px}
+.final-msg{font-size:.85rem;color:#8ab4d0;margin-bottom:14px}
+.btn-restart{padding:10px 22px;background:#5a6a7a;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer}
+.confetti-box{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:999;overflow:hidden}
+@media(max-width:550px){.tiles-grid{grid-template-columns:1fr}.profile-meals{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🧠 Brain Clinic</h1>
+<p>Four patients. Four broken brains. Can you figure out what's going wrong?</p>
+</div>
+
+<div id="tilesScreen">
+<div class="tiles-grid" id="tilesGrid"></div>
+<div class="bridge-question">
+<div class="bq-icon">🤔</div>
+<div class="bq-text">Why do you think these four people are all experiencing brain problems?<br>What do their diets have in common — and what might be missing?</div>
+<div class="bq-sub">Let's watch some videos and find out. Come back here when you're ready to diagnose.</div>
+</div>
+<button class="btn-begin" id="btnBegin">🔬 Begin Diagnosis</button>
+</div>
+
+<div id="diagScreen">
+<div class="progress-dots" id="progDots"></div>
+<div id="casesArea"></div>
+<div class="final-card" id="finalCard">
+<div class="final-icon" id="fIcon"></div>
+<div class="final-score" id="fScore"></div>
+<div class="final-msg" id="fMsg"></div>
+<button class="btn-restart" onclick="location.reload()">Try Again</button>
+</div>
+</div>
+</div>
+<div class="confetti-box" id="confettiBox"></div>
+
+<script>
+(function(){
+var patients=[
+{emoji:"💥",name:"The Crasher",age:"Mia, 15",
+symptoms:"Massive energy crashes every afternoon. Attention disappears by 3pm and she snaps at friends.",
+diet_short:"Sugary cereal, juice, white bread, chips, soda, instant noodles.",
+meals:{breakfast:"Frosted cereal + glass of grape juice",lunch:"White bread sandwich + packet of chips + can of soda",dinner:"Instant noodles + chocolate bar for dessert"}},
+{emoji:"🫥",name:"The Foggy One",age:"Jake, 24",
+symptoms:"Brain feels permanently slow and heavy. Concentration fading for months. Forgets simple things.",
+diet_short:"Muffins, fried snacks, meat pies, frozen pizza, fried chicken.",
+meals:{breakfast:"Drive-through muffin + large iced coffee with sugar",lunch:"Fried snacks + processed meat pie + energy drink",dinner:"Frozen pizza or fried chicken + can of soda"}},
+{emoji:"😵‍💫",name:"The Moody One",age:"Priya, 32",
+symptoms:"Mood swings between anxious and flat. Terrible sleep. Never feels motivated or sharp.",
+diet_short:"White toast, jam, plain pasta, white rice — heavy on carbs.",
+meals:{breakfast:"White toast with jam + black coffee",lunch:"Large bowl of plain pasta with butter sauce",dinner:"White rice + steamed vegetables + bread roll"}},
+{emoji:"📉",name:"The Declining One",age:"Marcus, 43",
+symptoms:"Memory noticeably worse each year. Losing words mid-sentence. Mentally exhausted all the time.",
+diet_short:"Coffee, burgers, fries, takeout pizza, frozen packaged meals.",
+meals:{breakfast:"Three large coffees with sugar — no food",lunch:"Burger + fries from delivery app",dinner:"Takeout pizza or packaged frozen meal + beer"}}
+];
+
+var cases=[
+{patientIdx:0,questions:[
+{q:"<strong>Energy pattern:</strong> Mia's diet is almost entirely simple carbohydrates — cereal, juice, white bread, soda. What happens in the brain after eating high-glycemic foods like these?",
+opts:["The brain stores excess glucose as fat reserves for the afternoon, then runs low on stored energy","Glucose is released slowly into the blood over several hours, keeping attention steady throughout the day","A rapid glucose spike occurs followed by a sharp dip — and attention span and mood crash along with it","The brain switches to burning amino acids as a backup fuel source once glucose levels normalize"],
+correct:2,explain:"The video states: 'A high glycemic food, like white bread, causes a rapid release of glucose into the blood, and then comes the dip. Blood sugar shoots down, and with it, our attention span and mood.'"},
+{q:"<strong>Brain sensitivity:</strong> The brain uses 20% of the body's energy despite being only 2% of body weight. Which area of the brain is so sensitive to glucose drops that it's a primary signal of nutrient deficiency?",
+opts:["The brain stem, which controls heartbeat and signals fatigue to the body through nerve impulses","The visual cortex, which requires glucose to maintain image clarity and depth perception","The frontal lobes, where concentration and decision-making happen — they fail first when fuel runs low","The cerebellum, which controls physical coordination and causes dizziness when glucose drops sharply"],
+correct:2,explain:"The video states: 'The frontal lobes are so sensitive to drops in glucose that a change in mental function is one of the primary signals of nutrient deficiency.'"},
+{q:"<strong>Prescription:</strong> What type of carbohydrates should replace Mia's current diet, and what specific effect do they have on the brain?",
+opts:["Pure protein foods like chicken breast — the brain can extract glucose from amino acid breakdown","Fruit juice in smaller portions — natural sugars are processed more gently than refined sugar by neurons","Oats, grains, and legumes — these have slower glucose release, enabling a steadier level of attentiveness","Caffeine and energy drinks — they bypass glucose entirely and stimulate neurons through different receptors"],
+correct:2,explain:"The video states: 'Oats, grains, and legumes have slower glucose release, enabling a steadier level of attentiveness.' Same total energy, delivered gradually instead of in a destructive spike-crash cycle."}
+]},
+{patientIdx:1,questions:[
+{q:"<strong>Fat quality:</strong> Jake's diet is full of fried foods, processed meat, and frozen meals. The brain is mostly composed of fats. What does the science say about long-term consumption of trans and saturated fats?",
+opts:["They build up in the bloodstream and block nutrients from reaching any organ, including the brain","They are converted into essential omega-3 fatty acids by the liver before reaching brain cell membranes","Long-term consumption of these fats may compromise brain health according to nutritional research","They are immediately filtered by the kidneys and excreted, having no lasting effect on neural tissue"],
+correct:2,explain:"The video states: 'While omegas are good fats for your brain, long-term consumption of other fats, like trans and saturated fats, may compromise brain health.'"},
+{q:"<strong>Missing protection:</strong> Jake's diet contains no fruits or vegetables. What role do the antioxidants in these foods play in brain maintenance?",
+opts:["They convert saturated fats into unsaturated fats, gradually repairing membranes that are already damaged","They fight off free radicals that destroy brain cells, enabling the brain to work well for longer","They increase glucose absorption in the frontal lobes, compensating for poor diet in other areas","They stimulate the growth of entirely new neurons to replace cells damaged by processed food intake"],
+correct:1,explain:"The video states: 'Antioxidants in fruits and vegetables strengthen the brain to fight off free radicals that destroy brain cells, enabling your brain to work well for a longer period of time.'"},
+{q:"<strong>Prescription:</strong> Omega-3 fatty acids are 'crucial to the creation and maintenance of cell membranes' and linked to preventing brain degeneration. Which foods provide them?",
+opts:["All cooking oils equally — olive, canola, and vegetable oil all contain the same omega-3 compounds","Nuts, seeds, and fatty fish — these contain the essential fatty acids the brain needs for healthy membranes","White bread and pasta — wheat germ naturally contains high concentrations of DHA and EPA fatty acids","Red meat and dairy products — animal fats are the primary dietary source of brain-building omega-3s"],
+correct:1,explain:"The video identifies 'nuts, seeds, and fatty fish' as the crucial omega-rich foods for 'the creation and maintenance of cell membranes.' Jake's brain membranes are starving for building materials."}
+]},
+{patientIdx:2,questions:[
+{q:"<strong>Missing building blocks:</strong> Priya's diet is almost entirely carbohydrates — toast, pasta, rice. Amino acids from protein are the precursors to neurotransmitters. What brain chemicals depend on this supply?",
+opts:["Glucose and glycogen, which provide the brain's primary energy for neural firing and synapse maintenance","Calcium and iron, which build the brain's physical connective structure and strengthen blood vessels","Serotonin, dopamine, and norepinephrine — affecting mood, motivation, sleep, and attentiveness levels","Cholesterol and myelin, which form the insulating sheaths around neurons for fast signal conduction"],
+correct:2,explain:"The video states amino acids are 'precursors to neurotransmitters... affecting things like mood, sleep, attentiveness' and names norepinephrine, dopamine, and serotonin."},
+{q:"<strong>The pasta effect:</strong> The video notes that we feel 'calm after a large plate of pasta, or more alert after a protein-rich meal.' Priya eats mostly pasta and carbs. What does this predict?",
+opts:["She would feel constantly hyperactive since carbs provide high amounts of raw energy for the brain","She would alternate between extreme emotional highs and lows throughout each day unpredictably","She would feel perpetually calm or sedated but never alert or motivated — her mood is skewed one way","She would experience no mood effects at all because carbohydrates are neutral for brain chemistry"],
+correct:2,explain:"The video says 'a diet with a range of foods helps maintain a balanced combination of brain messengers, and keeps your mood from getting skewed in one direction or the other.' Priya's all-carb diet skews everything toward flat/calm."},
+{q:"<strong>Prescription:</strong> What protein-rich foods would provide amino acids for Priya's neurotransmitter production according to the textbook?",
+opts:["More pasta and bread in larger portions — wheat gluten is a complete protein with all amino acids needed","Fish, meat, eggs, and dairy products — these are rich in the amino acids the brain converts to transmitters","Fruit and vegetable smoothies — blending releases amino acids trapped inside plant cell walls for absorption","Sugar-free energy drinks — they contain synthetic amino acid blends designed to boost neurotransmitter levels"],
+correct:1,explain:"The text states: 'Amino acids, important to brain health, are found in protein-rich foods like fish, meat, eggs, and dairy products. Your brain needs amino acids to form neurotransmitters.'"}
+]},
+{patientIdx:3,questions:[
+{q:"<strong>Essential deficiency:</strong> Marcus has eaten no fish, nuts, seeds, or omega-rich foods for years. According to the science, what are these essential fatty acids specifically linked to preventing?",
+opts:["They are linked to preventing degenerative brain conditions and maintaining healthy cell membranes","They are linked to preventing bone density loss which indirectly reduces blood flow to the brain","They are linked to preventing muscle atrophy which would otherwise limit physical activity and cognition","They are linked to preventing skin inflammation which causes stress hormones that impair concentration"],
+correct:0,explain:"The video states omega-3 and omega-6 'have been linked to preventing degenerative brain conditions' and are 'crucial to the creation and maintenance of cell membranes.'"},
+{q:"<strong>Micronutrient collapse:</strong> Marcus eats no vegetables, fruit, or whole grains — only processed foods. Without vitamins B6, B12, and folic acid, the brain becomes susceptible to what?",
+opts:["Susceptible to temporary headaches and fatigue that resolve once a single vitamin dose is taken","Susceptible to brain disease and mental decline — these micronutrients are essential for brain function","Susceptible to weight gain due to slowed metabolism, which indirectly impairs thinking over months","Susceptible to hearing loss as the auditory nerve degrades without B-vitamin-dependent repair processes"],
+correct:1,explain:"The video states: 'Without powerful micronutrients, like the vitamins B6, B12, and folic acid, our brains would be susceptible to brain disease and mental decline.'"},
+{q:"<strong>The ultra-processed problem:</strong> Marcus's diet is almost entirely ultra-processed food. Research shows these foods increase the risk of which set of conditions?",
+opts:["Seasonal allergies, skin irritation, and temporary digestive discomfort that resolves when diet changes","Obesity, diabetes, heart disease, dietary deficiencies, high blood pressure, and increased cancer risk","Minor sleep disruption and occasional headaches — effects that are reversible within days of stopping","Joint stiffness and reduced flexibility — the preservatives accumulate in cartilage between vertebrae"],
+correct:1,explain:"The UPF video states they 'pose to your health include increasing your risk of obesity, diabetes, heart disease, diet deficiencies, high blood pressure, cancers and other chronic conditions.'"}
+]}
+];
+
+var score=0,totalQ=12,currentCase=0,audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+function playTone(f,d,t){try{var c=getAudio();var o=c.createOscillator();var g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t||"sine";o.frequency.value=f;g.gain.value=.1;o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
+function playOk(){playTone(523,.06);setTimeout(function(){playTone(659,.06)},60);setTimeout(function(){playTone(784,.08)},120)}
+function playNo(){playTone(170,.18,"square")}
+function confetti(){var box=document.getElementById("confettiBox");var cols=["#f7d794","#2ecc71","#3498db","#e74c3c","#9b59b6","#00cec9"];for(var i=0;i<28;i++){var p=document.createElement("div");p.style.cssText="position:absolute;width:"+(4+Math.random()*6)+"px;height:"+(4+Math.random()*6)+"px;background:"+cols[Math.floor(Math.random()*cols.length)]+";border-radius:"+(Math.random()>.5?"50%":"2px")+";left:"+Math.random()*100+"%;top:-10px;";var dx=Math.random()*120-60;p.animate([{transform:"translateY(0) rotate(0deg)",opacity:1},{transform:"translateY("+(window.innerHeight+30)+"px) translateX("+dx+"px) rotate("+(Math.random()*720)+"deg)",opacity:0}],{duration:1100+Math.random()*500,easing:"cubic-bezier(.25,.46,.45,.94)"});box.appendChild(p);(function(el){setTimeout(function(){el.remove()},1800)})(p)}}
+
+var tilesGrid=document.getElementById("tilesGrid");
+for(var t=0;t<patients.length;t++){
+var tile=document.createElement("div");tile.className="tile";
+tile.innerHTML='<div class="tile-emoji">'+patients[t].emoji+'</div><div class="tile-name">'+patients[t].name+'</div><div class="tile-age">'+patients[t].age+'</div><div class="tile-symptoms">'+patients[t].symptoms+'</div><div class="tile-diet"><strong>Eats:</strong> '+patients[t].diet_short+'</div>';
+tilesGrid.appendChild(tile);
+}
+
+document.getElementById("btnBegin").addEventListener("click",function(){
+document.getElementById("tilesScreen").style.display="none";
+document.getElementById("diagScreen").style.display="block";
+buildDots();buildCases();showCase(0);
+});
+
+function buildDots(){
+var dots=document.getElementById("progDots");dots.innerHTML="";
+for(var i=0;i<cases.length;i++){var d=document.createElement("div");d.className="p-dot"+(i===0?" active":"");d.id="dot-"+i;dots.appendChild(d)}
+}
+
+function buildCases(){
+var area=document.getElementById("casesArea");area.innerHTML="";
+for(var c=0;c<cases.length;c++){
+var cs=cases[c];var pat=patients[cs.patientIdx];
+var card=document.createElement("div");card.className="case-card";card.id="case-"+c;
+var html='<div class="patient-profile"><div class="profile-header"><div class="profile-emoji">'+pat.emoji+'</div><div><div class="profile-name">'+pat.name+' — '+pat.age+'</div></div></div>';
+html+='<div class="profile-symptoms">'+pat.symptoms+'</div>';
+html+='<div class="profile-meals">';
+html+='<div class="meal-box"><div class="meal-label">Breakfast</div><div class="meal-content">'+pat.meals.breakfast+'</div></div>';
+html+='<div class="meal-box"><div class="meal-label">Lunch</div><div class="meal-content">'+pat.meals.lunch+'</div></div>';
+html+='<div class="meal-box"><div class="meal-label">Dinner</div><div class="meal-content">'+pat.meals.dinner+'</div></div>';
+html+='</div></div>';
+for(var q=0;q<cs.questions.length;q++){
+var qu=cs.questions[q];
+html+='<div class="q-block" id="qb-'+c+'-'+q+'">';
+html+='<div class="q-text">'+qu.q+'</div>';
+for(var o=0;o<qu.opts.length;o++){
+html+='<button class="option" data-case="'+c+'" data-q="'+q+'" data-opt="'+o+'">'+qu.opts[o]+'</button>';
+}
+html+='<div class="q-feedback" id="fb-'+c+'-'+q+'"></div>';
+html+='</div>';
+}
+html+='<button class="btn-next-case" id="nxc-'+c+'">'+(c<cases.length-1?"Next Patient →":"See Results →")+'</button>';
+card.innerHTML=html;
+area.appendChild(card);
+}
+area.addEventListener("click",function(ev){
+var btn=ev.target.closest(".option");
+if(btn&&!btn.classList.contains("disabled")){handleOpt(btn);return}
+var nxBtn=ev.target.closest(".btn-next-case");
+if(nxBtn){nextCase();return}
+});
+}
+
+var caseAnswered={};
+function handleOpt(btn){
+var c=parseInt(btn.dataset.case),q=parseInt(btn.dataset.q),o=parseInt(btn.dataset.opt);
+var key=c+"-"+q;
+if(caseAnswered[key])return;
+caseAnswered[key]=true;
+var qu=cases[c].questions[q];
+var block=document.getElementById("qb-"+c+"-"+q);
+var opts=block.querySelectorAll(".option");
+for(var i=0;i<opts.length;i++){opts[i].classList.add("disabled");if(parseInt(opts[i].dataset.opt)===qu.correct)opts[i].classList.add("show-right")}
+var fb=document.getElementById("fb-"+c+"-"+q);
+if(o===qu.correct){
+btn.classList.remove("show-right");btn.classList.add("correct");
+fb.textContent="✅ "+qu.explain;fb.className="q-feedback show fb-ok";score++;playOk();confetti();
+}else{
+btn.classList.add("wrong");
+fb.textContent="❌ "+qu.explain;fb.className="q-feedback show fb-no";playNo();
+}
+var allDone=true;
+for(var j=0;j<cases[c].questions.length;j++){if(!caseAnswered[c+"-"+j]){allDone=false;break}}
+if(allDone){document.getElementById("nxc-"+c).style.display="inline-block"}
+}
+
+function showCase(idx){
+var cards=document.querySelectorAll(".case-card");
+for(var i=0;i<cards.length;i++)cards[i].classList.remove("active");
+document.getElementById("case-"+idx).classList.add("active");
+for(var d=0;d<cases.length;d++){
+var dot=document.getElementById("dot-"+d);
+dot.className="p-dot"+(d<idx?" done":"")+(d===idx?" active":"");
+}
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function nextCase(){
+currentCase++;
+if(currentCase>=cases.length){
+document.querySelectorAll(".case-card").forEach(function(c){c.classList.remove("active")});
+document.getElementById("dot-"+(cases.length-1)).className="p-dot done";
+var f=document.getElementById("finalCard");f.classList.add("show");
+document.getElementById("fScore").textContent=score+" / "+totalQ;
+if(score>=10){document.getElementById("fIcon").textContent="🧠";document.getElementById("fMsg").textContent="Outstanding diagnostics! You traced every pathway from plate to neuron.";confetti();setTimeout(confetti,400)}
+else if(score>=7){document.getElementById("fIcon").textContent="⚡";document.getElementById("fMsg").textContent="Great work! You understand the core brain-food connections.";confetti()}
+else{document.getElementById("fIcon").textContent="📚";document.getElementById("fMsg").textContent="Review the pathways — your patients still need you!"}
+return;
+}
+showCase(currentCase);
+}
+})();
+</script>
+
+
+</body></html>
