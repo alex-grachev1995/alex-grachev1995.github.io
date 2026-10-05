@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YESOXIDATION / NOXIDATION</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#6d1b1b 0%,#57261f 55%,#3a1f2b 100%);
+  color:#fff6ec;min-height:100vh;padding:16px;}
+#wrap{max-width:860px;margin:0 auto;}
+h1{font-size:1.7em;text-align:center;color:#ffd27d;letter-spacing:.4px;text-shadow:0 2px 12px rgba(255,140,50,.35);}
+.sub{text-align:center;color:#f2c4ac;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.17);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#3d1d0a;background:linear-gradient(90deg,#ffd27d,#ff9d4d);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;filter:none;}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.scorelab{font-size:.7em;letter-spacing:1.4px;color:#f2b39b;font-weight:800;}
+.score{font-size:1.7em;font-weight:900;color:#ffd27d;font-variant-numeric:tabular-nums;}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.on{background:#ffd27d;}
+.dot.good{background:#8fe0a5;}
+.dot.bad{background:#ff6b6b;}
+
+.qcard{text-align:center;}
+.qcard img{width:100%;max-width:520px;max-height:300px;object-fit:cover;border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 24px rgba(0,0,0,.35);margin-bottom:12px;}
+.qtext{font-size:1.12em;font-weight:700;line-height:1.5;color:#ffe9d2;margin:0 auto 16px;max-width:560px;}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px;margin:0 auto;}
+@media(max-width:560px){.choices{grid-template-columns:1fr;}}
+.choice{border:2px solid rgba(255,255,255,.25);border-radius:12px;padding:16px 10px;cursor:pointer;
+  font-size:1.15em;font-weight:900;letter-spacing:.5px;color:#fff6ec;background:rgba(255,255,255,.07);transition:all .15s;}
+.choice:hover{transform:translateY(-2px);border-color:#ffd27d;background:rgba(255,210,125,.13);}
+.choice.yes{border-color:rgba(255,157,77,.55);}
+.choice.no{border-color:rgba(140,190,255,.45);}
+.choice.picked-right{background:rgba(143,224,165,.28);border-color:#8fe0a5;box-shadow:0 0 18px rgba(143,224,165,.4);}
+.choice.picked-wrong{background:rgba(255,107,107,.25);border-color:#ff6b6b;animation:shake .35s;}
+.choice.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+
+.verdict{display:none;border-radius:12px;padding:14px;margin-top:14px;text-align:left;line-height:1.55;font-size:.94em;}
+.verdict.show{display:block;animation:pop .25s;}
+.verdict.good{background:rgba(143,224,165,.14);border:1px solid rgba(143,224,165,.5);}
+.verdict.badv{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.5);}
+.verdict .vhead{font-weight:900;font-size:1.05em;margin-bottom:5px;}
+.verdict.good .vhead{color:#a9f0bd;}
+.verdict.badv .vhead{color:#ffb3b3;}
+.verdict .why{color:#ffe3cd;}
+@keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+.nextrow{text-align:center;margin-top:14px;}
+
+.streak{font-size:.85em;font-weight:800;color:#ff9d4d;margin-top:2px;min-height:1.2em;}
+.finaltxt{text-align:center;font-size:1.05em;line-height:1.6;color:#ffe9d2;margin:14px 0;}
+.rank{font-size:1.5em;font-weight:900;color:#ffd27d;text-align:center;margin:8px 0 2px;}
+.brief{font-size:.92em;color:#f6d9c4;line-height:1.6;}
+.brief b{color:#ffd27d;}
+.center{text-align:center;}
+.electron{font-size:.78em;color:#d8a88f;font-style:italic;margin-top:8px;text-align:center;}
+</style></head><body>
+<div id="wrap">
+  <h1>🔥 YESOXIDATION / NOXIDATION 🧊</h1>
+  <div class="sub">Ten everyday moments. One question: is it oxidation?</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:14px;">
+        Oxidation is everywhere — fires, rust, cut apples, even <b>you</b> right now.
+        I'll show you a moment from daily life. Your job: decide if it's <b>oxidation</b>
+        (a substance loses electrons to oxygen) or <b>not</b>. Guess first — the explanation
+        comes after you've locked in your answer. No pressure. Only fire.
+      </div>
+      <div class="center"><button class="btn" onclick="startGame()">START ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div>
+          <div class="scorelab">SCORE</div>
+          <div class="score" id="score">0 / 10</div>
+          <div class="streak" id="streak"></div>
+        </div>
+        <div style="text-align:center;">
+          <div class="scorelab">MOMENT</div>
+          <div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="scorelab">QUESTION</div>
+          <div class="score" id="qnum" style="font-size:1.3em;">1 / 10</div>
+        </div>
+      </div>
+      <div class="qcard">
+        <img id="qimg" src="img/slide01.jpg" alt="question image">
+        <div class="qtext" id="qtext"></div>
+        <div class="choices">
+          <button class="choice yes" id="btnYes" onclick="answer(true)">🔥 YESOXIDATION</button>
+          <button class="choice no" id="btnNo" onclick="answer(false)">🧊 NOXIDATION</button>
+        </div>
+        <div class="verdict" id="verdict">
+          <div class="vhead" id="vhead"></div>
+          <div class="why" id="vwhy"></div>
+        </div>
+        <div class="nextrow"><button class="btn" id="btnNext" style="display:none;" onclick="nextQ()">NEXT →</button></div>
+      </div>
+      <div class="electron" id="elecnote">⚡ Remember the rule: oxidation = losing electrons.</div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="scorelab" style="text-align:center;">FINAL SCORE</div>
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center">
+        <button class="btn" onclick="startGame()">PLAY AGAIN ↻</button>
+        <button class="btn ghost" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#fff6ec;border:1px solid rgba(255,255,255,.3);margin-left:8px;">MENU</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const Q = [
+ {img:"img/slide01.jpg",
+  q:"A campfire blazes away — oxygen meets fuel, and heat and light blast out.",
+  ans:true,
+  why:"A fire is the classic oxidation reaction: oxygen combines with fuel and releases heat and light."},
+ {img:"img/slide02.jpg",
+  q:"You crush a sheet of paper into a tight ball.",
+  ans:false,
+  why:"Crushing changes the paper's shape only — its chemical composition is untouched. That's a physical change."},
+ {img:"img/slide03.jpg",
+  q:"An ice cube melts into water on a hot summer day.",
+  ans:false,
+  why:"Melting is a physical change: no new substance is formed, and no electrons are transferred."},
+ {img:"img/slide04.jpg",
+  q:"An old bike left outside in the rain slowly turns orange and flaky.",
+  ans:true,
+  why:"Rusting! Iron reacts with oxygen AND water to form iron oxide — a slow oxidation reaction."},
+ {img:"img/slide05.jpg",
+  q:"A puddle dries up and disappears after the rain.",
+  ans:false,
+  why:"That's evaporation — water changing state, not chemistry. No substance gains or loses electrons."},
+ {img:"img/slide06.jpg",
+  q:"A cut apple turns brown on the kitchen counter.",
+  ans:true,
+  why:"Browning is slow oxidation: oxygen reacts with enzymes and polyphenols in the fruit."},
+ {img:"img/slide07.jpg",
+  q:"The Statue of Liberty used to be shiny penny-copper. Now it's green.",
+  ans:true,
+  why:"Oxidation again: the copper metal reacted over time with oxygen, sulfur, and salt in the air."},
+ {img:"img/slide08.jpg",
+  q:"A firework explodes overhead in gold and white sparks.",
+  ans:true,
+  why:"During fireworks, oxidation of metals like magnesium and aluminum creates the light and heat."},
+ {img:"img/slide09.jpg",
+  q:"You drop chalk into vinegar and it fizzes, releasing CO₂ bubbles.",
+  ans:false,
+  why:"Chalk + vinegar is an acid–base reaction, not oxidation. CO₂ forms, but no electrons are exchanged."},
+ {img:"img/slide10.jpg",
+  q:"Right now, your cells are 'burning' glucose to power your body.",
+  ans:true,
+  why:"That's respiration — glucose reacts with oxygen and loses electrons, releasing energy, CO₂, and water."}
+];
+let idx=0, score=0, streak=0, answered=false;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){idx=0;score=0;streak=0;show('scr-play');renderDots();loadQ();updateHUD();}
+
+function goMenu(){show('scr-menu');}
+
+function renderDots(){const d=document.getElementById('dots');d.innerHTML='';
+  Q.forEach((_,i)=>{const el=document.createElement('div');el.className='dot'+(i<idx?' on':'');d.appendChild(el);});}
+
+function updateHUD(){document.getElementById('score').textContent=score+' / '+Q.length;
+  document.getElementById('qnum').textContent=(idx+1)+' / '+Q.length;
+  document.getElementById('streak').textContent=streak>=2?('🔥 streak ×'+streak):'';}
+
+function loadQ(){answered=false;
+  const q=Q[idx];
+  document.getElementById('qimg').src=q.img;
+  document.getElementById('qtext').textContent=q.q;
+  document.getElementById('verdict').className='verdict';
+  document.getElementById('btnNext').style.display='none';
+  ['btnYes','btnNo'].forEach(id=>{const b=document.getElementById(id);
+    b.disabled=false;b.className='choice '+(id==='btnYes'?'yes':'no');});
+  renderDots();updateHUD();
+  window.scrollTo(0,0);}
+
+function answer(saidYes){if(answered)return;answered=true;
+  const q=Q[idx], right=(saidYes===q.ans);
+  const dots=document.querySelectorAll('#dots .dot');
+  if(right){score++;streak++;}else{streak=0;}
+  dots[idx].classList.add(right?'good':'bad');
+  // lock buttons & style
+  const pick=document.getElementById(saidYes?'btnYes':'btnNo');
+  pick.classList.add(right?'picked-right':'picked-wrong');
+  const other=document.getElementById(saidYes?'btnNo':'btnYes');
+  other.classList.add('dim');
+  pick.disabled=true;other.disabled=true;
+  // verdict
+  const v=document.getElementById('verdict');
+  v.className='verdict show '+(right?'good':'badv');
+  document.getElementById('vhead').textContent=right?'✔ Correct — it IS oxidation!':'✘ Nope — not this one.';
+  if(right&&!q.ans){document.getElementById('vhead').textContent='✔ Correct — NOT oxidation!';}
+  if(!right&&q.ans){document.getElementById('vhead').textContent='✘ Nope — this one actually IS oxidation.';}
+  document.getElementById('vwhy').textContent=q.why;
+  updateHUD();
+  document.getElementById('btnNext').style.display='inline-block';
+  if(idx===Q.length-1){document.getElementById('btnNext').textContent='SEE RESULTS 🏁';}
+  else{document.getElementById('btnNext').textContent='NEXT →';}}
+
+function nextQ(){idx++;
+  if(idx>=Q.length){endGame();return;}loadQ();}
+
+function endGame(){
+  const r=document.getElementById('rank'),t=document.getElementById('finaltxt');
+  let rank,msg;
+  if(score===10){rank='🔥 OXIDATION ORACLE 🔥';msg='Flawless. Electrons fear you. Ming, this was genuinely perfect.';}
+  else if(score>=8){rank='⚡ Radical Reactor';msg='Excellent — you can spot electron loss from a mile away. Nearly perfect.';}
+  else if(score>=6){rank='🧪 Electron Apprentice';msg='Solid! A couple of tricky ones slipped past — play again and hunt them down.';}
+  else{rank='🕯 Still Getting Burned';msg='The fire got you this time. Read the explanations and take your revenge.';}
+  r.textContent=rank;
+  t.innerHTML='You got <b style="color:#ffd27d;">'+score+' out of '+Q.length+'</b>.<br>'+msg;
+  show('scr-end');}
+</script>
+</body></html>
