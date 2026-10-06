@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Homeostasis — Six Challenges</title>
+<title>Homeostasis — Ten Challenges</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#0e3a4d 0%,#123248 55%,#0e2638 100%);
@@ -20,17 +20,17 @@ h1{font-size:1.55em;text-align:center;color:#8fd8f2;letter-spacing:.4px;}
 .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
 .lab{font-size:.7em;letter-spacing:1.4px;color:#8fb8cc;font-weight:800;}
 .big{font-size:1.6em;font-weight:900;color:#8fd8f2;font-variant-numeric:tabular-nums;}
-.dots{display:flex;gap:6px;}
+.dots{display:flex;gap:6px;flex-wrap:wrap;}
 .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
 .dot.good{background:#8fe0a5;}.dot.bad{background:#ff6b6b;}
 .chtag{display:inline-block;font-size:.72em;font-weight:800;letter-spacing:1px;color:#06222e;background:#8fd8f2;border-radius:99px;padding:3px 10px;margin-bottom:8px;}
-.chhead{font-size:1.15em;font-weight:900;color:#8fd8f2;margin-bottom:6px;}
-.scen{background:rgba(255,255,255,.06);border-left:3px solid #8fd8f2;border-radius:8px;padding:10px 13px;margin:8px 0;font-size:.91em;line-height:1.55;color:#e2f3fa;}
-.scen b{color:#ffd27d;}
-.qhead{font-weight:900;color:#ffd27d;margin:13px 0 7px;font-size:.95em;}
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.chhead{font-size:1.1em;font-weight:900;color:#8fd8f2;margin-bottom:6px;}
+.scen{background:rgba(255,255,255,.06);border-left:3px solid #8fd8f2;border-radius:8px;padding:10px 13px;margin:8px 0;font-size:.9em;line-height:1.55;color:#e2f3fa;}
+.qq{font-weight:900;color:#ffd27d;margin:12px 0 7px;font-size:.95em;line-height:1.4;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:640px){.opts{grid-template-columns:1fr;}}
 .opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
-  background:rgba(255,255,255,.06);color:#ecf8ff;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+  background:rgba(255,255,255,.06);color:#ecf8ff;font-size:.83em;font-weight:600;transition:all .15s;text-align:left;line-height:1.45;}
 .opt:hover{border-color:#8fd8f2;transform:translateY(-2px);}
 .opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
 .opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
@@ -50,14 +50,15 @@ h1{font-size:1.55em;text-align:center;color:#8fd8f2;letter-spacing:.4px;}
 </style></head><body>
 <div id="wrap">
   <h1>⚖️ THE BALANCE OF LIFE</h1>
-  <div class="sub">Six homeostasis challenges — keep the body in balance.</div>
+  <div class="sub">Ten harder homeostasis challenges — think like a physiologist.</div>
 
   <div class="screen active" id="scr-menu">
     <div class="panel">
       <div class="brief" style="margin-bottom:12px;">
-        <b>Homeostasis</b> is the body's endless job of keeping everything in balance — temperature, water,
-        oxygen, sugar — without you ever noticing. Tonight, six challenges arrive. For each one, make your
-        prediction, then see how the body actually handles it. The hypothalamus is watching.
+        <b>Homeostasis</b> is the body's endless job of holding every variable in balance — temperature,
+        water, oxygen, sugar — usually without you noticing. These ten challenges are <b>new situations</b>
+        inspired by the same systems: read the scenario, answer the question, then read the debrief.
+        The hypothalamus is watching.
       </div>
       <div class="center"><button class="btn" onclick="startGame()">TAKE THE CHALLENGES ▶</button></div>
     </div>
@@ -67,8 +68,8 @@ h1{font-size:1.55em;text-align:center;color:#8fd8f2;letter-spacing:.4px;}
     <div class="panel">
       <div class="topbar">
         <div><div class="lab">SCORE</div><div class="big" id="score">0</div></div>
-        <div style="text-align:center;"><div class="lab">CHALLENGES</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
-        <div style="text-align:right;"><div class="lab">CASE</div><div class="big" id="cnum" style="font-size:1.2em;">1 / 6</div></div>
+        <div style="text-align:center;"><div class="lab">CHALLENGES</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;max-width:120px;"></div></div>
+        <div style="text-align:right;"><div class="lab">CASE</div><div class="big" id="cnum" style="font-size:1.2em;">1 / 10</div></div>
       </div>
       <div id="casebody"></div>
     </div>
@@ -85,38 +86,88 @@ h1{font-size:1.55em;text-align:center;color:#8fd8f2;letter-spacing:.4px;}
 
 <script>
 const CH=[
- {tag:"CHALLENGE 01 · THERMO-TEST",title:"The Snowstorm",
-  scen:["You drop a <b>desert lizard</b> and an <b>arctic fox</b> into a snowstorm.","Which one is more likely to survive — and what internal system makes the difference?"],
-  q:"Who survives the snowstorm, and why?",
-  o:["The lizard — reptiles are tougher","The arctic fox — it makes its own heat internally","Neither — snowstorms kill everything"],a:1,
-  why:"The arctic fox is <b>endothermic</b>: it burns food to generate heat internally, holding a constant body temperature even in the freezing Arctic. The desert lizard is <b>ectothermic</b> — it depends on outside heat, so in a snowstorm it can't stay active and freezes."},
- {tag:"CHALLENGE 02 · SWAT CHECK",title:"Sweaty Alex, Dry Max",
-  scen:["Alex is dripping with sweat after soccer on a hot day. Max, playing the same game, is <b>not sweating at all</b>.","Something is happening inside both bodies — and one of them is in danger."],
-  q:"Who is at risk of overheating?",
-  o:["Alex — sweating means weakness","Max — no sweat means his cooling system failed","Neither — sweat doesn't matter"],a:1,
-  why:"Sweating is a life-saving cooling system, switched on by the <b>hypothalamus</b> (the brain's thermostat). Sweat evaporates and carries heat away. Alex is cooling normally; Max's body can't dump its heat — heat exhaustion or heat stroke is next."},
- {tag:"CHALLENGE 03 · BALLOON POP",title:"The Perfume Burst",
-  scen:["You pop a balloon full of perfume in the middle of a classroom.","Within minutes, the smell reaches even the kids by the window — spread out, evenly."],
-  q:"Why does the smell spread out evenly?",
-  o:["The perfume molecules move randomly and spread — diffusion toward equilibrium","The wind always blows to the window","Smells are lighter than air"],a:0,
-  why:"<b>Diffusion</b>: perfume molecules move randomly from where they are crowded to where they aren't, following the <b>concentration gradient</b> until the concentration is uniform. It's the universe's tendency toward equilibrium — call it molecular chaos, beautifully organized."},
- {tag:"CHALLENGE 04 · HIGH ALTITUDE",title:"The Mountain Climb",
-  scen:["At the top of a tall mountain there's <b>less oxygen</b> in every breath.","Your body immediately starts breathing faster and deeper — hyperventilating."],
-  q:"Why do we hyperventilate at high altitude?",
-  o:["To look dramatic on camera","To blow off CO₂ before it builds up","To grab more oxygen with each breath"],a:2,
-  why:"Less oxygen in the air means the body compensates immediately: breathe faster AND deeper to pull in more O₂. Over weeks, a second fix kicks in — the body produces <b>more red blood cells</b> to carry oxygen more efficiently. Immediate response + long-term adaptation."},
- {tag:"CHALLENGE 05 · CLINICAL CHILL",title:"The 33°C Patient",
-  scen:["Doctors deliberately cool a brain-injured patient to <b>33°C for 24 hours</b>. It's called induced hypothermia — and it's done on purpose."],
-  q:"Why cool a patient down on purpose?",
-  o:["Cold slows metabolism and chemical damage, protecting the brain","Cold kills all remaining germs","It's easier to do surgery on cold tissue"],a:0,
-  why:"Cooling to 33°C slows the metabolic rate: cells consume less ATP and harmful chemical reactions run slower. The deliberate drop even <b>overrides the hypothalamus's</b> normal temperature regulation — a controlled break from homeostasis that protects the brain."},
- {tag:"CHALLENGE 06 · STOMACH EMERGENCY",title:"The Day-Old Meat",
-  scen:["A patient arrives vomiting, with a fever, after eating meat that sat outside the fridge for over a day.","His body is fighting back — hard."],
-  q:"Why vomiting AND fever — what's the body trying to do?",
-  o:["It's random bad luck","Flush the toxin out and raise temperature to slow the microbes","Digest the meat faster"],a:1,
-  why:"The <b>digestive system</b> failed to keep balance, so the hypothalamus triggers a defence: <b>vomiting</b> expels the contaminated food, and <b>fever</b> raises core temperature to slow the microbes down. Two ugly symptoms, one brilliant defence system."}
+ {tag:"CHALLENGE 01 · HEAT ECONOMY",title:"The Cold Room",
+  scen:"A bearded dragon lizard and a pigeon are placed together in a cold room at 5°C. Within the hour, the lizard has become sluggish and nearly immobile, while the pigeon remains fully active.",
+  q:"Which physiological difference best explains the lizard's immobility?",
+  o:["The lizard is ectothermic and cannot generate enough metabolic heat to keep its enzymes operating at full speed",
+     "The lizard lacks a subcutaneous fat layer, so heat escapes through its scales faster than it can be replaced",
+     "The pigeon's feathers conduct heat away from the body more efficiently, keeping its muscles warm",
+     "The lizard's muscles consume ATP faster than the pigeon's, so its energy reserves run out within the hour"],a:0,
+  why:"<b>Ectotherms</b> (the lizard) regulate temperature mostly through behavior and environment — in the cold, enzyme activity drops and metabolism slows dramatically. <b>Endotherms</b> (the pigeon) burn food to generate metabolic heat internally, so they stay active."},
+ {tag:"CHALLENGE 02 · HEAT PRODUCTION",title:"The Shivering Swimmer",
+  scen:"After a long swim in cold water, your core temperature begins to drop. Within seconds, your muscles start contracting in rapid, involuntary bursts — you're shivering.",
+  q:"What is the physiological purpose of shivering?",
+  o:["Rapid muscle contractions burn ATP and release heat as a by-product, raising core temperature",
+     "Muscle contractions squeeze warm blood out of the limbs and push it back toward the vital organs",
+     "Shivering evaporates water from the skin, which warms the body through latent heat release",
+     "The vibrations dislodge cold air trapped between the skin and clothing, warming the surface"],a:0,
+  why:"Shivering is <b>involuntary thermogenesis</b>: the muscles deliberately burn ATP with no useful work — the energy escapes as heat. It's the hypothalamus's fast-response heater."},
+ {tag:"CHALLENGE 03 · THE THERMOSTAT",title:"Two Runners",
+  scen:"Two runners finish a 5 km race on a 35°C day. Runner A is sweating heavily. Runner B barely sweats at all and soon becomes dizzy and confused.",
+  q:"Which statement correctly describes the hypothalamus's role here?",
+  o:["It acts as a thermostat: it detects rising core temperature and switches on the sweat glands to increase evaporative heat loss",
+     "It stores excess heat in the blood during exercise and releases it gradually through the skin afterward",
+     "It concentrates the sweat into a saline solution so the skin can reabsorb the water for reuse",
+     "It constricts the skin's blood vessels while dilating those in the core, trapping heat inside the body"],a:0,
+  why:"The <b>hypothalamus</b> compares core temperature against a set point and triggers cooling responses — sweating and skin vasodilation. Runner B's system is failing: without evaporative cooling, heat builds up toward heat stroke."},
+ {tag:"CHALLENGE 04 · MOLECULAR CHAOS",title:"The Glass of Water",
+  scen:"A drop of red food coloring falls into a glass of completely still water. Nobody touches the glass. Ten minutes later, the whole volume is an even, pale pink.",
+  q:"Which mechanism accounts for the even distribution of the dye?",
+  o:["Random molecular motion drives net movement of dye particles down their concentration gradient until equilibrium is reached",
+     "Microscopic convection currents in the water carry pigment particles from the top of the glass to the bottom",
+     "Being denser than water, the dye sinks to the base and then dissolves completely into uniform grains",
+     "Hydrogen bonds between water and the pigment split the dye into identically sized fragments that spread evenly"],a:0,
+  why:"That's <b>diffusion</b> — random thermal motion with a net flow from crowded to less-crowded regions, following the <b>concentration gradient</b> until equilibrium. It's also the second law of thermodynamics showing off: systems move toward disorder."},
+ {tag:"CHALLENGE 05 · THIN AIR",title:"The Mountaineer",
+  scen:"A mountaineer arrives at a base camp at 4,500 m and notices her breathing has become deeper and faster than normal, even at rest.",
+  q:"Which statement best describes her body's short-term and long-term responses to altitude?",
+  o:["Hyperventilation raises oxygen intake immediately, while over the following weeks her bone marrow boosts red blood cell production",
+     "Her breathing rate returns to normal within minutes as the lungs stretch permanently to hold more air per breath",
+     "Her body produces extra hemoglobin within hours, after which the rapid breathing is no longer necessary",
+     "Her blood plasma volume expands so that dissolved oxygen can be carried to the tissues more efficiently"],a:0,
+  why:"Low partial pressure of oxygen triggers immediate <b>hyperventilation</b>. Long-term, the hormone <b>EPO</b> stimulates red blood cell production — the same adaptation endurance athletes exploit in altitude training."},
+ {tag:"CHALLENGE 06 · CONTROLLED CHILL",title:"The 33°C Patient",
+  scen:"After a cardiac arrest, doctors deliberately cool a survivor to 33°C and hold her there for 24 hours — induced hypothermia.",
+  q:"Why does this controlled cooling protect the brain?",
+  o:["Lower tissue temperature slows metabolic rate and ATP consumption, reducing the chemical damage that follows oxygen deprivation",
+     "Cold blood coagulates faster, which seals microscopic ruptures in the brain's blood vessels",
+     "At 33°C the blood can dissolve roughly twice as much oxygen as it can at normal body temperature",
+     "Chilling the body forces the heart to pump harder, restoring circulation to oxygen-starved neurons"],a:0,
+  why:"When oxygen is scarce, every chemical reaction that continues damages cells. Cooling slows <b>metabolism</b> — less ATP demand, slower destructive reactions — buying the brain time. The cold deliberately overrides the hypothalamus's set point."},
+ {tag:"CHALLENGE 07 · PURPOSEFUL FEVER",title:"The 39°C Child",
+  scen:"A child with influenza has a fever of 39°C. His mother reaches for medicine to bring the temperature straight back down to 37°C.",
+  q:"From a homeostatic perspective, why does the body deliberately raise its temperature during infection?",
+  o:["Elevated core temperature slows microbial replication and enhances the activity of immune cells fighting the infection",
+     "The higher temperature denatures the viral proteins directly, destroying the pathogen on contact",
+     "Fever increases sweat output, which flushes circulating toxins out through the skin",
+     "Heat dilates the brain's blood vessels, increasing oxygen delivery to the infected tissue"],a:0,
+  why:"A <b>fever is a defence strategy</b>, not a malfunction: many pathogens replicate slower at higher temperatures, while immune cells (like neutrophils and T-cells) work better. That's why mild fevers are often left alone."},
+ {tag:"CHALLENGE 08 · THE EMERGENCY EXIT",title:"The Day-Old Chicken",
+  scen:"A patient arrives at hospital vomiting repeatedly, with a rising fever, after eating chicken that sat unrefrigerated for thirty hours.",
+  q:"How do vomiting and fever work together as homeostatic defence mechanisms?",
+  o:["Vomiting expels contaminated material from the gut, while the raised temperature slows the growth of the bacteria",
+     "Vomiting signals the liver to convert glycogen into glucose, powering the immune response",
+     "Repeated vomiting raises stomach pH, which chemically neutralizes the bacterial toxins",
+     "The intestinal wall tightens its junctions so no further nutrients or water can be absorbed"],a:0,
+  why:"Two coordinated responses, one goal: <b>vomiting</b> removes the source of the toxin from the digestive tract; <b>fever</b> makes the body's environment hostile to the microbes that remain. Unpleasant, but unmistakably intelligent."},
+ {tag:"CHALLENGE 09 · TOO MUCH AIR",title:"The Nervous Student",
+  scen:"Minutes before an important exam, a student starts breathing very fast and deep. Soon she feels dizzy, and her fingers begin to tingle.",
+  q:"What is the most likely physiological explanation for her symptoms?",
+  o:["Over-breathing blows off CO₂, raising blood pH (respiratory alkalosis), which reduces cerebral blood flow and excites peripheral nerves",
+     "Rapid breathing over-oxygenates the blood, producing oxygen toxicity in the brainstem",
+     "The diaphragm fatigues from overuse, briefly cutting oxygen delivery to the cortex",
+     "CO₂ builds up in the blood, acidifying it and suppressing activity in the central nervous system"],a:0,
+  why:"CO₂ dissolved in blood forms carbonic acid — it's a key pH regulator. Hyperventilation flushes CO₂ out, blood becomes <b>alkaline</b>, cerebral vessels constrict (→ dizziness) and nerves become hyperexcitable (→ tingling). The fix: slow breathing."},
+ {tag:"CHALLENGE 10 · THE LOGIC OF FEEDBACK",title:"The Thermostat and the Pancreas",
+  scen:"A thermostat switches the heating OFF when a room warms above 22°C, and ON when it cools below. The pancreas controlling blood sugar works on exactly the same principle.",
+  q:"Which statement defines NEGATIVE FEEDBACK correctly?",
+  o:["A change in a variable triggers responses that counteract the change, pulling the system back toward its set point",
+     "A stimulus amplifies its own effect, driving the variable progressively further from its starting value",
+     "The body anticipates a change in advance and adjusts its physiology before any deviation occurs",
+     "Two hormones with identical effects are released together to make sure the response is strong enough"],a:0,
+  why:"<b>Negative feedback</b> = oppose the change (insulin lowers high blood sugar; glucagon raises low blood sugar). Its opposite, <b>positive feedback</b>, amplifies — that's what happens in blood clotting and childbirth, not here."}
 ];
-let ci=0,score=0;
+let ci=0,score=0,curOpts=[];
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');}
@@ -130,18 +181,21 @@ function updateHUD(){document.getElementById('score').textContent=score;
   document.getElementById('cnum').textContent=(ci+1)+' / '+CH.length;}
 
 function loadCase(){const c=CH[ci];
+  curOpts=c.o.map((t,i)=>({t:t,ok:i===c.a}));
+  for(let i=curOpts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));
+    const tmp=curOpts[i];curOpts[i]=curOpts[j];curOpts[j]=tmp;}
   let h=`<div class="chtag">${c.tag}</div><div class="chhead">${c.title}</div>`;
-  c.scen.forEach(s=>{h+=`<div class="scen">${s}</div>`;});
-  h+=`<div class="qhead">🧠 YOUR CALL?</div><div class="opts">`;
-  c.o.forEach((o,j)=>{h+=`<button class="opt" onclick="pick(${j},this)">${o}</button>`;});
+  h+=`<div class="scen">${c.scen}</div>`;
+  h+=`<div class="qq">🧠 ${c.q}</div><div class="opts">`;
+  curOpts.forEach((o,j)=>{h+=`<button class="opt" onclick="pick(${j},this)">${o.t}</button>`;});
   h+=`</div><div class="fb" id="fb"></div>
       <div class="center" style="margin-top:13px;" id="nrow"></div>`;
   document.getElementById('casebody').innerHTML=h;
   updateHUD();window.scrollTo(0,0);}
 
 function pick(j,btn){if(document.getElementById('fb').classList.contains('show'))return;
-  const c=CH[ci],right=(j===c.a);
-  document.querySelectorAll('#casebody .opt').forEach((o,k)=>{o.classList.add('dim');if(k===c.a)o.classList.add('right');});
+  const c=CH[ci],right=curOpts[j].ok;
+  document.querySelectorAll('#casebody .opt').forEach((o,k)=>{o.classList.add('dim');if(curOpts[k].ok)o.classList.add('right');});
   if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
   if(right)score++;
   const fb=document.getElementById('fb');
@@ -156,12 +210,38 @@ function pick(j,btn){if(document.getElementById('fb').classList.contains('show')
 function nextCase(){ci++;loadCase();}
 
 function endGame(){let rank,msg;
-  if(score===6){rank='⚖️ HOMEOSTASIS MASTER';msg='Perfect balance. The hypothalamus sends its regards.';}
-  else if(score>=5){rank='🌡️ THERMOSTAT WHISPERER';msg='Excellent — the body\'s balancing acts hold no secrets for you.';}
-  else if(score>=3){rank='🧂 APPRENTICE';msg='Getting there — a few systems still surprise you. One more round?';}
-  else{rank='🫠 OUT OF BALANCE';msg='The body is screaming. Read the explanations and restore equilibrium.';}
+  if(score>=9){rank='⚖️ HOMEOSTASIS MASTER';msg='Outstanding — you think like a physiologist now.';}
+  else if(score>=7){rank='🌡️ THERMOSTAT WHISPERER';msg='Excellent — the feedback loops hold few secrets for you.';}
+  else if(score>=4){rank='🧂 APPRENTICE';msg='Respectable. Read the debriefs you missed and run it back.';}
+  else{rank='🫠 OUT OF BALANCE';msg='The body is screaming. Study the debriefs and restore equilibrium.';}
   document.getElementById('rank').textContent=rank;
   document.getElementById('finaltxt').innerHTML='You kept balance in <b style="color:#8fd8f2;">'+score+' / '+CH.length+'</b> challenges.<br>'+msg;
   show('scr-end');window.scrollTo(0,0);}
+</script>
+
+<!-- ZOOM CONTROLS -->
+<style>
+#zoomctl{position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+#zoomctl button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.45);
+  background:rgba(20,20,30,.72);color:#fff;font-size:20px;font-weight:900;cursor:pointer;
+  backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1;}
+#zoomctl button:hover{background:rgba(60,60,80,.85);}
+#zoomctl #zreset{font-size:13px;}
+</style>
+<div id="zoomctl" title="Zoom in / out">
+  <button onclick="zStep(1)" aria-label="Zoom in">＋</button>
+  <button id="zreset" onclick="zReset()" aria-label="Reset zoom">1×</button>
+  <button onclick="zStep(-1)" aria-label="Zoom out">－</button>
+</div>
+<script>
+(function(){var z=parseFloat(localStorage.getItem('kwzoom')||'1');
+ if(isNaN(z)||z<0.7||z>1.6)z=1;
+ document.body.style.zoom=z;
+ window.zStep=function(d){z=Math.min(1.6,Math.max(0.7,Math.round((z+d*0.1)*10)/10));
+  document.body.style.zoom=z;localStorage.setItem('kwzoom',z);
+  document.getElementById('zreset').textContent=z.toFixed(1)+'×';};
+ window.zReset=function(){z=1;document.body.style.zoom=z;localStorage.setItem('kwzoom','1');
+  document.getElementById('zreset').textContent='1×';};
+ window.addEventListener('load',function(){document.getElementById('zreset').textContent=z.toFixed(1)+'×';});})();
 </script>
 </body></html>

@@ -6,7 +6,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#3b2d5e 0%,#2f2a52 55%,#232045 100%);
   color:#f2efff;min-height:100vh;padding:16px;}
-#wrap{max-width:920px;margin:0 auto;}
+#wrap{max-width:940px;margin:0 auto;}
 h1{font-size:1.6em;text-align:center;color:#c8b6ff;letter-spacing:.4px;}
 .sub{text-align:center;color:#b3a8d9;font-size:.9em;margin:4px 0 14px;}
 .screen{display:none;}.screen.active{display:block;}
@@ -17,42 +17,64 @@ h1{font-size:1.6em;text-align:center;color:#c8b6ff;letter-spacing:.4px;}
 .btn:disabled{opacity:.32;cursor:not-allowed;}
 .brief{font-size:.92em;color:#ddd5f5;line-height:1.6;}.brief b{color:#c8b6ff;}
 .center{text-align:center;}
+.revgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;}
+.revcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px;}
+.revcard .rt{font-weight:900;color:#c8b6ff;font-size:.95em;margin-bottom:4px;}
+.revcard .rb{font-size:.8em;color:#d5cbed;line-height:1.5;}
+.revcard .rb b{color:#ffd27d;}
+.revcard img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:7px;}
 .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
 .lab{font-size:.7em;letter-spacing:1.4px;color:#9d8fd0;font-weight:800;}
 .big{font-size:1.6em;font-weight:900;color:#c8b6ff;font-variant-numeric:tabular-nums;}
-.jointcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px;margin-bottom:12px;}
-.jhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
-.jhead img{width:120px;height:90px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.25);}
-.jname{font-size:1.2em;font-weight:900;color:#c8b6ff;}
-.jq{display:grid;grid-template-columns:1fr;gap:7px;margin-top:6px;}
-.qrow{display:grid;grid-template-columns:150px 1fr;gap:8px;align-items:center;font-size:.85em;}
-@media(max-width:560px){.qrow{grid-template-columns:1fr;}}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:130px;justify-content:flex-end;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.good{background:#8fe0a5;}.dot.bad{background:#ff6b6b;}
+.jointcard{display:grid;grid-template-columns:minmax(200px,320px) 1fr;gap:16px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px;}
+@media(max-width:680px){.jointcard{grid-template-columns:1fr;}}
+.jointcard img{width:100%;height:100%;min-height:220px;max-height:320px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.25);}
+.jname{font-size:1.25em;font-weight:900;color:#c8b6ff;margin-bottom:8px;}
+.qrow{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;font-size:.87em;margin:7px 0;}
+@media(max-width:480px){.qrow{grid-template-columns:1fr;}}
 .qrow .ql{font-weight:800;color:#e8e2ff;}
-select{background:#2c2650;color:#f2efff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:7px 9px;font-size:.85em;width:100%;}
-select.ok{border-color:#8fe0a5;background:rgba(143,224,165,.15);}
-select.no{border-color:#ff6b6b;background:rgba(255,107,107,.15);}
-select:disabled{opacity:.9;}
-.mark{font-size:.78em;font-weight:800;margin-left:6px;}
+select{background:#2c2650;color:#f2efff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 9px;font-size:.86em;width:100%;}
+select.ok{border-color:#8fe0a5;background:rgba(143,224,165,.18);}
+select.no{border-color:#ff6b6b;background:rgba(255,107,107,.16);}
+select:disabled{opacity:.95;}
+.mark{font-size:.8em;font-weight:800;margin-left:6px;}
 .mark.ok{color:#8fe0a5;}.mark.no{color:#ff8f8f;}
-.fbline{font-size:.82em;color:#c9bfe8;margin-top:4px;display:none;}
-.lockrow{margin-top:10px;}
+.note{display:none;font-size:.84em;color:#d9cff2;background:rgba(255,210,125,.09);border:1px solid rgba(255,210,125,.35);
+  border-radius:9px;padding:8px 11px;margin-top:9px;line-height:1.5;animation:pop .25s;}
+.note.show{display:block;}
+.note b{color:#ffd27d;}
+.lockrow{margin-top:11px;display:flex;gap:8px;flex-wrap:wrap;}
 .rank{font-size:1.5em;font-weight:900;color:#c8b6ff;text-align:center;margin:8px 0 2px;}
 .finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#e5ddf8;margin:12px 0;}
-.sumline{font-size:.85em;color:#b8addd;margin-top:6px;}
+.sumline{font-size:.85em;color:#b8addd;margin-top:6px;line-height:1.55;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
 </style></head><body>
 <div id="wrap">
   <h1>🕵️ JOINT INSPECTOR</h1>
-  <div class="sub">Ten joints. Three questions each. Can you classify them all?</div>
+  <div class="sub">Review the joint families, then inspect ten joints one by one.</div>
 
   <div class="screen active" id="scr-menu">
     <div class="panel">
-      <div class="brief" style="margin-bottom:12px;">
-        Your mission: inspect <b>10 human joints</b> and classify each one —
-        <b>main type</b> (fibrous / cartilaginous / synovial), <b>sub-type</b>, and
-        <b>movement allowed</b>. Pick your answers for all three rows, hit <b>LOCK IN</b>,
-        and the inspector's report will tell you what you got right. 30 points up for grabs.
+      <div class="brief" style="margin-bottom:4px;">📖 <b>Review first — the three joint families:</b></div>
+      <div class="revgrid">
+        <div class="revcard"><img src="img/skull.jpg" alt="fibrous joints">
+          <div class="rt">🔒 FIBROUS — fixed</div>
+          <div class="rb">Bones joined by dense connective tissue. <b>No movement.</b><br>Examples: <b>skull sutures</b>, teeth in their sockets.</div></div>
+        <div class="revcard"><img src="img/spine.jpg" alt="cartilaginous joints">
+          <div class="rt">🟡 CARTILAGINOUS — slightly movable</div>
+          <div class="rb">Bones joined by <b>cartilage</b> (a cushion). Small, limited movement.<br>Examples: <b>spine vertebrae</b>, rib cage.</div></div>
+        <div class="revcard"><img src="img/shoulder.jpg" alt="synovial joints">
+          <div class="rt">🟢 SYNOVIAL — freely movable</div>
+          <div class="rb">A fluid-filled cavity between the bones. The big movers: <b>hinge, ball-and-socket, pivot, saddle, condyloid</b>.<br>Examples: shoulder, hip, knee, elbow…</div></div>
       </div>
-      <div class="center"><button class="btn" onclick="startGame()">START INSPECTION ▶</button></div>
+      <div class="brief" style="margin-top:12px;">🏃 <b>And the movements they allow:</b><br>
+      <b>Flexion / extension</b> — bend / straighten (elbow, knee) · <b>Rotation</b> — turn around an axis (neck) ·
+      <b>Abduction / adduction</b> — move away from / toward the body midline · <b>Circumduction</b> — circular cone-shaped movement (shoulder, hip).</div>
+      <div class="center" style="margin-top:12px;"><button class="btn" onclick="startGame()">START INSPECTION ▶</button></div>
     </div>
   </div>
 
@@ -60,10 +82,10 @@ select:disabled{opacity:.9;}
     <div class="panel">
       <div class="topbar">
         <div><div class="lab">SCORE</div><div class="big" id="score">0 / 30</div></div>
+        <div style="text-align:center;"><div class="lab">PROGRESS</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
         <div style="text-align:right;"><div class="lab">JOINT</div><div class="big" id="jnum" style="font-size:1.2em;">1 / 10</div></div>
       </div>
-      <div id="joints"></div>
-      <div class="center" id="endrow"></div>
+      <div id="jointbody"></div>
     </div>
   </div>
 
@@ -74,7 +96,7 @@ select:disabled{opacity:.9;}
       <div class="finaltxt" id="finaltxt"></div>
       <div id="sumlist" class="sumline"></div>
       <div class="center" style="margin-top:12px;"><button class="btn" onclick="startGame()">RE-INSPECT ↻</button>
-      <button class="btn" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#f2efff;border:1px solid rgba(255,255,255,.3);">MENU</button></div>
+      <button class="btn" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#f2efff;border:1px solid rgba(255,255,255,.3);">REVIEW</button></div>
     </div>
   </div>
 </div>
@@ -84,84 +106,109 @@ const TYPES=["Fibrous","Cartilaginous","Synovial"];
 const SUBS=["Fixed (Suture)","Hinge","Ball-and-Socket","Pivot","Saddle","Condyloid","Slightly Movable (Amphiarthrosis)"];
 const MOVS=["No movement","Circular in all directions","Forward/backward only","Rotation","Sideways and circular","Forward/backward and side-to-side","Flexing/bending slightly","Up-and-down flexion"];
 const JOINTS=[
- {n:"Shoulder",img:"img/shoulder.jpg",t:2,s:2,m:1,note:"The champion of mobility — trade-off: it's the easiest to dislocate."},
- {n:"Skull",img:"img/skull.jpg",t:0,s:0,m:0,note:"Sutures fuse the skull plates — protection beats movement here."},
- {n:"Elbow",img:"img/elbow.jpg",t:2,s:1,m:2,note:"A classic hinge: one direction, like a door."},
- {n:"Vertebrae (Spine)",img:"img/spine.jpg",t:1,s:6,m:6,note:"Between each pair of vertebrae: a disc of cartilage. Small movements add up to a bendy spine."},
- {n:"Neck",img:"img/neck.gif",t:2,s:3,m:3,note:"The atlas-and-axis pivot lets you shake your head 'no'."},
- {n:"Thumb",img:"img/body.jpg",t:2,s:4,m:4,note:"Saddle joint — the secret behind grip, texting, and thumbs-up."},
- {n:"Wrist",img:"img/wrist.jpg",t:2,s:5,m:5,note:"Condyloid: two planes of motion, but no rotation."},
- {n:"Hip",img:"img/hip.jpg",t:2,s:2,m:3,note:"Ball-and-socket like the shoulder — but deeper, trading range for stability."},
- {n:"Knee",img:"img/knee.jpg",t:2,s:1,m:2,note:"Mostly a hinge — with a tiny bit of rotation when bent."},
- {n:"Ankle",img:"img/ankle.jpg",t:2,s:1,m:7,note:"Hinge again: up-and-down flexion (point & flex your foot)."}
+ {n:"Shoulder",img:"img/shoulder.jpg",t:2,s:2,m:1,note:"The champion of mobility — the trade-off is that it's the easiest joint to dislocate."},
+ {n:"Skull",img:"img/skull.jpg",t:0,s:0,m:0,note:"Sutures fuse the skull plates into a helmet — protection beats movement."},
+ {n:"Elbow",img:"img/elbow.jpg",t:2,s:1,m:2,note:"A classic hinge joint: movement in one plane only, like a door."},
+ {n:"Vertebrae (Spine)",img:"img/spine.jpg",t:1,s:6,m:6,note:"Between each pair of vertebrae sits a disc of cartilage — tiny movements add up to a bendy spine."},
+ {n:"Neck",img:"img/neck.gif",t:2,s:3,m:3,note:"The atlas and axis form a pivot — that's how you shake your head 'no'."},
+ {n:"Thumb",img:"img/body.jpg",t:2,s:4,m:4,note:"The saddle joint's special shape lets the thumb touch every fingertip — grip, texting, thumbs-up."},
+ {n:"Wrist",img:"img/wrist.jpg",t:2,s:5,m:5,note:"Condyloid: two planes of motion (forward/back AND side to side), but no rotation."},
+ {n:"Hip",img:"img/hip.jpg",t:2,s:2,m:1,note:"Ball-and-socket like the shoulder, but the socket is much deeper — stability over range."},
+ {n:"Knee",img:"img/knee.jpg",t:2,s:1,m:2,note:"Mostly a hinge, with a small amount of rotation possible when the knee is bent."},
+ {n:"Ankle",img:"img/ankle.jpg",t:2,s:1,m:7,note:"A hinge again: mainly up-and-down flexion — point your toes, then pull them up."}
 ];
-let score=0, locked=false;
+let ji=0,score=0,checked=false;
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');}
 
-function startGame(){score=0;document.getElementById('score').textContent='0 / 30';
-  document.getElementById('endrow').innerHTML='';renderAll();show('scr-play');window.scrollTo(0,0);}
+function startGame(){ji=0;score=0;
+  const d=document.getElementById('dots');d.innerHTML='';
+  JOINTS.forEach(()=>{const el=document.createElement('div');el.className='dot';d.appendChild(el);});
+  show('scr-play');loadJoint();}
 
 function goMenu(){show('scr-menu');}
 
-function sel(arr,cls,idx){return `<select class="${cls}" data-i="${idx}"><option value="">— pick —</option>`+
-  arr.map((o,i)=>`<option value="${i}">${o}</option>`).join('')+`</select>`;}
+function updateHUD(){document.getElementById('score').textContent=score+' / 30';
+  document.getElementById('jnum').textContent=(ji+1)+' / '+JOINTS.length;}
 
-function renderAll(){
-  document.getElementById('joints').innerHTML=JOINTS.map((j,ji)=>
-   `<div class="jointcard" id="jc${ji}">
-      <div class="jhead"><img src="${j.img}" alt="${j.n}"><div class="jname">${ji+1}. ${j.n}</div></div>
-      <div class="jq">
-        <div class="qrow"><div class="ql">Main type</div><div>${sel(TYPES,'sel-t',ji)}<span class="mark" id="mt${ji}"></span></div></div>
-        <div class="qrow"><div class="ql">Sub-type</div><div>${sel(SUBS,'sel-s',ji)}<span class="mark" id="ms${ji}"></span></div></div>
-        <div class="qrow"><div class="ql">Movement allowed</div><div>${sel(MOVS,'sel-m',ji)}<span class="mark" id="mm${ji}"></span></div></div>
+function loadJoint(){checked=false;const j=JOINTS[ji];
+  const sel=(arr,cls)=>`<select class="${cls}"><option value="">— pick —</option>`+
+    arr.map((o,i)=>`<option value="${i}">${o}</option>`).join('')+`</select>`;
+  let h=`<div class="jointcard">
+    <div><img src="${j.img}" alt="${j.n}"></div>
+    <div>
+      <div class="jname">${ji+1}. ${j.n}</div>
+      <div class="qrow"><div class="ql">Main type</div><div>${sel(TYPES,'sel-t')}<span class="mark" id="mt"></span></div></div>
+      <div class="qrow"><div class="ql">Sub-type</div><div>${sel(SUBS,'sel-s')}<span class="mark" id="ms"></span></div></div>
+      <div class="qrow"><div class="ql">Movement</div><div>${sel(MOVS,'sel-m')}<span class="mark" id="mm"></span></div></div>
+      <div class="note" id="note">💡 <b>${j.n}:</b> ${j.note}</div>
+      <div class="lockrow" id="lockrow">
+        <button class="btn" onclick="checkJoint()">✔ CHECK</button>
       </div>
-      <div class="fbline" id="fn${ji}">💡 ${j.note}</div>
-    </div>`).join('');
-  document.getElementById('endrow').innerHTML=`<button class="btn" id="lockBtn" onclick="lockIn()">🔒 LOCK IN ALL ANSWERS</button>`;
-  document.getElementById('jnum').textContent='— / 10';}
+    </div>
+  </div>`;
+  document.getElementById('jointbody').innerHTML=h;
+  updateHUD();window.scrollTo(0,0);}
 
-function lockIn(){
-  if(locked)return;locked=true;
-  let firstWrong=null;
-  JOINTS.forEach((j,ji)=>{
-    const card=document.getElementById('jc'+ji);
-    let got=0;
-    [['t','t'],['s','s'],['m','m']].forEach(([key,cls])=>{
-      const el=card.querySelector('.sel-'+cls);
-      const v=el.value===''?null:parseInt(el.value);
-      el.disabled=true;
-      const mark=document.getElementById('m'+cls+ji);
-      if(v===null){el.classList.add('no');mark.className='mark no';mark.textContent='— skipped';}
-      else if(v===j[key]){el.classList.add('ok');mark.className='mark ok';mark.textContent='✔';got++;}
-      else{el.classList.add('no');mark.className='mark no';mark.textContent='✘ → '+
-        (key==='t'?TYPES:key==='s'?SUBS:MOVS)[j[key]];
-        if(!firstWrong)firstWrong=ji;}
-    });
-    score+=got;
-    document.getElementById('fn'+ji).style.display='block';
+function checkJoint(){if(checked)return;checked=true;
+  const j=JOINTS[ji];let got=0;
+  [['t','t'],['s','s'],['m','m']].forEach(([key,cls])=>{
+    const el=document.querySelector('.sel-'+cls);
+    const v=el.value===''?null:parseInt(el.value);
+    el.disabled=true;
+    const mark=document.getElementById('m'+cls);
+    if(v===null){el.classList.add('no');mark.className='mark no';mark.textContent='— skipped';}
+    else if(v===j[key]){el.classList.add('ok');mark.className='mark ok';mark.textContent='✔';got++;}
+    else{el.classList.add('no');mark.className='mark no';mark.textContent='✘ → '+
+      (key==='t'?TYPES:key==='s'?SUBS:MOVS)[j[key]];}
   });
-  locked=false;
-  document.getElementById('score').textContent=score+' / 30';
-  document.getElementById('jnum').textContent='10 / 10';
-  document.getElementById('endrow').innerHTML=
-    `<button class="btn" onclick="endGame()">SEE REPORT 📋</button>`;
-  if(firstWrong!==null){const y=document.getElementById('jc'+firstWrong).offsetTop;
-    window.scrollTo({top:y-80,behavior:'smooth'});}
-  else window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}
+  score+=got;updateHUD();
+  document.getElementById('note').classList.add('show');
+  document.getElementById('lockrow').innerHTML=
+    `<button class="btn" onclick="${ji===JOINTS.length-1?'endGame()':'nextJoint()'}">${ji===JOINTS.length-1?'SEE REPORT 📋':'NEXT JOINT →'}</button>`;
+  const dots=document.querySelectorAll('#dots .dot');
+  dots[ji].className='dot '+(got===3?'good':got===0?'bad':'');
+  dots[ji].style.background=got===1||got===2?'#ffd27d':'';}
+
+function nextJoint(){ji++;loadJoint();}
 
 function endGame(){
   const r=document.getElementById('rank'),t=document.getElementById('finaltxt');
   let rank,msg;
   if(score>=28){rank='🏆 CHIEF INSPECTOR';msg='Nearly flawless. The skeleton salutes you.';}
   else if(score>=22){rank='🔬 SENIOR INSPECTOR';msg='Excellent work — you know your hinges from your ball-and-sockets.';}
-  else if(score>=15){rank='🦴 JUNIOR INSPECTOR';msg='A solid pass. Scroll up, read the notes, and inspect again.';}
-  else{rank='🩹 INTERN';msg='The joints have filed a complaint. Study the reports and retry.';}
+  else if(score>=15){rank='🦴 JUNIOR INSPECTOR';msg='A solid pass. Flip back to the review and inspect again.';}
+  else{rank='🩹 INTERN';msg='The joints have filed a complaint. Review the families and retry.';}
   r.textContent=rank;
   t.innerHTML='You classified <b style="color:#c8b6ff;">'+score+' / 30</b> correctly.<br>'+msg;
-  document.getElementById('sumlist').innerHTML='Remember the big picture: <b>fibrous</b> = fixed (skull sutures), '+
-    '<b>cartilaginous</b> = slightly movable (spine), <b>synovial</b> = the free movers — hinges, pivots, balls-and-sockets, saddles, condyloids.';
+  document.getElementById('sumlist').innerHTML='Big picture: <b>fibrous</b> = fixed (skull sutures) · <b>cartilaginous</b> = slightly movable (spine) · <b>synovial</b> = the free movers — hinges, pivots, ball-and-sockets, saddles, condyloids.';
   show('scr-end');window.scrollTo(0,0);}
+</script>
+
+<!-- ZOOM CONTROLS -->
+<style>
+#zoomctl{position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+#zoomctl button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.45);
+  background:rgba(20,20,30,.72);color:#fff;font-size:20px;font-weight:900;cursor:pointer;
+  backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1;}
+#zoomctl button:hover{background:rgba(60,60,80,.85);}
+#zoomctl #zreset{font-size:13px;}
+</style>
+<div id="zoomctl" title="Zoom in / out">
+  <button onclick="zStep(1)" aria-label="Zoom in">＋</button>
+  <button id="zreset" onclick="zReset()" aria-label="Reset zoom">1×</button>
+  <button onclick="zStep(-1)" aria-label="Zoom out">－</button>
+</div>
+<script>
+(function(){var z=parseFloat(localStorage.getItem('kwzoom')||'1');
+ if(isNaN(z)||z<0.7||z>1.6)z=1;
+ document.body.style.zoom=z;
+ window.zStep=function(d){z=Math.min(1.6,Math.max(0.7,Math.round((z+d*0.1)*10)/10));
+  document.body.style.zoom=z;localStorage.setItem('kwzoom',z);
+  document.getElementById('zreset').textContent=z.toFixed(1)+'×';};
+ window.zReset=function(){z=1;document.body.style.zoom=z;localStorage.setItem('kwzoom','1');
+  document.getElementById('zreset').textContent='1×';};
+ window.addEventListener('load',function(){document.getElementById('zreset').textContent=z.toFixed(1)+'×';});})();
 </script>
 </body></html>
