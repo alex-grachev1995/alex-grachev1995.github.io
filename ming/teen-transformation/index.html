@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teen Transformation — the puberty explorer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#7a2d52 0%,#5e2d55 55%,#412650 100%);
+  color:#fdeef5;min-height:100vh;padding:16px;}
+#wrap{max-width:920px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#ffb3d1;letter-spacing:.4px;}
+.sub{text-align:center;color:#e0aac4;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#4a1030;background:linear-gradient(90deg,#ffb3d1,#f08bb8);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.center{text-align:center;}
+.chapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px;}
+.chap{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;}
+.chap:hover{border-color:#ffb3d1;transform:translateY(-2px);background:rgba(255,179,209,.1);}
+.chap .ce{font-size:1.7em;}
+.chap .ct{font-weight:900;color:#ffb3d1;margin:4px 0 3px;font-size:.95em;}
+.chap .cd{font-size:.78em;color:#e8c3d4;line-height:1.4;}
+.chap .done{float:right;font-size:.75em;color:#8fe0a5;font-weight:800;}
+.readprog{font-size:.8em;color:#d8a7c0;margin-top:10px;text-align:center;}
+.chead{font-size:1.2em;font-weight:900;color:#ffb3d1;margin-bottom:4px;}
+.csub{font-size:.85em;color:#e3b7cb;margin-bottom:10px;}
+.block{background:rgba(255,255,255,.05);border-left:3px solid #f08bb8;border-radius:8px;padding:9px 12px;margin:7px 0;font-size:.87em;line-height:1.55;color:#fbe4ee;}
+.block b{color:#ffb3d1;}
+.qhead{font-weight:900;color:#ffd27d;margin:13px 0 7px;font-size:.95em;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#fdeef5;font-size:.85em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#ffb3d1;}
+.opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.4;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:11px 13px;margin-top:10px;font-size:.86em;line-height:1.5;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:3px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#ffb3d1;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#fbe4ee;margin:12px 0;}
+</style></head><body>
+<div id="wrap">
+  <h1>🧬 TEEN TRANSFORMATION</h1>
+  <div class="sub">Puberty, decoded — explore the chapters, then test yourself.</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div style="font-size:.92em;color:#f3d3e1;line-height:1.6;margin-bottom:4px;">
+        Somewhere between being a kid and being an adult, the body runs a secret upgrade program.
+        Explore all <b style="color:#ffb3d1;">eight chapters</b> — each one is short — then take
+        <b style="color:#ffb3d1;">The Transformation Test</b>.
+      </div>
+      <div class="readprog" id="readprog">Chapters read: 0 / 8</div>
+      <div class="chapgrid" id="chapgrid"></div>
+      <div class="center" style="margin-top:14px;"><button class="btn" id="quizBtn" onclick="startQuiz()" disabled>TAKE THE TEST ✎</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-read">
+    <div class="panel">
+      <div id="chapbody"></div>
+      <div class="center" style="margin-top:12px;">
+        <button class="btn" onclick="markDone()">✔ GOT IT — NEXT</button>
+        <button class="btn" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#fdeef5;border:1px solid rgba(255,255,255,.3);">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-quiz">
+    <div class="panel">
+      <div class="topbar" style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:900;color:#ffb3d1;" id="qcounter">Q 1 / 8</div>
+        <div style="font-weight:900;color:#ffd27d;" id="qscore">0 ✔</div>
+      </div>
+      <div id="quizbody"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="goMenu()">BACK TO CHAPTERS</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CH=[
+ {e:"⏰",t:"The Internal Clock",d:"Why puberty starts when it does",
+  b:["<b>Puberty</b> is the body's upgrade from child to adult — physical, hormonal and emotional changes that prepare the body for reproduction.",
+   "Special sections of DNA act like <b>switches</b> that flip at a scheduled time, starting puberty. Different body parts grow in a coordinated order.",
+   "Timing runs in <b>families</b>: if parents started early or late, their kids usually follow the same pattern. Genes hold the schedule; hormones do the work."]},
+ {e:"🫧",t:"The Endocrine Team",d:"Meet the glands in charge",
+  b:["<b>Hypothalamus</b> — the brain's hormone control center. It sends the first signals.",
+   "<b>Pituitary gland</b> — the 'master gland'. It orders the thyroid, adrenals and gonads to produce their hormones.",
+   "<b>Thyroid</b> — sets metabolism: how fast the body grows and burns energy.",
+   "<b>Adrenals</b> — make cortisol and adrenaline for stress, and help develop secondary characteristics."]},
+ {e:"⚗️",t:"Hormones in Action",d:"The chemical messengers",
+  b:["<b>Estrogen</b> (ovaries) — breast development, wider hips, start of menstruation; also shapes skin and hair.",
+   "<b>Testosterone</b> (testes) — muscle growth, voice deepening, facial & body hair; also affects mood and energy.",
+   "<b>Growth hormone</b> (pituitary) — drives bone and muscle growth toward full adult height."]},
+ {e:"📏",t:"Growth Spurts",d:"The body reshapes itself",
+  b:["Bones grow rapidly at the <b>growth plates</b> — that's the height spurt, often stronger in males.",
+   "Body shape shifts: males get broader shoulders and more muscle; females get wider hips and changed fat distribution.",
+   "Skin, hair & voice: oil glands wake up (hello, <b>acne</b>), new hair appears, and the larynx grows — the voice <b>cracks and deepens</b>."]},
+ {e:"🧠",t:"The Teen Brain",d:"Under construction until your 20s",
+  b:["The <b>emotional centers</b> develop fast → big feelings, mood swings, intense reactions.",
+   "The <b>prefrontal cortex</b> (decisions, planning) develops SLOWER → risk-taking, 'but I didn't think!' moments.",
+   "Teens get extra sensitive to <b>peers and social hierarchy</b> — approval matters more than ever."]},
+ {e:"🌙",t:"Sleep & Mood",d:"Why teens can't sleep early",
+  b:["Melatonin release <b>shifts later</b> during puberty — teens genuinely get sleepy later. It's biology, not laziness.",
+   "Growth + hormones + short sleep = <b>mood swings</b>. Teens need 8–10 hours; most get far less.",
+   "Fix the sleep, and a surprising amount of the mood improves too."]},
+ {e:"🧗",t:"Why Puberty Evolved",d:"The deep-time reasons",
+  b:["Waiting for adulthood = more growth and learning before the energy cost of reproduction.",
+   "Delaying reproduction raises survival odds for both parent and offspring.",
+   "Different teens maturing at <b>different times</b> spreads out competition for resources and boosts genetic diversity — variation aids survival."]},
+ {e:"🥗",t:"Healthy Habits",d:"How to help the upgrade",
+  b:["<b>Hygiene</b> — showers, skin care, dental care keep acne and odor in check.",
+   "<b>Sleep 8–10h</b> — hormones and growth happen during rest.",
+   "<b>Balanced diet</b> — calcium and protein build the bones and muscles being grown right now.",
+   "<b>Exercise</b> — strengthens heart and mood, and improves sleep."]}
+];
+const QUIZ=[
+ {q:"What flips the switch that STARTS puberty?",o:["Special DNA switches activating on a genetic schedule","Eating spicy food","Turning 13 exactly","The pituitary waking up first"],a:0,w:"Special sections of DNA act as timed switches — genes hold the schedule."},
+ {q:"Which gland is called the 'master gland'?",o:["Thyroid","Hypothalamus","Pituitary","Adrenal"],a:2,w:"The pituitary orders the other glands around — the master of the team."},
+ {q:"Which hormone drives voice deepening and facial hair?",o:["Estrogen","Melatonin","Insulin","Testosterone"],a:3,w:"Testosterone: muscle growth, deeper voice, facial & body hair."},
+ {q:"Why does acne show up during puberty?",o:["Too much screen time","Oil glands become overactive","Growth plates closing","Lack of calcium"],a:1,w:"Hormones wake up the oil glands — the skin needs time to adjust."},
+ {q:"The teen prefrontal cortex develops SLOWER than the emotional centers. What does that explain?",o:["Better grades","Risk-taking and impulsive decisions","Perfect sleep","Faster running"],a:1,w:"The planning brain lags the feeling brain — decisions happen before consequences get weighed."},
+ {q:"Why do teens naturally stay up later?",o:["They're lazy","Phones are fun","Melatonin release shifts later","They eat too much sugar"],a:2,w:"Melatonin timing moves during puberty — it's genuine biology."},
+ {q:"From an evolution point of view, why delay puberty at all?",o:["To make school easier","More growth & learning before reproduction's energy cost","Adults need helpers","Shorter childhoods"],a:1,w:"Waiting means more body and brain growth before the huge energy investment of reproduction."},
+ {q:"How many hours of sleep do teens need?",o:["5–6","8–10","12–14","2–3 naps"],a:1,w:"8–10 hours — growth hormone does its work during sleep."}
+];
+let read=new Set(), cur=0, qi=0, qscore=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function renderChaps(){
+  document.getElementById('chapgrid').innerHTML=CH.map((c,i)=>
+   `<div class="chap" onclick="openChap(${i})">
+      ${read.has(i)?'<span class="done">✔ read</span>':''}
+      <div class="ce">${c.e}</div><div class="ct">${i+1}. ${c.t}</div><div class="cd">${c.d}</div></div>`).join('');
+  document.getElementById('readprog').textContent='Chapters read: '+read.size+' / '+CH.length;
+  document.getElementById('quizBtn').disabled=(read.size<CH.length);}
+
+function goMenu(){renderChaps();show('scr-menu');window.scrollTo(0,0);}
+
+function openChap(i){cur=i;const c=CH[i];
+  document.getElementById('chapbody').innerHTML=
+   `<div class="chead">${c.e} ${c.t}</div><div class="csub">${c.d}</div>`+
+   c.b.map(x=>`<div class="block">${x}</div>`).join('');
+  show('scr-read');window.scrollTo(0,0);}
+
+function markDone(){read.add(cur);
+  if(read.size<CH.length){openChap(cur<CH.length-1?cur+1:[...Array(CH.length).keys()].find(i=>!read.has(i)));}
+  else goMenu();}
+
+function startQuiz(){qi=0;qscore=0;loadQ();show('scr-quiz');}
+
+function loadQ(){const q=QUIZ[qi];
+  document.getElementById('qcounter').textContent='Q '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qscore').textContent=qscore+' ✔';
+  let h=`<div style="font-size:1.05em;font-weight:800;margin-bottom:9px;line-height:1.45;">${q.q}</div><div class="opts">`;
+  q.o.forEach((o,j)=>{h+=`<button class="opt" onclick="ans(${j},this)">${o}</button>`;});
+  h+=`</div><div class="fb" id="qfb"></div><div class="center" style="margin-top:12px;" id="qnext"></div>`;
+  document.getElementById('quizbody').innerHTML=h;
+  window.scrollTo(0,0);}
+
+function ans(j,btn){const q=QUIZ[qi], right=(j===q.a);
+  document.querySelectorAll('#quizbody .opt').forEach((o,k)=>{o.classList.add('dim');if(k===q.a)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  if(right)qscore++;
+  const fb=document.getElementById('qfb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Correct!':'✘ Not quite.'}</div><div>${q.w}</div>`;
+  document.getElementById('qscore').textContent=qscore+' ✔';
+  document.getElementById('qnext').innerHTML=
+   `<button class="btn" onclick="${qi===QUIZ.length-1?'endQuiz()':'nextQ()'}">${qi===QUIZ.length-1?'SEE RESULTS 🏁':'NEXT →'}</button>`;}
+
+function nextQ(){qi++;loadQ();}
+
+function endQuiz(){
+  let rank,msg;
+  if(qscore===8){rank='🧬 TRANSFORMATION MASTER';msg='Perfect score. The endocrine system has nothing to hide from you.';}
+  else if(qscore>=6){rank='⚗️ HORMONE EXPERT';msg='Excellent — you clearly understand the upgrade program.';}
+  else if(qscore>=4){rank='🧍 GROWING GURU';msg='Decent! Revisit a couple of chapters and retake the test.';}
+  else{rank='👶 STILL A KID (KIDDING)';msg='The transformation has not hit your quiz scores yet. Read the chapters and try again.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You scored <b style="color:#ffb3d1;">'+qscore+' / '+QUIZ.length+'</b>.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+
+renderChaps();
+</script>
+</body></html>

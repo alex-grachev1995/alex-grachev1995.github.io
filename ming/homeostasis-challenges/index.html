@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homeostasis — Six Challenges</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#0e3a4d 0%,#123248 55%,#0e2638 100%);
+  color:#ecf8ff;min-height:100vh;padding:16px;}
+#wrap{max-width:860px;margin:0 auto;}
+h1{font-size:1.55em;text-align:center;color:#8fd8f2;letter-spacing:.4px;}
+.sub{text-align:center;color:#a3c8d8;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#0a2c3d;background:linear-gradient(90deg,#8fd8f2,#5cb8dd);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.brief{font-size:.92em;color:#d8edf5;line-height:1.6;}.brief b{color:#8fd8f2;}
+.center{text-align:center;}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#8fb8cc;font-weight:800;}
+.big{font-size:1.6em;font-weight:900;color:#8fd8f2;font-variant-numeric:tabular-nums;}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.good{background:#8fe0a5;}.dot.bad{background:#ff6b6b;}
+.chtag{display:inline-block;font-size:.72em;font-weight:800;letter-spacing:1px;color:#06222e;background:#8fd8f2;border-radius:99px;padding:3px 10px;margin-bottom:8px;}
+.chhead{font-size:1.15em;font-weight:900;color:#8fd8f2;margin-bottom:6px;}
+.scen{background:rgba(255,255,255,.06);border-left:3px solid #8fd8f2;border-radius:8px;padding:10px 13px;margin:8px 0;font-size:.91em;line-height:1.55;color:#e2f3fa;}
+.scen b{color:#ffd27d;}
+.qhead{font-weight:900;color:#ffd27d;margin:13px 0 7px;font-size:.95em;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#ecf8ff;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#8fd8f2;transform:translateY(-2px);}
+.opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:12px 14px;margin-top:11px;font-size:.88em;line-height:1.55;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:4px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+.fb .fw{color:#e2f3fa;}
+.fb b{color:#8fd8f2;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#8fd8f2;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#e2f3fa;margin:12px 0;}
+</style></head><body>
+<div id="wrap">
+  <h1>⚖️ THE BALANCE OF LIFE</h1>
+  <div class="sub">Six homeostasis challenges — keep the body in balance.</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:12px;">
+        <b>Homeostasis</b> is the body's endless job of keeping everything in balance — temperature, water,
+        oxygen, sugar — without you ever noticing. Tonight, six challenges arrive. For each one, make your
+        prediction, then see how the body actually handles it. The hypothalamus is watching.
+      </div>
+      <div class="center"><button class="btn" onclick="startGame()">TAKE THE CHALLENGES ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div><div class="lab">SCORE</div><div class="big" id="score">0</div></div>
+        <div style="text-align:center;"><div class="lab">CHALLENGES</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
+        <div style="text-align:right;"><div class="lab">CASE</div><div class="big" id="cnum" style="font-size:1.2em;">1 / 6</div></div>
+      </div>
+      <div id="casebody"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="startGame()">REBALANCE ↻</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CH=[
+ {tag:"CHALLENGE 01 · THERMO-TEST",title:"The Snowstorm",
+  scen:["You drop a <b>desert lizard</b> and an <b>arctic fox</b> into a snowstorm.","Which one is more likely to survive — and what internal system makes the difference?"],
+  q:"Who survives the snowstorm, and why?",
+  o:["The lizard — reptiles are tougher","The arctic fox — it makes its own heat internally","Neither — snowstorms kill everything"],a:1,
+  why:"The arctic fox is <b>endothermic</b>: it burns food to generate heat internally, holding a constant body temperature even in the freezing Arctic. The desert lizard is <b>ectothermic</b> — it depends on outside heat, so in a snowstorm it can't stay active and freezes."},
+ {tag:"CHALLENGE 02 · SWAT CHECK",title:"Sweaty Alex, Dry Max",
+  scen:["Alex is dripping with sweat after soccer on a hot day. Max, playing the same game, is <b>not sweating at all</b>.","Something is happening inside both bodies — and one of them is in danger."],
+  q:"Who is at risk of overheating?",
+  o:["Alex — sweating means weakness","Max — no sweat means his cooling system failed","Neither — sweat doesn't matter"],a:1,
+  why:"Sweating is a life-saving cooling system, switched on by the <b>hypothalamus</b> (the brain's thermostat). Sweat evaporates and carries heat away. Alex is cooling normally; Max's body can't dump its heat — heat exhaustion or heat stroke is next."},
+ {tag:"CHALLENGE 03 · BALLOON POP",title:"The Perfume Burst",
+  scen:["You pop a balloon full of perfume in the middle of a classroom.","Within minutes, the smell reaches even the kids by the window — spread out, evenly."],
+  q:"Why does the smell spread out evenly?",
+  o:["The perfume molecules move randomly and spread — diffusion toward equilibrium","The wind always blows to the window","Smells are lighter than air"],a:0,
+  why:"<b>Diffusion</b>: perfume molecules move randomly from where they are crowded to where they aren't, following the <b>concentration gradient</b> until the concentration is uniform. It's the universe's tendency toward equilibrium — call it molecular chaos, beautifully organized."},
+ {tag:"CHALLENGE 04 · HIGH ALTITUDE",title:"The Mountain Climb",
+  scen:["At the top of a tall mountain there's <b>less oxygen</b> in every breath.","Your body immediately starts breathing faster and deeper — hyperventilating."],
+  q:"Why do we hyperventilate at high altitude?",
+  o:["To look dramatic on camera","To blow off CO₂ before it builds up","To grab more oxygen with each breath"],a:2,
+  why:"Less oxygen in the air means the body compensates immediately: breathe faster AND deeper to pull in more O₂. Over weeks, a second fix kicks in — the body produces <b>more red blood cells</b> to carry oxygen more efficiently. Immediate response + long-term adaptation."},
+ {tag:"CHALLENGE 05 · CLINICAL CHILL",title:"The 33°C Patient",
+  scen:["Doctors deliberately cool a brain-injured patient to <b>33°C for 24 hours</b>. It's called induced hypothermia — and it's done on purpose."],
+  q:"Why cool a patient down on purpose?",
+  o:["Cold slows metabolism and chemical damage, protecting the brain","Cold kills all remaining germs","It's easier to do surgery on cold tissue"],a:0,
+  why:"Cooling to 33°C slows the metabolic rate: cells consume less ATP and harmful chemical reactions run slower. The deliberate drop even <b>overrides the hypothalamus's</b> normal temperature regulation — a controlled break from homeostasis that protects the brain."},
+ {tag:"CHALLENGE 06 · STOMACH EMERGENCY",title:"The Day-Old Meat",
+  scen:["A patient arrives vomiting, with a fever, after eating meat that sat outside the fridge for over a day.","His body is fighting back — hard."],
+  q:"Why vomiting AND fever — what's the body trying to do?",
+  o:["It's random bad luck","Flush the toxin out and raise temperature to slow the microbes","Digest the meat faster"],a:1,
+  why:"The <b>digestive system</b> failed to keep balance, so the hypothalamus triggers a defence: <b>vomiting</b> expels the contaminated food, and <b>fever</b> raises core temperature to slow the microbes down. Two ugly symptoms, one brilliant defence system."}
+];
+let ci=0,score=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){ci=0;score=0;show('scr-play');
+  const d=document.getElementById('dots');d.innerHTML='';
+  CH.forEach(()=>{const el=document.createElement('div');el.className='dot';d.appendChild(el);});
+  loadCase();}
+
+function updateHUD(){document.getElementById('score').textContent=score;
+  document.getElementById('cnum').textContent=(ci+1)+' / '+CH.length;}
+
+function loadCase(){const c=CH[ci];
+  let h=`<div class="chtag">${c.tag}</div><div class="chhead">${c.title}</div>`;
+  c.scen.forEach(s=>{h+=`<div class="scen">${s}</div>`;});
+  h+=`<div class="qhead">🧠 YOUR CALL?</div><div class="opts">`;
+  c.o.forEach((o,j)=>{h+=`<button class="opt" onclick="pick(${j},this)">${o}</button>`;});
+  h+=`</div><div class="fb" id="fb"></div>
+      <div class="center" style="margin-top:13px;" id="nrow"></div>`;
+  document.getElementById('casebody').innerHTML=h;
+  updateHUD();window.scrollTo(0,0);}
+
+function pick(j,btn){if(document.getElementById('fb').classList.contains('show'))return;
+  const c=CH[ci],right=(j===c.a);
+  document.querySelectorAll('#casebody .opt').forEach((o,k)=>{o.classList.add('dim');if(k===c.a)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  if(right)score++;
+  const fb=document.getElementById('fb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ The body agrees with you.':'✘ Here\'s what the body actually does:'}</div><div class="fw">${c.why}</div>`;
+  updateHUD();
+  document.getElementById('nrow').innerHTML=
+   `<button class="btn" onclick="${ci===CH.length-1?'endGame()':'nextCase()'}">${ci===CH.length-1?'FINISH 🏁':'NEXT CHALLENGE →'}</button>`;
+  document.querySelectorAll('#dots .dot')[ci].className='dot '+(right?'good':'bad');
+  window.scrollTo({top:document.getElementById('nrow').offsetTop,behavior:'smooth'});}
+
+function nextCase(){ci++;loadCase();}
+
+function endGame(){let rank,msg;
+  if(score===6){rank='⚖️ HOMEOSTASIS MASTER';msg='Perfect balance. The hypothalamus sends its regards.';}
+  else if(score>=5){rank='🌡️ THERMOSTAT WHISPERER';msg='Excellent — the body\'s balancing acts hold no secrets for you.';}
+  else if(score>=3){rank='🧂 APPRENTICE';msg='Getting there — a few systems still surprise you. One more round?';}
+  else{rank='🫠 OUT OF BALANCE';msg='The body is screaming. Read the explanations and restore equilibrium.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You kept balance in <b style="color:#8fd8f2;">'+score+' / '+CH.length+'</b> challenges.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>

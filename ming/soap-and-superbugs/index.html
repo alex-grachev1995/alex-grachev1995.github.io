@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soap &amp; Superbugs — You Are the CDC</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#123f2e 0%,#14382f 55%,#0e2b26 100%);
+  color:#edfbf3;min-height:100vh;padding:16px;}
+#wrap{max-width:900px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#8fe0a5;letter-spacing:.4px;}
+.sub{text-align:center;color:#a8d4b8;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#0a3524;background:linear-gradient(90deg,#8fe0a5,#5ec98a);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.brief{font-size:.92em;color:#d8efdf;line-height:1.6;}.brief b{color:#8fe0a5;}
+.center{text-align:center;}
+.sidetag{display:inline-block;font-size:.72em;font-weight:800;letter-spacing:1px;border-radius:99px;padding:3px 10px;margin-bottom:8px;}
+.sidetag.for{background:rgba(255,120,120,.2);color:#ffb3b3;border:1px solid rgba(255,120,120,.5);}
+.sidetag.against{background:rgba(140,180,255,.2);color:#b3ccff;border:1px solid rgba(140,180,255,.5);}
+.evhead{font-size:1.1em;font-weight:900;color:#f2fff6;margin:5px 0;}
+.evbody{font-size:.88em;line-height:1.55;color:#dff2e5;}
+.evbody b{color:#8fe0a5;}
+.ratebar{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap;}
+.ratebtn{border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#edfbf3;border-radius:9px;
+  padding:7px 13px;font-size:.78em;font-weight:800;cursor:pointer;}
+.ratebtn:hover{border-color:#8fe0a5;}
+.ratebtn.sel{background:rgba(143,224,165,.25);border-color:#8fe0a5;}
+.progressline{font-size:.78em;color:#9fd3ae;margin-top:12px;text-align:center;}
+.qhead{font-weight:900;color:#ffd27d;margin:13px 0 7px;font-size:.95em;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:11px 13px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#edfbf3;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#8fe0a5;transform:translateY(-2px);}
+.opt.picked{background:rgba(143,224,165,.25);border-color:#8fe0a5;}
+.opt.dim{opacity:.4;pointer-events:none;}
+.fb{display:none;border-radius:12px;padding:12px 14px;margin-top:11px;font-size:.88em;line-height:1.55;animation:pop .25s;}
+.fb.show{display:block;background:rgba(143,224,165,.12);border:1px solid rgba(143,224,165,.5);}
+.fb .fh{font-weight:900;color:#a9f0bd;margin-bottom:4px;}
+.fb .fw{color:#dff2e5;}
+.fb ul{margin:5px 0 0 18px;}.fb li{margin:2px 0;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#8fe0a5;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1em;line-height:1.6;color:#dff2e5;margin:12px 0;}
+.realworld{background:rgba(255,210,125,.1);border:1px solid rgba(255,210,125,.4);border-radius:12px;
+  padding:12px 14px;margin-top:11px;font-size:.86em;line-height:1.55;color:#f6ecd4;display:none;}
+.realworld.show{display:block;animation:pop .3s;}
+.realworld b{color:#ffd27d;}
+</style></head><body>
+<div id="wrap">
+  <h1>🧼 SOAP &amp; SUPERBUGS</h1>
+  <div class="sub">A proposal to ban triclosan is on your desk. You are the CDC. Decide.</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:12px;">
+        You head the <b>CDC — the Centers for Disease Control and Prevention</b>, the organisation whose job
+        is keeping people from getting sick. On your desk: a proposal to <b>ban triclosan</b>, a synthetic
+        antimicrobial found in soaps, toothpastes and plastics — in over <b>2,000 consumer products</b> since the 1960s.
+        <br><br>
+        You'll hear <b>three arguments FOR the ban</b> and <b>three AGAINST</b>. Rate each argument's strength,
+        deliver your verdict — then see what the real world actually did.
+      </div>
+      <div class="center"><button class="btn" onclick="startGame()">TAKE THE PROPOSAL ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-ev">
+    <div class="panel">
+      <div id="evbody"></div>
+      <div class="center" style="margin-top:14px;" id="evnav"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="lab" style="text-align:center;font-size:.7em;letter-spacing:1.4px;color:#9fd3ae;font-weight:800;">YOUR TENURE, REVIEWED</div>
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="realworld" id="realworld"></div>
+      <div class="center" style="margin-top:13px;"><button class="btn" onclick="startGame()">SERVE AGAIN ↻</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EVIDENCE=[
+ {side:"for",title:"🦠 Argument 1 — Antibiotic Resistance",b:"for",
+  body:"Triclosan doesn't kill everything — it leaves the <b>strongest germs</b> alive. Those survivors multiply and can <b>share their resistance genes</b> with other bacteria. Lab studies show triclosan-resistant bacteria can also resist prescription antibiotics like ciprofloxacin. Everyday soap could be breeding superbugs."},
+ {side:"for",title:"🧫 Argument 2 — Soap vs. Soap",b:"for",
+  body:"Regular soap already removes <b>99% of germs</b> through plain friction and rinsing — and triclosan adds <b>no significant benefit</b> on top of scrubbing. Worse, it also kills <b>beneficial skin bacteria</b> that protect us from pathogens, which can raise infection and allergy risk, especially in children."},
+ {side:"for",title:"⚖️ Argument 3 — Risk Without Reward",b:"for",
+  body:"If the extra chemical gives no meaningful cleaning benefit but carries real risks (resistance + hormone disruption), the cost-benefit math <b>fails</b>. A regulator's job is to protect public health — not to protect a marketing ingredient."},
+ {side:"against",title:"🧪 Argument 1 — Lab Performance",b:"against",
+  body:"In laboratory settings, triclosan reduces bacterial counts by <b>99.9% within minutes</b> — clearly outperforming regular soap. It inhibits bacterial growth by blocking a key enzyme. In controlled conditions, it IS the stronger weapon."},
+ {side:"against",title:"🍖 Argument 2 — The Kitchen Frontline",b:"against",
+  body:"Some surfaces are riskier than hands — think <b>cutting boards contaminated with raw meat</b>. Triclosan's extra germ-killing power could reduce cross-contamination in exactly these high-risk scenarios, where 99% isn't enough."},
+ {side:"against",title:"🛡️ Argument 3 — Shield for the Vulnerable",b:"against",
+  body:"Chemotherapy patients, transplant recipients, and their home caregivers depend on <b>maximum antimicrobial protection</b>. Surgeons already use high-concentration triclosan scrubs. Ban it from ALL consumer products, and the most vulnerable could lose an extra layer of defense."}
+];
+const RATINGS={strong:3,medium:2,weak:1};
+let ei=0, ratings=[], verdict=null, strongFor=null, strongAgainst=null;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){ei=0;ratings=[];verdict=null;strongFor=null;strongAgainst=null;loadEv();show('scr-ev');}
+
+function loadEv(){const e=EVIDENCE[ei];
+  let h=`<div class="sidetag ${e.b}">${e.b==='for'?'📣 CASE FOR THE BAN':'📣 CASE AGAINST THE BAN'}</div>
+    <div class="evhead">${e.title}</div><div class="evbody">${e.body}</div>
+    <div class="qhead">HOW STRONG IS THIS ARGUMENT?</div>
+    <div class="ratebar" id="rb">
+      <button class="ratebtn" onclick="rate('strong',this)">💪 Strong</button>
+      <button class="ratebtn" onclick="rate('medium',this)">🤔 Mixed</button>
+      <button class="ratebtn" onclick="rate('weak',this)">🫥 Weak</button>
+    </div>`;
+  document.getElementById('evbody').innerHTML=h;
+  document.getElementById('evnav').innerHTML='';
+  document.getElementById('evnav').innerHTML=
+   `<button class="btn" id="evnext" disabled onclick="nextEv()">${ei<EVIDENCE.length-1?'NEXT ARGUMENT →':'TO THE VERDICT ⚖️'}</button>`;
+  document.getElementById('evnav').insertAdjacentHTML('beforeend',
+   `<div class="progressline">Argument ${ei+1} of ${EVIDENCE.length}</div>`);}
+
+function rate(r,btn){ratings[ei]=r;
+  document.querySelectorAll('#rb .ratebtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('evnext').disabled=false;}
+
+function nextEv(){ei++;if(ei<EVIDENCE.length){loadEv();}else{verdictScreen();}}
+
+function verdictScreen(){
+  let h=`<div class="sidetag for">⚖️ YOUR VERDICT</div>
+   <div class="evhead">The proposal is in your hands.</div>
+   <div class="qhead">1️⃣ BAN TRICLOSAN FROM CONSUMER PRODUCTS?</div>
+   <div class="opts" id="vOpts">
+     <button class="opt" onclick="pickVerdict('ban',this)">🚫 YES — ban it</button>
+     <button class="opt" onclick="pickVerdict('restrict',this)">⚠️ Restrict it — keep for medical/vulnerable use</button>
+     <button class="opt" onclick="pickVerdict('no',this)">✋ NO — leave it on the market</button>
+   </div>
+   <div class="qhead" id="sfH" style="display:none;">2️⃣ STRONGEST ARGUMENT <u>FOR</u> THE BAN?</div>
+   <div class="opts" id="sf" style="display:none;"></div>
+   <div class="qhead" id="saH" style="display:none;">3️⃣ STRONGEST ARGUMENT <u>AGAINST</u>?</div>
+   <div class="opts" id="sa" style="display:none;"></div>
+   <div class="center" style="margin-top:13px;" id="vGo"></div>`;
+  document.getElementById('evbody').innerHTML=h;}
+
+function pickVerdict(v,btn){verdict=v;
+  document.querySelectorAll('#vOpts .opt').forEach(o=>{o.classList.add('dim');});
+  btn.classList.remove('dim');btn.classList.add('picked');
+  ['sf','sa'].forEach((id,idx)=>{
+    document.getElementById(id==='sf'?'sfH':'saH').style.display='block';
+    document.getElementById(id).style.display='grid';
+    const side=idx===0?'for':'against';
+    const list=EVIDENCE.map((e,i)=>({e,i})).filter(x=>x.e.side===side);
+    document.getElementById(id).innerHTML=list.map(x=>
+      `<button class="opt" onclick="pickStrong('${side}',${x.i},this)">${x.e.title}</button>`).join('');});}
+
+function pickStrong(side,i,btn){if(side==='for'){strongFor=i;}else{strongAgainst=i;}
+  const id=side==='for'?'sf':'sa';
+  document.querySelectorAll('#'+id+' .opt').forEach(o=>o.classList.add('dim'));
+  btn.classList.remove('dim');btn.classList.add('picked');
+  if(strongFor!==null&&strongAgainst!==null){
+    document.getElementById('vGo').innerHTML=`<button class="btn" onclick="endGame()">SIGN THE DECISION 🖊️</button>`;}}
+
+function endGame(){
+  let pts=0;
+  // reasoning score: science leans FOR (resistance evidence is the strongest), against arguments are situational
+  if(verdict==='ban')pts+=2;
+  if(verdict==='restrict')pts+=3; // arguably the most nuanced, matches real-world outcome
+  if(verdict==='no')pts+=0;
+  if(strongFor===0)pts+=2; // resistance is the strongest FOR argument
+  else if(strongFor===2)pts+=1;
+  if(strongAgainst===0)pts+=2; // lab performance is the strongest AGAINST argument (most concrete)
+  else if(strongAgainst===2)pts+=1;
+  const r=document.getElementById('rank'),t=document.getElementById('finaltxt');
+  let rank,msg;
+  if(pts>=7){rank='🏛️ DIRECTOR OF THE YEAR';msg='You weighed the evidence like a pro — risks counted, benefits placed in context. The real regulators basically agreed with you.';}
+  else if(pts>=5){rank='⚖️ STEADY REGULATOR';msg='Solid reasoning. The strongest arguments — antibiotic resistance FOR, lab performance AGAINST — did most of the talking.';}
+  else if(pts>=3){rank='📊 JUNIOR ANALYST';msg='You reached a decision — next time, watch which arguments are systemic risks vs. narrow lab wins.';}
+  else{rank='🧼 SOAP SALESMAN OF THE YEAR';msg='Hmm. The superbugs are… grateful? Read what actually happened below and serve again.';}
+  r.textContent=rank;
+  t.innerHTML='Policy score: <b style="color:#8fe0a5;">'+pts+' / 7</b>.<br>'+msg;
+  document.getElementById('realworld').className='realworld show';
+  document.getElementById('realworld').innerHTML=
+   `<b>🌍 What the real world did:</b><ul>
+    <li><b>United States:</b> the FDA <b>banned triclosan from consumer soaps in 2016</b> — no proven benefit over plain soap, plus resistance and hormone-disruption concerns.</li>
+    <li><b>European Union:</b> since 2017, fully banned from biocidal products; tight limits in cosmetics, with complete removal required by October 2025.</li>
+    <li><b>Australia, China &amp; Russia:</b> followed with similar restrictions, pushing companies toward safer alternatives.</li></ul>
+    So: the "restrict" verdict you could choose? That's essentially what happened — gone from supermarket soap, survived in hospitals where it matters.`;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>

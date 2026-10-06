@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Sorter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#1c2e5e 0%,#1f2a52 55%,#1a1f42 100%);
+  color:#eef2ff;min-height:100vh;padding:16px;}
+#wrap{max-width:860px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#9fc0ff;letter-spacing:.4px;}
+.sub{text-align:center;color:#a8b6e0;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#122048;background:linear-gradient(90deg,#9fc0ff,#6f95e8);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.brief{font-size:.92em;color:#d7e0f7;line-height:1.6;}.brief b{color:#9fc0ff;}
+.center{text-align:center;}
+.concept{background:rgba(255,255,255,.06);border-left:4px solid #6f95e8;border-radius:10px;padding:11px 13px;margin:8px 0;font-size:.86em;line-height:1.55;color:#dbe4fa;}
+.concept b{color:#9fc0ff;}
+.wavecard{text-align:center;}
+.wavecard img{width:100%;max-width:460px;max-height:270px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.25);margin-bottom:10px;}
+.wname{font-size:1.15em;font-weight:900;color:#9fc0ff;margin-bottom:12px;}
+.sortrow{margin:9px 0;}
+.sortlab{font-size:.8em;font-weight:900;letter-spacing:1px;color:#8fa4d8;margin-bottom:5px;}
+.sortlab span{color:#ffd27d;}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:480px;margin:0 auto;}
+@media(max-width:520px){.choices{grid-template-columns:1fr;}}
+.choice{border:2px solid rgba(255,255,255,.25);border-radius:11px;padding:12px 8px;cursor:pointer;
+  font-size:.98em;font-weight:800;color:#eef2ff;background:rgba(255,255,255,.07);transition:all .15s;}
+.choice:hover{border-color:#9fc0ff;background:rgba(159,192,255,.13);}
+.choice.picked-right{background:rgba(143,224,165,.28);border-color:#8fe0a5;}
+.choice.picked-wrong{background:rgba(255,107,107,.25);border-color:#ff6b6b;animation:shake .35s;}
+.choice.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.topbar{display:flex;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:8px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#8fa4d8;font-weight:800;}
+.big{font-size:1.5em;font-weight:900;color:#9fc0ff;}
+.fb{display:none;border-radius:12px;padding:11px 13px;margin-top:11px;font-size:.88em;line-height:1.5;animation:pop .25s;text-align:left;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:3px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#9fc0ff;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#dbe4fa;margin:12px 0;}
+</style></head><body>
+<div id="wrap">
+  <h1>🌊 WAVE SORTER</h1>
+  <div class="sub">Eight waves walk in. Sort each one: what's the family, what's the shape?</div>
+
+  <div class="screen active" id="scr-learn">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:4px;">Crash course first — three ideas:</div>
+      <div class="concept"><b>What is a wave?</b> A disturbance that transfers <b>energy</b> from place to place without transferring matter. Waves carry information and/or energy.</div>
+      <div class="concept"><b>Two families.</b> <b>Mechanical waves</b> need a medium — air, water, rope (sound, ocean waves). <b>Electromagnetic (EM) waves</b> need nothing — they travel through vacuum (light, radio, microwaves).</div>
+      <div class="concept"><b>Two shapes.</b> <b>Transverse:</b> the medium moves up-down (or side-to-side) while the wave travels forward — light, water surface, a plucked string. <b>Longitudinal:</b> the medium compresses and expands along the direction of travel — sound in air.</div>
+      <div class="center" style="margin-top:12px;"><button class="btn" onclick="startGame()">START SORTING ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div><div class="lab">SCORE</div><div class="big" id="score">0 / 16</div></div>
+        <div style="text-align:right;"><div class="lab">WAVE</div><div class="big" id="wnum" style="font-size:1.2em;">1 / 8</div></div>
+      </div>
+      <div class="wavecard">
+        <img id="wimg" src="img/water.jpg" alt="wave">
+        <div class="wname" id="wname"></div>
+        <div class="sortrow">
+          <div class="sortlab">FAMILY <span id="famMark"></span></div>
+          <div class="choices">
+            <button class="choice" id="fM" onclick="pickFam('mech',this)">🔊 MECHANICAL</button>
+            <button class="choice" id="fE" onclick="pickFam('em',this)">📡 ELECTROMAGNETIC</button>
+          </div>
+        </div>
+        <div class="sortrow" id="shapeRow" style="opacity:.35;pointer-events:none;">
+          <div class="sortlab">SHAPE <span id="shapeMark"></span></div>
+          <div class="choices">
+            <button class="choice" id="sT" onclick="pickShape('trans',this)">〰️ TRANSVERSE</button>
+            <button class="choice" id="sL" onclick="pickShape('long',this)">🌀 LONGITUDINAL</button>
+          </div>
+        </div>
+        <div class="fb" id="fb"></div>
+        <div class="center" style="margin-top:13px;"><button class="btn" id="nextB" style="display:none;" onclick="nextW()">NEXT WAVE →</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="startGame()">SORT AGAIN ↻</button>
+      <button class="btn" onclick="show('scr-learn')" style="background:rgba(255,255,255,.13);color:#eef2ff;border:1px solid rgba(255,255,255,.3);">CRASH COURSE</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const W=[
+ {img:"img/water.jpg",n:"Ripples from a water drop",fam:"mech",shape:"trans",
+  why:"Water surface waves are mechanical (need water) and transverse — the surface bobs up and down as the wave spreads out."},
+ {img:"img/phone.jpg",n:"A phone call — radio waves",fam:"em",shape:"trans",
+  why:"Radio is electromagnetic: no medium needed, travels through air (and space) at light speed. EM waves are transverse."},
+ {img:"img/slinky.jpg",n:"A slinky pushed end-to-end",fam:"mech",shape:"long",
+  why:"Push a slinky and the compression travels along its length — the medium moves ALONG the wave direction. Longitudinal!"},
+ {img:"img/ocean.jpg",n:"An ocean wave",fam:"mech",shape:"trans",
+  why:"Mechanical (needs water). The water surface rises and falls as the wave passes — transverse motion."},
+ {img:"img/guitar.jpg",n:"A plucked guitar string",fam:"mech",shape:"trans",
+  why:"The string vibrates side-to-side while the wave runs along it — mechanical and transverse. (The SOUND it makes is a different wave!)"},
+ {img:"img/ultrasound.jpg",n:"An ultrasound scan",fam:"mech",shape:"long",
+  why:"Ultrasound is SOUND — pressure compressions travelling through tissue. Sound is mechanical and longitudinal."},
+ {img:"img/sunlight.jpg",n:"Sunlight streaming in",fam:"em",shape:"trans",
+  why:"Light needs no medium — it crossed the vacuum of space to reach you. Electromagnetic and transverse."},
+ {img:"img/microwave.jpg",n:"A microwave oven",fam:"em",shape:"trans",
+  why:"Microwaves are EM radiation (like light but longer wavelength). No medium required; transverse."}
+];
+let wi=0,score=0,famDone=false,famRight=false;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){wi=0;score=0;loadW();show('scr-play');}
+
+function updateHUD(){document.getElementById('score').textContent=score+' / '+(W.length*2);
+  document.getElementById('wnum').textContent=(wi+1)+' / '+W.length;}
+
+function loadW(){const w=W[wi];famDone=false;famRight=false;
+  document.getElementById('wimg').src=w.img;
+  document.getElementById('wname').textContent='“'+w.n+'”';
+  document.getElementById('famMark').textContent='';
+  document.getElementById('shapeMark').textContent='';
+  ['fM','fE','sT','sL'].forEach(id=>{const b=document.getElementById(id);
+    b.disabled=false;b.className='choice';});
+  document.getElementById('shapeRow').style.opacity='.35';
+  document.getElementById('shapeRow').style.pointerEvents='none';
+  document.getElementById('fb').className='fb';
+  document.getElementById('nextB').style.display='none';
+  updateHUD();window.scrollTo(0,0);}
+
+function lock(btn,right){btn.disabled=true;
+  if(right)btn.classList.add('picked-right');else btn.classList.add('picked-wrong');}
+
+function pickFam(v,btn){if(famDone)return;famDone=true;
+  const w=W[wi],right=(v===w.fam);famRight=right;
+  if(right)score++;
+  lock(btn,right);
+  const other=document.getElementById(v==='mech'?'fE':'fM');
+  other.classList.add('dim');other.disabled=true;
+  document.getElementById('famMark').textContent=right?'✔':'✘ it\'s '+(w.fam==='mech'?'MECHANICAL':'ELECTROMAGNETIC');
+  document.getElementById('shapeRow').style.opacity='1';
+  document.getElementById('shapeRow').style.pointerEvents='auto';
+  updateHUD();}
+
+function pickShape(v,btn){if(!famDone||btn.disabled)return;
+  const w=W[wi],right=(v===w.shape);
+  if(right)score++;
+  lock(btn,right);
+  document.getElementById(v==='trans'?'sL':'sT').classList.add('dim');
+  document.getElementById('shapeMark').textContent=right?'✔':'✘ it\'s '+(w.shape==='trans'?'TRANSVERSE':'LONGITUDINAL');
+  const allRight=famRight&&right;
+  const fb=document.getElementById('fb');
+  fb.className='fb show '+(allRight?'good':'badv');
+  fb.innerHTML=`<div class="fh">${allRight?'✔ Perfectly sorted!':(famRight?'✔ Family right, shape wrong.':'✘ Check the explanation:')}</div><div>${w.why}</div>`;
+  updateHUD();
+  document.getElementById('nextB').style.display='inline-block';
+  document.getElementById('nextB').textContent=wi===W.length-1?'FINISH 🏁':'NEXT WAVE →';}
+
+function nextW(){wi++;if(wi>=W.length){endGame();return;}loadW();}
+
+function endGame(){let rank,msg;
+  const max=W.length*2;
+  if(score>=15){rank='🌊 WAVE MASTER';msg='The ocean itself could not confuse you.';}
+  else if(score>=12){rank='🌀 SWELL SORTER';msg='Excellent — you read waves like a lifeguard reads the sea.';}
+  else if(score>=8){rank='🌊 BEACHCOMBER';msg='Solid sorting. Watch the tricky sound-vs-light pair and try again.';}
+  else{rank='🫧 STILL WATER';msg='The waves won this round. Revisit the crash course and dive back in.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You sorted <b style="color:#9fc0ff;">'+score+' / '+max+'</b> correctly.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>

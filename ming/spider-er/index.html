@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spider ER — Diagnose the Bite!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#0f3d3a 0%,#123f4d 55%,#0d2b3d 100%);
+  color:#eefbf7;min-height:100vh;padding:16px;}
+#wrap{max-width:900px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#7de8c3;letter-spacing:.4px;text-shadow:0 2px 12px rgba(40,220,170,.25);}
+.sub{text-align:center;color:#a9d8cd;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#06302a;background:linear-gradient(90deg,#7de8c3,#4ec9a4);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;filter:none;}
+.brief{font-size:.92em;color:#d3efe6;line-height:1.6;}
+.brief b{color:#7de8c3;}
+.center{text-align:center;}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#8fc9bb;font-weight:800;}
+.big{font-size:1.6em;font-weight:900;color:#7de8c3;font-variant-numeric:tabular-nums;}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.good{background:#7de8c3;}.dot.mid{background:#ffd27d;}.dot.bad{background:#ff6b6b;}
+
+.refgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px;}
+.refcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px;text-align:center;}
+.refcard img{width:100%;height:95px;object-fit:cover;border-radius:8px;margin-bottom:6px;}
+.refcard .rn{font-weight:900;color:#7de8c3;font-size:.9em;}
+.refcard .rt{font-size:.74em;color:#c9e8de;line-height:1.4;margin-top:3px;}
+
+.casehead{font-size:1.15em;font-weight:900;color:#7de8c3;margin-bottom:6px;}
+.casepic{width:100%;max-width:480px;max-height:260px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.25);display:block;margin:0 auto 10px;}
+.sympt{background:rgba(255,255,255,.06);border-left:3px solid #7de8c3;border-radius:8px;padding:9px 12px;margin:7px 0;font-size:.9em;line-height:1.5;color:#dff5ec;}
+.qhead{font-weight:900;color:#ffd27d;margin:12px 0 7px;font-size:.95em;letter-spacing:.4px;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#eefbf7;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#7de8c3;transform:translateY(-2px);}
+.opt.right{background:rgba(125,232,195,.22);border-color:#7de8c3;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:12px 14px;margin-top:11px;font-size:.88em;line-height:1.55;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(125,232,195,.13);border:1px solid rgba(125,232,195,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:4px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+.fb .fw{color:#e2f3ec;}
+.fb ul{margin:5px 0 0 18px;}
+.fb li{margin:2px 0;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#7de8c3;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#dff5ec;margin:12px 0;}
+@media(max-width:560px){.refcard img{height:75px;}}
+</style></head><body>
+<div id="wrap">
+  <h1>🕷️ SPIDER ER</h1>
+  <div class="sub">Five patients. Five suspects. Diagnose the bite, then save the patient.</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:10px;">
+        You're the doctor on duty at the Spider Emergency Room. Of the ~50,000 spider species on Earth,
+        only a handful can really hurt humans — and tonight, five patients have walked in with strange stories.
+        <br><br><b>Step 1 — Diagnose:</b> match each patient to the culprit.
+        <b>Step 2 — Treat:</b> choose the right first move. Score up to 2 points per patient.
+        Here's your <b>suspect line-up</b> — study it well:
+      </div>
+      <div class="refgrid" id="refgrid"></div>
+      <div class="center" style="margin-top:14px;"><button class="btn" onclick="startGame()">SHIFT STARTS ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div><div class="lab">SCORE</div><div class="big" id="score">0</div></div>
+        <div style="text-align:center;"><div class="lab">PATIENTS</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
+        <div style="text-align:right;"><div class="lab">CASE</div><div class="big" id="cnum" style="font-size:1.2em;">1 / 5</div></div>
+      </div>
+      <div id="casectx"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="lab" style="text-align:center;">SHIFT REPORT</div>
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center">
+        <button class="btn" onclick="startGame()">NEXT SHIFT ↻</button>
+        <button class="btn" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#eefbf7;border:1px solid rgba(255,255,255,.3);">MENU</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUSPECTS = [
+ {key:"widow", name:"Black Widow", img:"img/blackwidow.jpg",
+  tag:"Glossy black + red hourglass. Loves woodsheds & garages. Neurotoxic venom: cramps, sweating, high blood pressure within an hour."},
+ {key:"funnel", name:"Sydney Funnel-web", img:"img/funnelweb.png",
+  tag:"Aggressive, eastern Australia. Huge fangs. Lightning neurotoxin: drooling, twitching, confusion within MINUTES."},
+ {key:"recluse", name:"Brown Recluse", img:"img/brownrecluse.jpg",
+  tag:"Violin-shaped mark. Quiet indoor spaces. Bite feels like nothing — then a bullseye lesion turns into a slow necrotic ulcer."},
+ {key:"wolf", name:"Wolf Spider", img:"img/wolf.jpg",
+  tag:"Striped ground hunter, found worldwide. Bite is painful but only causes local redness and swelling."},
+ {key:"tarantula", name:"New World Tarantula", img:"img/tarantula.jpg",
+  tag:"Doesn't bite to defend — flicks clouds of urticating hairs that burn skin and airways."}
+];
+
+const CASES = [
+ {id:"A", title:"Rash Woes", pic:"img/patientA.jpg",
+  story:["Patient A felt a storm of tiny needles while cleaning her pet spider's glass tank.",
+         "Now there's a burning, itchy rash — and mild breathing difficulty."],
+  ans:"tarantula",
+  diagWhy:"No bite at all — those were urticating hairs. The burning rash plus breathing difficulty matches the New World Tarantula's hair-kick defense exactly.",
+  treat:["Ice + painkillers for the burning","Remove the hairs with sticky tape","Elevate the limb and rest"],
+  treatOpts:["Suck the venom out of the rash","Ice + painkillers, then lift the limb","Order anti-venom immediately"],
+  treatCorrect:1,
+  treatWhy:"There's no venom — it's hairs. Ice and analgesics calm the pain, and elevating the limb helps. (Sticky tape or even tweezers can lift the hairs out afterward.)"},
+ {id:"B", title:"Cramping & Sweating", pic:"img/shed.jpg",
+  story:["Severe abdominal cramps, heavy sweating, high blood pressure — starting about an hour after cleaning a woodshed.",
+         "Two tiny puncture marks at the bite site. The patient felt completely fine at first."],
+  ans:"widow",
+  diagWhy:"Woodshed habitat + delayed onset (~1 hour) + systemic neurotoxic symptoms (cramps, sweating, hypertension) = the Black Widow's classic profile.",
+  treat:["Wash the area with soap & water","Ice pack — slows the venom, eases pain","Elevate the wound — and never suck out venom"],
+  treatOpts:["Cut the wound open and suck out the venom","Wash with soap & water, ice pack, elevate","Tell the patient to walk it off"],
+  treatCorrect:1,
+  treatWhy:"Clean the area with soap and water, apply an ice pack to slow the venom and reduce pain, and elevate the wound. Never try to suck venom out — that does not work."},
+ {id:"C", title:"Pinprick Pain, No Illness", pic:"img/swelling.png",
+  story:["A sharp pinprick while putting on a shoe that was left in the garage.",
+         "The bite is painful and swollen — but there are no other symptoms anywhere in the body."],
+  ans:"wolf",
+  diagWhy:"Painful but purely local — no systemic effects. That's the Wolf Spider: it hunts on the ground, wanders into shoes and garages, and its bite hurts but doesn't spread.",
+  treat:["Clean with warm water & soap","Cold compress for pain & swelling","Antihistamine for itching — do not scratch"],
+  treatOpts:["Anti-venom, stat","Amputate the toe","Clean with warm water & soap, cold compress, antihistamine"],
+  treatCorrect:2,
+  treatWhy:"Clean the bite with warm water and soap, apply an ice pack or cold damp washcloth, and take an antihistamine for itching. Don't scratch — scratching raises the risk of infection."},
+ {id:"D", title:"Twitching & Drooling", pic:"img/newscast.png",
+  story:["Bitten on the leg while gardening. Symptoms came on frighteningly FAST — just 15 minutes ago.",
+         "Intense pain, disorientation, drooling, muscle twitching. This is a medical emergency."],
+  ans:"funnel",
+  diagWhy:"Minutes, not hours — rapid severe neurotoxic symptoms (drooling, twitching, confusion) point straight to the Sydney Funnel-web, whose venom is famously fast.",
+  treat:["Call medical professionals immediately","Firm pressure bandage from the bite outward","Keep the patient still — movement spreads venom"],
+  treatOpts:["Call medical professionals immediately, then firm pressure bandage from the bite outward","Give the patient coffee and watch","Catch the spider for a souvenir first"],
+  treatCorrect:0,
+  treatWhy:"Call professionals immediately. Wrap a firm pressure bandage from the bite site toward the body, and keep the patient still — movement pumps venom around the body. This is the one case where speed decides everything."},
+ {id:"E", title:"Painless Bite, Dark Ulcer", pic:"img/lesion.jpg",
+  story:["Yesterday: no pain at all. Today: a bullseye lesion on the thigh, turning dark and hard, with an ulcer emerging.",
+         "The bite itself was never painful — that's the creepy part."],
+  ans:"recluse",
+  diagWhy:"Painless bite that shows its true face days later as a necrotic bullseye ulcer — that's the Brown Recluse signature. No other suspect works this slowly and quietly.",
+  treat:["Gently wash with soap & water","Cold compress 10–20 minutes at a time","Elevate the leg — never pop or heat the lesion"],
+  treatOpts:["Pop the blister and drain it","Heat packs to speed healing","Gently wash it, cold compress 10–20 min, keep the leg elevated"],
+  treatCorrect:2,
+  treatWhy:"Gently wash with soap and water, use a cold wet cloth or wrapped ice pack for 10–20 minutes at a time, and elevate the limb. Necrotic venom digests tissue — don't pop or heat the lesion."}
+];
+
+let ci=0, pts=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function renderRef(){
+  document.getElementById('refgrid').innerHTML = SUSPECTS.map(s=>
+   `<div class="refcard"><img src="${s.img}" alt="${s.name}"><div class="rn">${s.name}</div><div class="rt">${s.tag}</div></div>`).join('');
+}
+renderRef();
+
+function startGame(){ci=0;pts=0;show('scr-play');renderDots();loadCase();}
+
+function goMenu(){show('scr-menu');}
+
+function renderDots(){const d=document.getElementById('dots');d.innerHTML='';
+  CASES.forEach(()=>{const el=document.createElement('div');el.className='dot';d.appendChild(el);});}
+
+function updateHUD(){document.getElementById('score').textContent=pts;
+  document.getElementById('cnum').textContent=(ci+1)+' / '+CASES.length;}
+
+function loadCase(){const c=CASES[ci];
+  let h=`<div class="casehead">🚑 Case ${c.id}: ${c.title}</div>`;
+  h+=`<img class="casepic" src="${c.pic}" alt="case ${c.id}">`;
+  c.story.forEach(s=>{h+=`<div class="sympt">${s}</div>`;});
+  h+=`<div class="qhead">STEP 1 — WHO'S THE CULPRIT?</div><div class="opts" id="diagOpts">`;
+  SUSPECTS.forEach(s=>{h+=`<button class="opt" data-k="${s.key}" onclick="diag('${s.key}',this)">🕷️ ${s.name}</button>`;});
+  h+=`</div><div class="fb" id="diagFb"></div><div id="treatZone"></div>`;
+  document.getElementById('casectx').innerHTML=h;
+  updateHUD();window.scrollTo(0,0);}
+
+function diag(key,btn){if(document.getElementById('diagFb').classList.contains('show'))return;
+  const c=CASES[ci], right=(key===c.ans);
+  document.querySelectorAll('#diagOpts .opt').forEach(o=>{
+    o.classList.add('dim');
+    if(o.dataset.k===c.ans)o.classList.add('right');
+  });
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  const fb=document.getElementById('diagFb');
+  fb.className='fb show '+(right?'good':'badv');
+  const sus=SUSPECTS.find(s=>s.key===c.ans);
+  fb.innerHTML=`<div class="fh">${right?'✔ Diagnosis correct — it was the '+sus.name+'.':'✘ Wrong culprit — it was the '+sus.name+'.'}</div>
+    <div class="fw">${c.diagWhy}</div>`;
+  if(right)pts++;
+  updateHUD();
+  // treatment stage
+  let t=`<div class="qhead">STEP 2 — FIRST MOVE?</div><div class="opts">`;
+  c.treatOpts.forEach((o,i)=>{t+=`<button class="opt" onclick="treat(${i},this)">🩺 ${o}</button>`;});
+  t+=`</div><div class="fb" id="treatFb"></div><div class="nextrow center" style="margin-top:13px;" id="nrow"></div>`;
+  document.getElementById('treatZone').innerHTML=t;
+  window.scrollTo({top:document.getElementById('treatZone').offsetTop,behavior:'smooth'});}
+
+function treat(i,btn){if(document.getElementById('treatFb').classList.contains('show'))return;
+  const c=CASES[ci], right=(i===c.treatCorrect);
+  const opts=document.querySelectorAll('#treatZone .opt');
+  opts.forEach((o,j)=>{o.classList.add('dim');if(j===c.treatCorrect)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  const fb=document.getElementById('treatFb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Right call, doctor.':'✘ Dangerous move — here\'s the right one.'}</div>
+    <div class="fw">${c.treatWhy}</div>
+    <div class="fw" style="margin-top:5px;"><b>Full treatment notes:</b></div><ul>${c.treat.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(right)pts++;
+  updateHUD();
+  document.getElementById('nrow').innerHTML=
+    `<button class="btn" onclick="${ci===CASES.length-1?'endGame()':'nextCase()'}">${ci===CASES.length-1?'END SHIFT 🏁':'NEXT PATIENT →'}</button>`;
+  const dots=document.querySelectorAll('#dots .dot');
+  dots[ci].className='dot '+(pts>=2*(ci+1)?'good':pts>=2*ci+1?'mid':'bad');
+  window.scrollTo({top:document.getElementById('nrow').offsetTop,behavior:'smooth'});}
+
+function nextCase(){ci++;loadCase();}
+
+function endGame(){
+  const r=document.getElementById('rank'),t=document.getElementById('finaltxt');
+  const max=CASES.length*2;
+  let rank,msg;
+  if(pts>=9){rank='🏆 SPIDER SURGEON GENERAL';msg='Five for five, treated to perfection. The arachnids speak of you in whispers.';}
+  else if(pts>=7){rank='🩺 ER LEGEND';msg='Sharp diagnoses, steady hands. The night shift is safe with you.';}
+  else if(pts>=5){rank='🥼 HOUSE OFFICER';msg='Decent shift. A few patients raised an eyebrow, but everyone made it.';}
+  else{rank='🕷️ THE SPIDERS WON';msg='The spiders have filed a complaint. Review the suspect line-up and take the shift again.';}
+  r.textContent=rank;
+  t.innerHTML='You earned <b style="color:#7de8c3;">'+pts+' / '+max+'</b> points.<br>'+msg;
+  show('scr-end');}
+</script>
+</body></html>

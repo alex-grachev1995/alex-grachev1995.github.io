@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolutionary Journeys — the migration story</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#3a2d5e 0%,#33284f 55%,#241f42 100%);
+  color:#f2eefe;min-height:100vh;padding:16px;}
+#wrap{max-width:880px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#cdb8ff;letter-spacing:.4px;}
+.sub{text-align:center;color:#b6a8d9;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#241a45;background:linear-gradient(90deg,#cdb8ff,#a78fe8);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.center{text-align:center;}
+.stops{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:8px 0 14px;}
+.stop{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:.85em;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.22);color:#9d8fd0;}
+.stop.on{border-color:#cdb8ff;color:#241a45;background:#cdb8ff;}
+.stop.done{border-color:#8fe0a5;color:#8fe0a5;}
+.stophead{font-size:1.2em;font-weight:900;color:#cdb8ff;margin-bottom:3px;}
+.stopsub{font-size:.85em;color:#c9bfe8;margin-bottom:10px;}
+.block{background:rgba(255,255,255,.05);border-left:3px solid #a78fe8;border-radius:8px;padding:9px 12px;margin:7px 0;font-size:.87em;line-height:1.55;color:#eae3f8;}
+.block b{color:#cdb8ff;}
+.qhead{font-weight:900;color:#ffd27d;margin:13px 0 7px;font-size:.95em;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#f2eefe;font-size:.85em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#cdb8ff;}
+.opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.4;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:11px 13px;margin-top:10px;font-size:.87em;line-height:1.5;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:3px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#cdb8ff;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#eae3f8;margin:12px 0;}
+.navrow{display:flex;justify-content:space-between;margin-top:13px;gap:8px;flex-wrap:wrap;}
+.readprog{font-size:.8em;color:#b6a8d9;text-align:center;margin-top:8px;}
+</style></head><body>
+<div id="wrap">
+  <h1>🦋 EVOLUTIONARY JOURNEYS</h1>
+  <div class="sub">How migration evolved — travel the story, then prove you know the way.</div>
+
+  <div class="screen active" id="scr-map">
+    <div class="panel">
+      <div class="stops" id="stopbar"></div>
+      <div id="stopbody"></div>
+      <div class="navrow" id="navrow"></div>
+      <div class="readprog" id="readprog">Stops visited: 0 / 5</div>
+      <div class="center" style="margin-top:12px;"><button class="btn" id="quizBtn" onclick="startQuiz()" disabled>TAKE THE FLIGHT TEST ✎</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-quiz">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:900;color:#cdb8ff;" id="qc">Q 1 / 6</div>
+        <div style="font-weight:900;color:#ffd27d;" id="qs">0 ✔</div>
+      </div>
+      <div id="qb"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="goMap()">BACK TO THE JOURNEY</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STOPS=[
+ {t:"🗿 Origins of Migration",s:"How humans first noticed the great journeys",
+  b:["<b>Stone Age observers:</b> rock art from ~20,000 years ago shows animals moving across the African savannah — nomadic hunter-gatherers were already watching migration.",
+   "<b>Aristotle's theory:</b> one of the first to theorize about migration — he speculated some birds literally TRANSFORMED into different species for winter! The belief persisted for ages.",
+   "He was carefully watching timing: Greece is a summer home to redstarts (which fly to Africa) and a winter home to robins (which arrive from northern Europe). Same country, opposite schedules.",
+   "<b>Deeper evidence:</b> fossils suggest bird migration is at least 250,000 years old, and genetic studies show migration behavior is written into genomes."]},
+ {t:"🌍 Why Travel Evolved",s:"The survival logic of leaving home",
+  b:["<b>Resource tracking:</b> follow seasonal food and habitats all year — survival and reproductive success go up.",
+   "<b>Predator escape:</b> move away from predators and bad conditions.",
+   "<b>Reproductive advantage:</b> breed in places with fewer competitors and predators, so more offspring survive.",
+   "<b>Natural selection</b> then fine-tunes the traits — timing, fat fuel use, navigation — embedding migration in the genome."]},
+ {t:"🐜 The Simplest Migrants",s:"Tiny brains, enormous voyages",
+  b:["<b>Black-bean aphids and monarch butterflies</b> run multi-step migrations with almost no nervous system at all.",
+   "They succeed by responding to basic environmental cues with <b>innate programs</b> — no learning, no maps, no parents teaching the route.",
+   "Monarchs navigate by the <b>sun's position + an internal circadian clock</b>. Aphids alternate sexual and asexual generations, each with its own migratory role.",
+   "Simple programs, remarkably efficient — proof you don't need a big brain to cross a continent."]},
+ {t:"🦋 The Relay Across Generations",s:"No single butterfly makes the whole trip",
+  b:["<b>Generational relay:</b> the first monarch generation lives up to 8 months and flies Canada/U.S. → Mexico. Later generations fly the return — no single butterfly ever completes the round trip.",
+   "Each generation still knows the way — the instinct is <b>inherited</b>, with genes switching on longevity and flight ability as needed.",
+   "Navigation kit: <b>antennal compass</b> (sun position + body clock), possibly <b>Earth's magnetic field</b>, plus triggers like temperature and day length.",
+   "Environmental cues tell each generation when it's their turn to fly."]},
+ {t:"🐋 The Bigger Picture",s:"From insects to whales — and why it matters",
+  b:["Migration spans the animal kingdom, from monarchs to <b>humpback whales</b> — and different species evolved the same toolkit: fat loading, navigation modules, hormonal triggers (<b>convergent evolution</b>).",
+   "<b>Migration drives evolution:</b> it splits populations along different routes (→ new species), spreads useful alleles far and wide (gene flow), and makes migrants perfect real-time models of evolution.",
+   "<b>Conservation:</b> protecting migration means protecting entire flyways and corridors — a species is only as safe as its route.",
+   "<b>Next steps in science:</b> genomics + GPS tracking + citizen scientists tagging butterflies will reveal how flexible migration really is as climates change."]}
+];
+const QUIZ=[
+ {q:"What did Aristotle famously (and wrongly) believe about migratory birds?",
+  o:["They hibernate underground","They transform into different species for winter","They fly to the Moon","They don't exist in Greece"],a:1,
+  w:"He thought birds literally changed species in winter — based on watching summer birds leave and different winter birds arrive."},
+ {q:"Migration FIRST evolved mainly because it…",
+  o:["Is fun","Lets animals track seasonal resources and escape predators","Makes feathers stronger","Uses less energy than staying"],a:1,
+  w:"Resource tracking, predator escape, and better breeding odds — natural selection did the rest."},
+ {q:"How do monarch butterflies navigate without learning the route?",
+  o:["They memorize it as caterpillars","An innate sun compass + internal body clock","They follow roads","They smell the ocean"],a:1,
+  w:"Inherited instinct: antennae track the sun, an internal clock keeps the heading — no learning required."},
+ {q:"What's special about the monarch migration to Mexico?",
+  o:["One butterfly flies the whole round trip","It takes several generations — like a relay race","It happens in one day","Only males migrate"],a:1,
+  w:"The first generation flies south and lives ~8 months; later generations complete the return. No single butterfly does the whole trip."},
+ {q:"Very different migrants (butterflies, whales, birds) evolved the same tools — fat loading, navigation, hormonal triggers. This is called…",
+  o:["Lazy evolution","Convergent evolution","Reverse evolution","Mutation"],a:1,
+  w:"Convergent evolution: similar solutions evolve independently because they solve the same problem."},
+ {q:"Why are migratory species especially important for studying evolution?",
+  o:["They are the fastest animals","Their genome-environment feedback makes evolution visible in real time","They live the longest","They don't evolve"],a:1,
+  w:"Migration constantly couples genes, physiology and environment — evolution happening before our eyes, which is also why protecting their routes matters."}
+];
+let visited=new Set(), cur=0, qi=0, qs=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function renderStops(){
+  document.getElementById('stopbar').innerHTML=STOPS.map((s,i)=>
+   `<div class="stop ${i===cur?'on':visited.has(i)?'done':''}" onclick="openStop(${i})">${i+1}</div>`).join('');
+  document.getElementById('readprog').textContent='Stops visited: '+visited.size+' / '+STOPS.length;
+  document.getElementById('quizBtn').disabled=(visited.size<STOPS.length);}
+
+function goMap(){renderStops();show('scr-map');window.scrollTo(0,0);}
+
+function openStop(i){cur=i;visited.add(i);const s=STOPS[i];
+  document.getElementById('stopbody').innerHTML=
+   `<div class="stophead">${s.t}</div><div class="stopsub">${s.s}</div>`+
+   s.b.map(x=>`<div class="block">${x}</div>`).join('');
+  document.getElementById('navrow').innerHTML=
+   `<button class="btn" onclick="goMapNav()" style="background:rgba(255,255,255,.13);color:#f2eefe;border:1px solid rgba(255,255,255,.3);">← MAP</button>`+
+   (i<STOPS.length-1?`<button class="btn" onclick="openStop(${i+1})">NEXT STOP →</button>`:'');
+  renderStops();window.scrollTo(0,0);}
+
+function goMapNav(){renderStops();show('scr-map');}
+
+function startQuiz(){qi=0;qs=0;loadQ();show('scr-quiz');window.scrollTo(0,0);}
+
+function loadQ(){const q=QUIZ[qi];
+  document.getElementById('qc').textContent='Q '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qs').textContent=qs+' ✔';
+  let h=`<div style="font-size:1.04em;font-weight:800;margin-bottom:9px;line-height:1.45;">${q.q}</div><div class="opts">`;
+  q.o.forEach((o,j)=>{h+=`<button class="opt" onclick="ans(${j},this)">${o}</button>`;});
+  h+=`</div><div class="fb" id="qfb"></div><div class="center" style="margin-top:12px;" id="qnext"></div>`;
+  document.getElementById('qb').innerHTML=h;window.scrollTo(0,0);}
+
+function ans(j,btn){const q=QUIZ[qi],right=(j===q.a);
+  document.querySelectorAll('#qb .opt').forEach((o,k)=>{o.classList.add('dim');if(k===q.a)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  if(right)qs++;
+  const fb=document.getElementById('qfb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Correct!':'✘ Not quite.'}</div><div>${q.w}</div>`;
+  document.getElementById('qs').textContent=qs+' ✔';
+  document.getElementById('qnext').innerHTML=
+   `<button class="btn" onclick="${qi===QUIZ.length-1?'endQuiz()':'nextQ()'}">${qi===QUIZ.length-1?'SEE RESULTS 🏁':'NEXT →'}</button>`;}
+
+function nextQ(){qi++;loadQ();}
+
+function endQuiz(){let rank,msg;
+  if(qs===6){rank='🧭 MIGRATION MASTER';msg='Perfect flight. Evolution itself would follow your navigation.';}
+  else if(qs>=5){rank='🦅 SEASONED TRAVELER';msg='Excellent — you understand why, how, and what it means.';}
+  else if(qs>=3){rank='🐣 FLEDGLING';msg='A decent first flight. Visit the stops you skipped and try again.';}
+  else{rank='🪺 STILL IN THE NEST';msg='The journey awaits — read the five stops, then take the test again.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You scored <b style="color:#cdb8ff;">'+qs+' / '+QUIZ.length+'</b>.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+
+renderStops();
+document.getElementById('stopbody').innerHTML=
+ `<div class="stophead">🗺️ The Journey Map</div>
+  <div class="block">Five stops, from the <b>first humans who noticed migration</b> to the <b>genetics of a butterfly relay race</b>.
+  Visit each stop (in any order), then unlock the <b>Flight Test</b>.</div>`;
+</script>
+</body></html>

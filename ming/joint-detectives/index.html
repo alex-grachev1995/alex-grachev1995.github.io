@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint Detectives — Five Case Files</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#4a3418 0%,#3d2f1c 55%,#2c2317 100%);
+  color:#fdf6e8;min-height:100vh;padding:16px;}
+#wrap{max-width:900px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#ffd27d;letter-spacing:.4px;}
+.sub{text-align:center;color:#d8c39a;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#3a2a08;background:linear-gradient(90deg,#ffd27d,#f0b95f);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.brief{font-size:.92em;color:#f0e4c8;line-height:1.6;}.brief b{color:#ffd27d;}
+.center{text-align:center;}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#c4a86e;font-weight:800;}
+.big{font-size:1.6em;font-weight:900;color:#ffd27d;font-variant-numeric:tabular-nums;}
+.dots{display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.good{background:#8fe0a5;}.dot.mid{background:#ffd27d;}.dot.bad{background:#ff6b6b;}
+.filehead{font-size:1.15em;font-weight:900;color:#ffd27d;margin-bottom:6px;}
+.filetag{display:inline-block;font-size:.72em;font-weight:800;letter-spacing:1px;color:#1f1808;background:#ffd27d;border-radius:99px;padding:3px 10px;margin-bottom:8px;}
+.clue{background:rgba(255,255,255,.06);border-left:3px solid #ffd27d;border-radius:8px;padding:9px 12px;margin:7px 0;font-size:.9em;line-height:1.5;color:#f6ecd4;}
+.qhead{font-weight:900;color:#ffe6b0;margin:13px 0 7px;font-size:.95em;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#fdf6e8;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#ffd27d;transform:translateY(-2px);}
+.opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:12px 14px;margin-top:11px;font-size:.88em;line-height:1.55;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:4px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+.fb .fw{color:#f3e9cf;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#ffd27d;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#f6ecd4;margin:12px 0;}
+</style></head><body>
+<div id="wrap">
+  <h1>🕵️ JOINT DETECTIVES</h1>
+  <div class="sub">Five case files. Five aching patients. Crack each case.</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:12px;">
+        The Joint Detective Agency has <b>five unsolved case files</b> on the desk.
+        Read each patient's story, name the condition, then point to <b>the clue that cracked the case</b>.
+        Two points per file — diagnosis + key clue.
+      </div>
+      <div class="center"><button class="btn" onclick="startGame()">OPEN THE FILES ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div><div class="lab">SCORE</div><div class="big" id="score">0</div></div>
+        <div style="text-align:center;"><div class="lab">FILES</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
+        <div style="text-align:right;"><div class="lab">CASE</div><div class="big" id="cnum" style="font-size:1.2em;">1 / 5</div></div>
+      </div>
+      <div id="casebody"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="lab" style="text-align:center;">CASEBOOK CLOSED</div>
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="startGame()">REOPEN FILES ↻</button>
+      <button class="btn" onclick="goMenu()" style="background:rgba(255,255,255,.13);color:#fdf6e8;border:1px solid rgba(255,255,255,.3);">MENU</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CASES=[
+ {file:"01 · DEGENERATIVE CLUES", title:"The Gardener's Knee",
+  clues:["Mrs. Gable, 74, loves her garden — but her knees have other plans.","Severe knee pain and stiffness, worst in the MORNING.","She describes a grinding sensation, plus visible swelling after gardening."],
+  diag:["Rheumatoid arthritis","Knee osteoarthritis","Gout","Plantar fasciitis","Shoulder dislocation"],
+  diagCorrect:1,
+  diagWhy:"Knee osteoarthritis — a degenerative 'wear and tear' disease, common in older adults. The grinding means cartilage has worn down to bone-on-bone friction. Morning stiffness happens because joint fluid needs time to lubricate after rest.",
+  clueQ:"WHICH CLUE CRACKED THE CASE?",
+  clueOpts:["Morning grinding sensation","She gardens a lot","Her age"],
+  clueCorrect:0,
+  clueWhy:"The grinding is the tell: cartilage wear → bone rubbing on bone. Age and gardening are risk factors, but grinding is the mechanical signature of degeneration."},
+ {file:"02 · TRAUMATIC INSTABILITY", title:"The Quarterback's Shoulder",
+  clues:["Cyrill, 20, quarterback. Mid-game, he felt a POP and intense shoulder pain.","Now the shoulder feels loose and unstable.","His throws have lost their precision."],
+  diag:["Gout","Plantar fasciitis","Knee osteoarthritis","Anterior shoulder dislocation","Rheumatoid arthritis"],
+  diagCorrect:3,
+  diagWhy:"Anterior shoulder dislocation — the ball-and-socket was forced out of place, stretching or tearing the ligaments. Ligaments connect bone to bone; once loose, the joint loses its precision.",
+  clueQ:"WHICH CLUE CRACKED THE CASE?",
+  clueOpts:["He's 20 years old","The pop + loose, unstable feeling","He plays quarterback"],
+  clueCorrect:1,
+  clueWhy:"'Pop, then looseness' is the classic story of a dislocation with ligament damage. Sport and age just set the scene."},
+ {file:"03 · INFLAMMATORY MYSTERIES", title:"The Baker's Wrist",
+  clues:["Maria, 45, pastry chef. Both wrists hurt — especially in the morning.","No injury she can remember. Burning pain + mild swelling in her fingers.","Rest makes it worse; moving seems to loosen things up."],
+  diag:["Rheumatoid arthritis","Knee osteoarthritis","Shoulder dislocation","Plantar fasciitis","Gout"],
+  diagCorrect:0,
+  diagWhy:"Rheumatoid arthritis — an AUTOIMMUNE condition that attacks small joints on BOTH sides symmetrically. Rest lets inflammatory fluid pool overnight (hence burning mornings); movement warms the joints and eases it.",
+  clueQ:"WHICH CLUE CRACKED THE CASE?",
+  clueOpts:["She's a pastry chef","Burning pain","BOTH wrists, symmetrically"],
+  clueCorrect:2,
+  clueWhy:"Symmetry is the hallmark: an autoimmune disease attacks body-wide, so it hits matching joints on both sides. Wear-and-tear would be one overused wrist, not two."},
+ {file:"04 · CRYSTAL CLUES", title:"The Banker's Big Toe",
+  clues:["David, 52, banker. Woke at 3 AM with his right big toe screaming.","Red, hot, tender — and this has happened before.","Yesterday: a steak-and-wine dinner."],
+  diag:["Plantar fasciitis","Rheumatoid arthritis","Gouty arthritis","Shoulder dislocation","Knee osteoarthritis"],
+  diagCorrect:2,
+  diagWhy:"Gout! Monosodium urate crystals deposit in the joint — and the big toe is the classic target because it's the body's coldest extremity, farthest from the heart, where crystals form easiest. Rich food + alcohol = trigger.",
+  clueQ:"WHICH CLUE CRACKED THE CASE?",
+  clueOpts:["The steak-and-wine dinner","The big toe","He works in a bank"],
+  clueCorrect:0,
+  clueWhy:"The dinner is the smoking gun: high-purine food and alcohol spike uric acid, which crystallizes. (The big toe is WHERE it lands — the dinner is WHY.)"},
+ {file:"05 · OVERUSE ENIGMA", title:"The Teacher's Heel",
+  clues:["Sara, 35, teacher. Sharp heel pain with her FIRST steps every morning.","It eases after she's been walking a while.","No swelling, no redness — nothing visible at all."],
+  diag:["Gout","Plantar fasciitis","Rheumatoid arthritis","Knee osteoarthritis","Shoulder dislocation"],
+  diagCorrect:1,
+  diagWhy:"Plantar fasciitis — micro-tears in the plantar fascia from overuse. Overnight the fascia shortens; the first steps stretch it fast → sharp pain. Standing all day in unsupportive shoes is the classic risk factor.",
+  clueQ:"WHICH CLUE CRACKED THE CASE?",
+  clueOpts:["First-steps pain that eases with walking","She's a teacher","No visible swelling"],
+  clueCorrect:0,
+  clueWhy:"'Start-up pain' — worst on the first steps, better with motion — is the signature of an overuse injury, unlike inflammatory pain which is worst after rest."}
+];
+let ci=0, pts=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){ci=0;pts=0;show('scr-play');
+  const d=document.getElementById('dots');d.innerHTML='';
+  CASES.forEach(()=>{const el=document.createElement('div');el.className='dot';d.appendChild(el);});
+  loadCase();}
+
+function goMenu(){show('scr-menu');}
+
+function updateHUD(){document.getElementById('score').textContent=pts;
+  document.getElementById('cnum').textContent=(ci+1)+' / '+CASES.length;}
+
+function loadCase(){const c=CASES[ci];
+  let h=`<div class="filetag">${c.file}</div><div class="filehead">📁 ${c.title}</div>`;
+  c.clues.forEach(cl=>{h+=`<div class="clue">${cl}</div>`;});
+  h+=`<div class="qhead">1️⃣ NAME THE CONDITION</div><div class="opts" id="diagOpts">`;
+  c.diag.forEach((d,i)=>{h+=`<button class="opt" onclick="pickDiag(${i},this)">🔍 ${d}</button>`;});
+  h+=`</div><div class="fb" id="diagFb"></div><div id="clueZone"></div>`;
+  document.getElementById('casebody').innerHTML=h;
+  updateHUD();window.scrollTo(0,0);}
+
+function pickDiag(i,btn){if(document.getElementById('diagFb').classList.contains('show'))return;
+  const c=CASES[ci], right=(i===c.diagCorrect);
+  document.querySelectorAll('#diagOpts .opt').forEach((o,j)=>{o.classList.add('dim');if(j===c.diagCorrect)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  const fb=document.getElementById('diagFb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Case cracked — '+c.diag[c.diagCorrect]+'.':'✘ Not quite — it was '+c.diag[c.diagCorrect]+'.'}</div>
+    <div class="fw">${c.diagWhy}</div>`;
+  if(right)pts++;updateHUD();
+  let z=`<div class="qhead">2️⃣ ${c.clueQ}</div><div class="opts">`;
+  c.clueOpts.forEach((o,j)=>{z+=`<button class="opt" onclick="pickClue(${j},this)">🎯 ${o}</button>`;});
+  z+=`</div><div class="fb" id="clueFb"></div>
+       <div class="center" style="margin-top:13px;" id="nrow"></div>`;
+  document.getElementById('clueZone').innerHTML=z;
+  window.scrollTo({top:document.getElementById('clueZone').offsetTop,behavior:'smooth'});}
+
+function pickClue(j,btn){if(document.getElementById('clueFb').classList.contains('show'))return;
+  const c=CASES[ci], right=(j===c.clueCorrect);
+  const opts=document.querySelectorAll('#clueZone .opt');
+  opts.forEach((o,k)=>{o.classList.add('dim');if(k===c.clueCorrect)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  const fb=document.getElementById('clueFb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Sharp eye, detective.':'✘ The real tell was: '+c.clueOpts[c.clueCorrect]+'.'}</div>
+    <div class="fw">${c.clueWhy}</div>`;
+  if(right)pts++;updateHUD();
+  document.getElementById('nrow').innerHTML=
+    `<button class="btn" onclick="${ci===CASES.length-1?'endGame()':'nextCase()'}">${ci===CASES.length-1?'CLOSE CASEBOOK 🏁':'NEXT FILE →'}</button>`;
+  const dots=document.querySelectorAll('#dots .dot');
+  dots[ci].className='dot '+(pts>=2*(ci+1)?'good':pts>=2*ci+1?'mid':'bad');
+  window.scrollTo({top:document.getElementById('nrow').offsetTop,behavior:'smooth'});}
+
+function nextCase(){ci++;loadCase();}
+
+function endGame(){
+  const r=document.getElementById('rank'),t=document.getElementById('finaltxt');
+  const max=CASES.length*2;let rank,msg;
+  if(pts>=9){rank='🕵️ MASTER DETECTIVE';msg='Every clue accounted for. Sherlock of the skeleton.';}
+  else if(pts>=7){rank='🔎 SENIOR DETECTIVE';msg='Excellent sleuthing — the agency is proud.';}
+  else if(pts>=5){rank='📋 JUNIOR DETECTIVE';msg='Solid instincts. A couple of files need a second look.';}
+  else{rank='🗂️ INTERN';msg='The cases went cold. Reopen the files and try again.';}
+  r.textContent=rank;
+  t.innerHTML='You solved <b style="color:#ffd27d;">'+pts+' / '+max+'</b> points.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>

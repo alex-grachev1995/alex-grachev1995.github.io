@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sports Science — Force, Motion &amp; Energy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#8a3324 0%,#6d2d28 55%,#4a2430 100%);
+  color:#fdf1ec;min-height:100vh;padding:16px;}
+#wrap{max-width:860px;margin:0 auto;}
+h1{font-size:1.6em;text-align:center;color:#ffb38a;letter-spacing:.4px;}
+.sub{text-align:center;color:#e0a892;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#3d1508;background:linear-gradient(90deg,#ffb38a,#f08a5f);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.brief{font-size:.92em;color:#f5d9cc;line-height:1.6;}.brief b{color:#ffb38a;}
+.center{text-align:center;}
+.concept{background:rgba(255,255,255,.06);border-left:4px solid #f08a5f;border-radius:10px;padding:11px 13px;margin:8px 0;}
+.concept .cn{font-weight:900;color:#ffb38a;font-size:.95em;}
+.concept .cb{font-size:.85em;color:#f5ddd1;line-height:1.5;margin-top:3px;}
+.concept .cb b{color:#ffd27d;}
+.formula{display:inline-block;background:rgba(0,0,0,.3);border-radius:8px;padding:3px 10px;font-weight:800;color:#ffd27d;font-size:.95em;}
+.topbar{display:flex;justify-content:space-between;margin-bottom:9px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#d69a80;font-weight:800;}
+.big{font-size:1.5em;font-weight:900;color:#ffb38a;}
+.qq{font-size:1.06em;font-weight:800;line-height:1.45;margin-bottom:10px;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.opt{border:2px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#fdf1ec;font-size:.86em;font-weight:700;transition:all .15s;text-align:left;line-height:1.35;}
+.opt:hover{border-color:#ffb38a;transform:translateY(-2px);}
+.opt.right{background:rgba(143,224,165,.22);border-color:#8fe0a5;}
+.opt.wrong{background:rgba(255,107,107,.22);border-color:#ff6b6b;animation:shake .35s;}
+.opt.dim{opacity:.4;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{display:none;border-radius:12px;padding:11px 13px;margin-top:10px;font-size:.87em;line-height:1.5;animation:pop .25s;}
+.fb.show{display:block;}
+.fb.good{background:rgba(143,224,165,.13);border:1px solid rgba(143,224,165,.5);}
+.fb.badv{background:rgba(255,107,107,.11);border:1px solid rgba(255,107,107,.5);}
+.fb .fh{font-weight:900;margin-bottom:3px;}
+.fb.good .fh{color:#a9f0bd;}.fb.badv .fh{color:#ffb3b3;}
+@keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rank{font-size:1.5em;font-weight:900;color:#ffb38a;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.02em;line-height:1.6;color:#f5d9cc;margin:12px 0;}
+</style></head><body>
+<div id="wrap">
+  <h1>🏅 SPORTS SCIENCE</h1>
+  <div class="sub">Newton's laws &amp; kinetic energy — learn the plays, then run the quiz.</div>
+
+  <div class="screen active" id="scr-learn">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:6px;">Five-minute warm-up — the four ideas every athlete (and physics student) needs:</div>
+      <div class="concept"><div class="cn">🥅 Newton's First Law — Inertia</div>
+        <div class="cb">An object in motion stays in motion, an object at rest stays at rest — unless a force acts on it.<br>
+        <b>Example:</b> a hockey puck gliding on ice keeps going until something stops it.</div></div>
+      <div class="concept"><div class="cn">🎳 Newton's Second Law — F = ma</div>
+        <div class="cb"><span class="formula">Force = Mass × Acceleration</span><br>
+        More mass = more force needed for the same acceleration.<br>
+        <b>Example:</b> a bowling ball needs more force to accelerate than a baseball.</div></div>
+      <div class="concept"><div class="cn">⚾ Newton's Third Law — Action / Reaction</div>
+        <div class="cb">For every action there is an equal and opposite reaction.<br>
+        <b>Example:</b> when you hit a ball with a bat, the bat also feels a force back from the ball.</div></div>
+      <div class="concept"><div class="cn">🏌️ Kinetic Energy</div>
+        <div class="cb">The energy an object has because it's moving: <span class="formula">KE = ½ × mass × velocity²</span><br>
+        Velocity is squared — speed matters MORE than mass!<br>
+        <b>Example:</b> a golf ball hit with a fast swing has high KE and goes far.</div></div>
+      <div class="center" style="margin-top:12px;"><button class="btn" onclick="startQuiz()">TO THE QUIZ ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-quiz">
+    <div class="panel">
+      <div class="topbar">
+        <div style="font-weight:900;color:#ffb38a;" id="qc">Q 1 / 6</div>
+        <div style="font-weight:900;color:#ffd27d;" id="qs">0 ✔</div>
+      </div>
+      <div id="qb"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="startQuiz()">RUN IT BACK ↻</button>
+      <button class="btn" onclick="showLearn()" style="background:rgba(255,255,255,.13);color:#fdf1ec;border:1px solid rgba(255,255,255,.3);">WARM-UP</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUIZ=[
+ {q:"Why do hockey players keep sliding after they stop pushing with their skates?",
+  o:["They're on a slope","Inertia — their motion keeps going until friction stops it","Gravity pulls them forward","Their muscles keep pushing"],a:1,
+  w:"Newton's First Law: motion continues until a force (here, friction) stops it."},
+ {q:"A baseball and a bowling ball are thrown with the SAME acceleration. Which needs more force?",
+  o:["The baseball — it moves faster","The bowling ball — more mass needs more force","Both need the same force","Neither needs force"],a:1,
+  w:"F = ma. Same acceleration, more mass → more force. The bowling ball wins (or loses, energetically)."},
+ {q:"A soccer player kicks a ball. What is the REACTION force (Newton's 3rd law)?",
+  o:["The wind resisting the ball","The goal net shaking","The player flying backwards","The ball pushing back on the foot"],a:3,
+  w:"Every action has an equal and opposite reaction — the ball pushes back on the foot with the same force."},
+ {q:"Two balls have the same mass, but one has more kinetic energy. How do we know which one?",
+  o:["The heavier-looking one","The one moving faster — velocity is squared in KE = ½mv²","The bigger one","The hotter one"],a:1,
+  w:"Same mass → the faster one carries more KE, and velocity counts twice (squared!)."},
+ {q:"A golf pro wants maximum distance. According to KE = ½mv², what should they focus on most?",
+  o:["Swinging faster — speed is squared","Using a heavier club only","Hitting lower","Spinning the ball"],a:0,
+  w:"Because velocity is SQUARED, doubling speed quadruples the energy. Speed beats mass."},
+ {q:"You're sitting in a moving car that brakes suddenly. Your body lurches forward. Which law?",
+  o:["Newton's First Law — your body keeps moving","Newton's Second Law","Newton's Third Law","The law of gravity"],a:0,
+  w:"Inertia again! Your body was in motion and stays in motion until the seatbelt applies a force."}
+];
+let qi=0,qs=0;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+function showLearn(){show('scr-learn');}
+function startQuiz(){qi=0;qs=0;loadQ();show('scr-quiz');}
+function loadQ(){const q=QUIZ[qi];
+  document.getElementById('qc').textContent='Q '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qs').textContent=qs+' ✔';
+  let h=`<div class="qq">${q.q}</div><div class="opts">`;
+  q.o.forEach((o,j)=>{h+=`<button class="opt" onclick="ans(${j},this)">${o}</button>`;});
+  h+=`</div><div class="fb" id="fb"></div><div class="center" style="margin-top:12px;" id="nx"></div>`;
+  document.getElementById('qb').innerHTML=h;window.scrollTo(0,0);}
+function ans(j,btn){const q=QUIZ[qi],right=(j===q.a);
+  document.querySelectorAll('#qb .opt').forEach((o,k)=>{o.classList.add('dim');if(k===q.a)o.classList.add('right');});
+  if(!right)btn.classList.remove('dim'),btn.classList.add('wrong');
+  if(right)qs++;
+  const fb=document.getElementById('fb');
+  fb.className='fb show '+(right?'good':'badv');
+  fb.innerHTML=`<div class="fh">${right?'✔ Correct!':'✘ Not quite.'}</div><div>${q.w}</div>`;
+  document.getElementById('qs').textContent=qs+' ✔';
+  document.getElementById('nx').innerHTML=
+   `<button class="btn" onclick="${qi===QUIZ.length-1?'endQ()':'nextQ()'}">${qi===QUIZ.length-1?'FINISH 🏁':'NEXT →'}</button>`;}
+function nextQ(){qi++;loadQ();}
+function endQ(){let rank,msg;
+  if(qs===6){rank='🏆 MVP — MOST VALUABLE PHYSICIST';msg='Flawless. The physics of sport bows to you.';}
+  else if(qs>=5){rank='🥇 ALL-STAR';msg='Nearly perfect — one play away from legendary.';}
+  else if(qs>=3){rank='🥉 TEAM PLAYER';msg='Solid fundamentals. Review the warm-up and go again.';}
+  else{rank='🪑 BENCHWARMER';msg="The coach suggests reviewing Newton's laws before the next game.";}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You scored <b style="color:#ffb38a;">'+qs+' / '+QUIZ.length+'</b>.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>

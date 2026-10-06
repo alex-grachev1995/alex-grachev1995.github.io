@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature or Nurture?</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(165deg,#1f4d2e 0%,#1b4033 55%,#15323a 100%);
+  color:#effaf1;min-height:100vh;padding:16px;}
+#wrap{max-width:860px;margin:0 auto;}
+h1{font-size:1.7em;text-align:center;color:#a5e8b0;letter-spacing:.4px;text-shadow:0 2px 12px rgba(80,220,130,.25);}
+.sub{text-align:center;color:#a8d4b2;font-size:.9em;margin:4px 0 14px;}
+.screen{display:none;}.screen.active{display:block;}
+.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.17);border-radius:14px;padding:16px;margin-bottom:12px;}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-size:.98em;font-weight:800;cursor:pointer;
+  color:#12331c;background:linear-gradient(90deg,#a5e8b0,#6ecf8a);}
+.btn:hover{filter:brightness(1.07);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.lab{font-size:.7em;letter-spacing:1.4px;color:#8cc79a;font-weight:800;}
+.big{font-size:1.7em;font-weight:900;color:#a5e8b0;font-variant-numeric:tabular-nums;}
+.dots{display:flex;gap:6px;flex-wrap:wrap;}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);}
+.dot.good{background:#8fe0a5;}.dot.bad{background:#ff6b6b;}
+.qcard{text-align:center;}
+.qcard img{width:100%;max-width:460px;max-height:280px;object-fit:cover;border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 24px rgba(0,0,0,.35);margin-bottom:10px;}
+.qtext{font-size:1.12em;font-weight:700;line-height:1.5;color:#e2f7e6;margin:0 auto 14px;max-width:540px;}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;margin:0 auto;}
+@media(max-width:560px){.choices{grid-template-columns:1fr;}}
+.choice{border:2px solid rgba(255,255,255,.25);border-radius:12px;padding:14px 8px;cursor:pointer;
+  font-size:1.02em;font-weight:900;letter-spacing:.5px;color:#effaf1;background:rgba(255,255,255,.07);transition:all .15s;}
+.choice:hover{transform:translateY(-2px);border-color:#a5e8b0;background:rgba(165,232,176,.13);}
+.choice.picked-right{background:rgba(143,224,165,.28);border-color:#8fe0a5;box-shadow:0 0 18px rgba(143,224,165,.4);}
+.choice.picked-wrong{background:rgba(255,107,107,.25);border-color:#ff6b6b;animation:shake .35s;}
+.choice.dim{opacity:.35;pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+.verdict{display:none;border-radius:12px;padding:13px;margin-top:13px;text-align:left;line-height:1.55;font-size:.93em;}
+.verdict.show{display:block;animation:pop .25s;}
+.verdict.good{background:rgba(143,224,165,.14);border:1px solid rgba(143,224,165,.5);}
+.verdict.badv{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.5);}
+.verdict .vhead{font-weight:900;font-size:1.03em;margin-bottom:4px;}
+.verdict.good .vhead{color:#a9f0bd;}.verdict.badv .vhead{color:#ffb3b3;}
+.verdict .why{color:#e2f7e6;}
+@keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+.nextrow{text-align:center;margin-top:13px;}
+.brief{font-size:.92em;color:#d6eedb;line-height:1.6;}.brief b{color:#a5e8b0;}
+.rank{font-size:1.5em;font-weight:900;color:#a5e8b0;text-align:center;margin:8px 0 2px;}
+.finaltxt{text-align:center;font-size:1.03em;line-height:1.6;color:#e2f7e6;margin:12px 0;}
+.streak{font-size:.85em;font-weight:800;color:#ffd27d;min-height:1.2em;}
+</style></head><body>
+<div id="wrap">
+  <h1>🧬 NATURE or NURTURE?</h1>
+  <div class="sub">Twelve traits. One question: born with it, or built by the world?</div>
+
+  <div class="screen active" id="scr-menu">
+    <div class="panel">
+      <div class="brief" style="margin-bottom:14px;">
+        Everything about you — your height, your accent, your freckles, your fears — came from
+        <b>genes</b> (nature), <b>environment and learning</b> (nurture), or <b>both locked in a tug-of-war</b>.
+        For each trait, make your call. Beware: the sneaky ones are BOTH.
+      </div>
+      <div class="center"><button class="btn" onclick="startGame()">START ▶</button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-play">
+    <div class="panel">
+      <div class="topbar">
+        <div><div class="lab">SCORE</div><div class="big" id="score">0 / 12</div><div class="streak" id="streak"></div></div>
+        <div style="text-align:center;"><div class="lab">TRAITS</div><div class="dots" id="dots" style="justify-content:center;margin-top:5px;"></div></div>
+        <div style="text-align:right;"><div class="lab">TRAIT</div><div class="big" id="qnum" style="font-size:1.3em;">1 / 12</div></div>
+      </div>
+      <div class="qcard">
+        <img id="qimg" src="img/trait01.jpg" alt="trait image">
+        <div class="qtext" id="qtext"></div>
+        <div class="choices">
+          <button class="choice" id="bNat" onclick="answer('nature')">🧬 NATURE</button>
+          <button class="choice" id="bBoth" onclick="answer('both')">⚖️ BOTH</button>
+          <button class="choice" id="bNur" onclick="answer('nurture')">🏙️ NURTURE</button>
+        </div>
+        <div class="verdict" id="verdict"><div class="vhead" id="vhead"></div><div class="why" id="vwhy"></div></div>
+        <div class="nextrow"><button class="btn" id="btnNext" style="display:none;" onclick="nextQ()">NEXT →</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="scr-end">
+    <div class="panel">
+      <div class="rank" id="rank"></div>
+      <div class="finaltxt" id="finaltxt"></div>
+      <div class="center"><button class="btn" onclick="startGame()">PLAY AGAIN ↻</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const Q=[
+ {img:"img/trait01.jpg",q:"Your HEIGHT",ans:"both",why:"Mostly genetic — but nutrition and sleep can add or subtract centimetres. Classic both."},
+ {img:"img/trait02.jpg",q:"The LANGUAGE you speak",ans:"nurture",why:"You learn it from your environment — swap babies between countries and the languages swap too."},
+ {img:"img/trait03.jpg",q:"Musical TALENT",ans:"both",why:"You may inherit a gift, but practice and lessons decide whether it becomes skill."},
+ {img:"img/trait04.jpg",q:"The FOOD you love (or hate)",ans:"both",why:"Culture and upbringing shape taste — but some flavour-sensitivity genes play a role too."},
+ {img:"img/trait05.jpg",q:"Your EYE COLOR",ans:"nature",why:"Fully determined by genes inherited from your parents. No practice required."},
+ {img:"img/trait06.jpg",q:"FRECKLES",ans:"both",why:"You need the genes AND the sun exposure. One without the other = no freckles."},
+ {img:"img/trait07.jpg",q:"Athletic ABILITY",ans:"both",why:"Genes set your muscle-fibre and speed potential — training decides how much of it shows."},
+ {img:"img/trait08.jpg",q:"Your BLOOD TYPE",ans:"nature",why:"100% inherited. Your training regime has zero effect on it."},
+ {img:"img/trait09.jpg",q:"Your ACCENT",ans:"nurture",why:"It comes entirely from your surroundings — that's why accents can change when you move."},
+ {img:"img/trait10.jpg",q:"Being ANXIOUS",ans:"both",why:"Experience shapes it, but some people are naturally more anxious from birth."},
+ {img:"img/trait11.jpg",q:"Your HANDWRITING",ans:"nurture",why:"Developed through practice and learning — no gene writes cursive by itself."},
+ {img:"img/trait12.jpg",q:"When PUBERTY starts",ans:"both",why:"Genes control the timing — but stress and health can shift the schedule."}
+];
+const NAMES={nature:"NATURE",nurture:"NURTURE",both:"BOTH"};
+let idx=0,score=0,streak=0,answered=false;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');}
+
+function startGame(){idx=0;score=0;streak=0;show('scr-play');renderDots();loadQ();updateHUD();}
+function goMenu(){show('scr-menu');}
+
+function renderDots(){const d=document.getElementById('dots');d.innerHTML='';
+  Q.forEach(()=>{const el=document.createElement('div');el.className='dot';d.appendChild(el);});}
+
+function updateHUD(){document.getElementById('score').textContent=score+' / '+Q.length;
+  document.getElementById('qnum').textContent=(idx+1)+' / '+Q.length;
+  document.getElementById('streak').textContent=streak>=2?('🔥 streak ×'+streak):'';}
+
+function loadQ(){answered=false;const q=Q[idx];
+  document.getElementById('qimg').src=q.img;
+  document.getElementById('qtext').textContent=q.q;
+  document.getElementById('verdict').className='verdict';
+  document.getElementById('btnNext').style.display='none';
+  ['bNat','bBoth','bNur'].forEach(id=>{const b=document.getElementById(id);
+    b.disabled=false;b.className='choice';});
+  updateHUD();window.scrollTo(0,0);}
+
+function answer(said){if(answered)return;answered=true;
+  const q=Q[idx],right=(said===q.ans);
+  if(right){score++;streak++;}else{streak=0;}
+  document.querySelectorAll('#dots .dot')[idx].classList.add(right?'good':'bad');
+  const pick=document.getElementById(said==='nature'?'bNat':said==='both'?'bBoth':'bNur');
+  pick.classList.add(right?'picked-right':'picked-wrong');
+  const others=['bNat','bBoth','bNur'].filter(id=>id!==pick.id);
+  others.forEach(id=>document.getElementById(id).classList.add('dim'));
+  pick.disabled=true;
+  const v=document.getElementById('verdict');
+  v.className='verdict show '+(right?'good':'badv');
+  document.getElementById('vhead').textContent=right?
+    ('✔ Correct — it\'s '+NAMES[q.ans]+'.'):
+    ('✘ It was '+NAMES[q.ans]+' — you said '+NAMES[said]+'.');
+  document.getElementById('vwhy').textContent=q.why;
+  updateHUD();
+  const nb=document.getElementById('btnNext');
+  nb.style.display='inline-block';
+  nb.textContent=idx===Q.length-1?'SEE RESULTS 🏁':'NEXT →';}
+
+function nextQ(){idx++;if(idx>=Q.length){endGame();return;}loadQ();}
+
+function endGame(){
+  let rank,msg;
+  if(score>=11){rank='🧬 GENETICS GRANDMASTER';msg='Outstanding — you see the gene-environment dance clearly.';}
+  else if(score>=9){rank='⚖️ BALANCED MIND';msg='Excellent! You know which traits are born and which are built.';}
+  else if(score>=6){rank='🌱 GROWING THINKER';msg='Good instincts — the BOTH answers are the sneaky ones. Play again!';}
+  else{rank='🐣 NATURE\'S MYSTERY';msg:'The genes are laughing. Read the explanations and take your revenge.';}
+  document.getElementById('rank').textContent=rank;
+  document.getElementById('finaltxt').innerHTML='You got <b style="color:#a5e8b0;">'+score+' out of '+Q.length+'</b>.<br>'+msg;
+  show('scr-end');window.scrollTo(0,0);}
+</script>
+</body></html>
