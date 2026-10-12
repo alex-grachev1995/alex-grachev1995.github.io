@@ -1,0 +1,372 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stolen Science</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #1b1f2a;
+    --card: #262c3b;
+    --ink: #e8ebf2;
+    --dim: #9aa3b5;
+    --gold: #e8b94a;
+    --red: #d95f5f;
+    --green: #58b98a;
+    --blue: #5f8fd9;
+  }
+  body {
+    font-family: 'Segoe UI', 'Trebuchet MS', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 18px 14px 60px; }
+
+  .counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dim);
+  }
+  .counter .rc {
+    background: var(--gold);
+    color: #1b1f2a;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 26px 22px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    animation: rise 0.4s ease;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .portrait { font-size: 58px; text-align: center; display: block; margin-bottom: 8px; }
+  .name { font-size: 24px; font-weight: 800; text-align: center; }
+  .era {
+    text-align: center;
+    color: var(--gold);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 4px 0 16px;
+  }
+  .setup { font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+  .prompt {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #303950;
+    color: var(--ink);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 13px 15px;
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.45;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: transform 0.12s, border-color 0.12s, background 0.12s;
+  }
+  .opt:hover:not(:disabled) { transform: translateX(5px); border-color: var(--gold); }
+  .opt:disabled { cursor: default; opacity: 0.55; }
+  .opt.revealed-correct { background: #3a2f2f; border-color: var(--red); opacity: 1 !important; }
+  .opt.picked-wrong { border-color: var(--dim); }
+
+  .reveal {
+    margin-top: 14px;
+    border-radius: 12px;
+    padding: 15px;
+    animation: rise 0.3s ease;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .reveal.guessed { background: #2c3a31; border: 2px solid var(--green); }
+  .reveal.missed  { background: #3a2c2c; border: 2px solid var(--red); }
+  .reveal .tag { font-weight: 800; display: block; margin-bottom: 6px; }
+  .reveal.guessed .tag { color: var(--green); }
+  .reveal.missed  .tag { color: var(--red); }
+  .reveal .silver {
+    display: block;
+    margin-top: 8px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  .big-btn {
+    display: block;
+    margin: 18px auto 0;
+    background: var(--gold);
+    color: #1b1f2a;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 32px;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .big-btn:hover { transform: scale(1.05); }
+
+  .center { text-align: center; }
+  .title-big { font-size: 30px; font-weight: 800; margin-bottom: 10px; }
+  .sub { color: var(--dim); font-size: 15px; line-height: 1.6; margin-bottom: 8px; }
+  .final-score { font-size: 40px; font-weight: 800; color: var(--gold); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const stories = [
+  {
+    portrait: "🧬",
+    name: "Rosalind Franklin",
+    era: "London · 1952",
+    setup: "Rosalind Franklin took <b>Photo 51</b> — the sharpest X-ray picture of DNA ever made. It held the secret of the double helix, the shape of life itself.",
+    options: [
+      { text: "She published it, and today the double helix discovery is named after her.", grim: false },
+      { text: "A colleague showed her photo to two other scientists without asking her. They used it, cracked DNA, and won the Nobel Prize. Her role was barely mentioned.", grim: true },
+      { text: "She teamed up with the other scientists and they all shared the Nobel Prize.", grim: false }
+    ],
+    truth: "James Watson was shown Photo 51 behind her back. He later admitted it was the key moment. Watson, Crick and Wilkins got the Nobel Prize in 1962. Franklin had died four years earlier, at just 37, never knowing how much they'd taken from her work.",
+    silver: "🥈 Today, buildings, universities and even a Mars rover are named after her."
+  },
+  {
+    portrait: "⚛️",
+    name: "Lise Meitner",
+    era: "Berlin → Sweden · 1938",
+    setup: "Lise Meitner spent 30 years working with chemist Otto Hahn. Then, forced to flee Nazi Germany, she kept working with him by letter — and <b>she</b> was the one who figured out they had split the atom.",
+    options: [
+      { text: "Hahn published the discovery without her name on it — and won the Nobel Prize alone. She was never given one.", grim: true },
+      { text: "Hahn waited until it was safe, then published the paper with both their names.", grim: false },
+      { text: "The Nobel committee gave the prize to both of them once the war ended.", grim: false }
+    ],
+    truth: "Hahn published without her and took the 1944 Nobel Prize alone. Meitner was nominated 48 times. She never won.",
+    silver: "🥈 Element 109 is called <b>meitnerium</b>. There is no element named after Hahn."
+  },
+  {
+    portrait: "🌟",
+    name: "Cecilia Payne",
+    era: "Harvard · 1925",
+    setup: "In her PhD thesis, 25-year-old Cecilia Payne worked out what stars are made of: mostly <b>hydrogen</b>. Every famous astronomer at the time believed the opposite.",
+    options: [
+      { text: "Astronomers checked her math, realized she was right, and made her famous overnight.", grim: false },
+      { text: "The top astronomer of the day told her to write in her own thesis that her result was 'almost certainly not real.' Four years later HE published the same idea — and got the credit.", grim: true },
+      { text: "Her thesis was ignored for a few months, then quietly accepted.", grim: false }
+    ],
+    truth: "Henry Norris Russell pressured her to doubt her own correct answer in print. When he later confirmed it himself, textbooks credited him. Her thesis is now called the most brilliant astronomy PhD ever written.",
+    silver: "🥈 She eventually became Harvard's first female professor of astronomy — 31 years later."
+  },
+  {
+    portrait: "🐛",
+    name: "Nettie Stevens",
+    era: "USA · 1905",
+    setup: "Studying mealworms, Nettie Stevens discovered something huge: tiny <b>X and Y chromosomes</b> decide whether a baby is born male or female. One of biology's biggest answers ever.",
+    options: [
+      { text: "For decades, textbooks gave the credit to her male colleagues instead. One of them later wrote that she was 'more like a technician' than a real scientist.", grim: true },
+      { text: "She became the most celebrated biologist in America.", grim: false },
+      { text: "She and her colleague announced it together and shared the fame equally.", grim: false }
+    ],
+    truth: "The discovery got attached to the names of E.B. Wilson and Thomas Hunt Morgan. Stevens died in 1912 before she could even take up a professorship — and Morgan used her obituary to downplay her work.",
+    silver: "🥈 Historians have re-checked the papers. The discovery was hers. The textbooks are slowly being fixed."
+  },
+  {
+    portrait: "🎯",
+    name: "Chien-Shiung Wu",
+    era: "Columbia University · 1956",
+    setup: "Two theorists had a wild idea that would break the laws of physics as everyone knew them. But an idea isn't proof. Chien-Shiung Wu — called the 'First Lady of Physics' — designed and ran the brutal experiment that <b>proved it true</b>.",
+    options: [
+      { text: "All three shared the Nobel Prize, since theory and experiment need each other.", grim: false },
+      { text: "The two men who had the idea won the Nobel Prize the very next year. Wu, who proved it, got nothing.", grim: true },
+      { text: "Wu won the Nobel alone, since the experiment was the hard part.", grim: false }
+    ],
+    truth: "Lee and Yang won the 1957 Nobel Prize. Wu was left out entirely. She said later: 'I wonder whether the tiny atoms and nuclei... have any preference for either masculine or feminine treatment.'",
+    silver: "🥈 She won almost every other prize in physics — and a US postage stamp carries her face."
+  },
+  {
+    portrait: "📡",
+    name: "Jocelyn Bell Burnell",
+    era: "Cambridge · 1967",
+    setup: "Grad student Jocelyn Bell Burnell was checking <b>5 kilometers</b> of paper charts from a radio telescope when she spotted a strange repeating blip. She had discovered <b>pulsars</b> — spinning dead stars. The signal was so weird it was first nicknamed LGM-1: 'Little Green Men.'",
+    options: [
+      { text: "As the discoverer, she became the first woman to win the physics Nobel.", grim: false },
+      { text: "The Nobel Prize for HER discovery went to her male supervisor. She wasn't included.", grim: true },
+      { text: "The Nobel committee split the prize between her and her supervisor.", grim: false }
+    ],
+    truth: "The 1974 Nobel Prize went to her supervisor, Antony Hewish. Bell Burnell — the one who actually found the signal and refused to ignore it — was left out.",
+    silver: "🥈 In 2018 she won a $3 million Breakthrough Prize... and gave away EVERY penny to help women and minority students become physicists. Best plot twist on this list."
+  }
+];
+
+let idx = 0;
+let realityChecks = 0;
+const app = document.getElementById("app");
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderIntro() {
+  app.innerHTML = `
+    <div class="card center">
+      <span class="portrait">🕵️‍♀️</span>
+      <div class="title-big">STOLEN SCIENCE</div>
+      <p class="sub">Mary Anning found the fossils. Rich gentlemen put their own names on them.</p>
+      <p class="sub">Was she just unlucky? Or is this a <b>pattern</b>?</p>
+      <p class="sub">Six real scientists. Six huge discoveries. For each one — guess what happened next.</p>
+      <p class="sub" style="color:var(--gold); font-weight:700;">Warning: history is not always fair.</p>
+      <button class="big-btn" onclick="renderStory()">INVESTIGATE ➡️</button>
+    </div>
+  `;
+}
+
+function renderStory() {
+  const s = stories[idx];
+  const opts = shuffle(s.options);
+  app.innerHTML = `
+    <div class="counter">
+      <span>CASE ${idx + 1} OF ${stories.length}</span>
+      <span class="rc">Reality checks: ${realityChecks}</span>
+    </div>
+    <div class="card">
+      <span class="portrait">${s.portrait}</span>
+      <div class="name">${s.name}</div>
+      <div class="era">${s.era}</div>
+      <div class="setup">${s.setup}</div>
+      <div class="prompt">What do you think happened next?</div>
+      <div id="opts"></div>
+      <div id="revealSlot"></div>
+    </div>
+  `;
+  const box = document.getElementById("opts");
+  opts.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = o.text;
+    b.onclick = () => pick(o, b);
+    box.appendChild(b);
+  });
+}
+
+function pick(opt, btn) {
+  const s = stories[idx];
+  const guessed = opt.grim;
+  if (guessed) realityChecks++;
+
+  document.querySelectorAll(".opt").forEach(b => {
+    b.disabled = true;
+    if (b !== btn && b.innerHTML === s.options.find(o => o.grim).text) {
+      // handled below
+    }
+  });
+  // highlight the grim (true) option
+  document.querySelectorAll(".opt").forEach(b => {
+    const isGrim = s.options.find(o => o.grim).text === b.innerHTML;
+    if (isGrim) b.classList.add("revealed-correct");
+    else if (b === btn) b.classList.add("picked-wrong");
+  });
+
+  const r = document.createElement("div");
+  r.className = "reveal " + (guessed ? "guessed" : "missed");
+  r.innerHTML = `
+    <span class="tag">${guessed
+      ? "😔 Yep. That's exactly what happened."
+      : "❌ Nice thought. History disagrees."}</span>
+    ${s.truth}
+    <span class="silver">${s.silver}</span>
+    <button class="big-btn" onclick="next()">${idx === stories.length - 1 ? "CLOSE THE CASE FILES 🏁" : "NEXT CASE ➡️"}</button>
+  `;
+  document.getElementById("revealSlot").appendChild(r);
+  document.querySelector(".rc").textContent = "Reality checks: " + realityChecks;
+  r.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function next() {
+  idx++;
+  if (idx < stories.length) renderStory();
+  else renderEnd();
+}
+
+function renderEnd() {
+  let verdict;
+  if (realityChecks >= 5) verdict = "You saw the pattern almost every time. History can't fool you.";
+  else if (realityChecks >= 3) verdict = "You caught the pattern about half the time. History kept surprising you.";
+  else verdict = "You kept believing history would be fair. That's kind — but now you know the pattern.";
+
+  app.innerHTML = `
+    <div class="card center">
+      <span class="portrait">🦴</span>
+      <div class="title-big">CASE CLOSED</div>
+      <div class="final-score">${realityChecks} / ${stories.length}</div>
+      <p class="sub">${verdict}</p>
+      <p class="sub">Now think about <b>Mary Anning</b> again. Digging fossils out of deadly cliffs, teaching herself science, while gentlemen bought her discoveries and put <b>their</b> names in the museums.</p>
+      <p class="sub">She wasn't unlucky. She was one of many.</p>
+      <p class="sub" style="color:var(--gold); font-weight:700;">The good news: people like you, learning these names, is exactly how the pattern gets broken. You now know six scientists most adults have never heard of.</p>
+      <button class="big-btn" onclick="restart()">🔄 INVESTIGATE AGAIN</button>
+    </div>
+  `;
+}
+
+function restart() {
+  idx = 0;
+  realityChecks = 0;
+  renderStory();
+}
+
+renderIntro();
+</script>
+
+
+
+<!-- ZOOM CONTROLS -->
+<style>
+#zoomctl{position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+#zoomctl button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.45);
+  background:rgba(20,20,30,.72);color:#fff;font-size:20px;font-weight:900;cursor:pointer;
+  backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1;}
+#zoomctl button:hover{background:rgba(60,60,80,.85);}
+#zoomctl #zreset{font-size:13px;}
+</style>
+<div id="zoomctl" title="Zoom in / out">
+  <button onclick="zStep(1)" aria-label="Zoom in">＋</button>
+  <button id="zreset" onclick="zReset()" aria-label="Reset zoom">1×</button>
+  <button onclick="zStep(-1)" aria-label="Zoom out">－</button>
+</div>
+<script>
+(function(){var z=parseFloat(localStorage.getItem('kwzoom')||'1');
+ if(isNaN(z)||z<0.7||z>1.6)z=1;
+ document.body.style.zoom=z;
+ window.zStep=function(d){z=Math.min(1.6,Math.max(0.7,Math.round((z+d*0.1)*10)/10));
+  document.body.style.zoom=z;localStorage.setItem('kwzoom',z);
+  document.getElementById('zreset').textContent=z.toFixed(1)+'×';};
+ window.zReset=function(){z=1;document.body.style.zoom=z;localStorage.setItem('kwzoom','1');
+  document.getElementById('zreset').textContent='1×';};
+ window.addEventListener('load',function(){document.getElementById('zreset').textContent=z.toFixed(1)+'×';});})();
+</script>
+</body></html>
