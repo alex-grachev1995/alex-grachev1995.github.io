@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
 <title>My Amazing Body</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -25,8 +26,8 @@ h1{font-size:1.7em;text-align:center;color:#ff8ba0;letter-spacing:.5px;text-shad
 .cardimg{width:100%;max-height:340px;object-fit:contain;border-radius:14px;background:#fff;
   box-shadow:0 4px 14px rgba(0,0,0,.15);display:block;margin:0 auto}
 .qq{font-size:1.15em;font-weight:900;text-align:center;margin:12px 0}
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.opt{border:3px solid rgba(0,0,0,.12);border-radius:14px;padding:14px 10px;cursor:pointer;
+.opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.opt{flex:0 1 var(--optw,225px);max-width:100%;border:3px solid rgba(0,0,0,.12);border-radius:14px;padding:14px 10px;cursor:pointer;
   background:#fff;font-size:1em;font-weight:800;color:#333;transition:all .12s;text-align:center;font-family:inherit}
 .opt:hover{border-color:#ff8ba0;transform:translateY(-2px)}
 .opt.right{background:#d8f5e2;border-color:#37c26a;animation:pop .3s}
@@ -118,7 +119,8 @@ function stars(){const s=attempts===0?3:attempts===1?2:1;total+=s;const d=$('dot
   d.className='dot '+(s===3?'good':s===2?'mid':'bad');return s;}
 function nextBtn(){$('nextrow').innerHTML=ri===ROUNDS.length-1
   ?'<button class="btn" onclick="endGame()">FINISH 🏁</button>'
-  :'<button class="btn" onclick="loadRound()">NEXT →</button>';}
+  :'<button class="btn" onclick="nextRound()">NEXT →</button>';}
+function nextRound(){ri++;loadRound();}
 function loadRound(){attempts=0;done=false;renderDots();updateHUD();const r=ROUNDS[ri];let h='';
   if(r.img)h+='<img class="cardimg" src="'+r.img+'" alt="round image">';
   h+='<div class="qq">'+r.q+'</div>';
@@ -126,6 +128,9 @@ function loadRound(){attempts=0;done=false;renderDots();updateHUD();const r=ROUN
   h+='<div class="opts" id="opts"></div><div class="center" id="checkrow" style="margin-top:10px"></div><div class="fb" id="fb"></div>';
   $('card').innerHTML=h;$('nextrow').innerHTML='';
   const opts=$('opts');
+  const n=r.choices.length;
+  const cols=n<=3?n:n===4?2:n%3===0?3:n%2===0?2:3;
+  opts.style.setProperty('--optw',cols===1?'min(440px,92%)':cols===2?'min(330px,46%)':'225px');
   r.choices.forEach((c,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=c;
     if(r.multi){b.classList.add('multi');b.onclick=()=>{if(done)return;sndClick();b.classList.toggle('on');};}
     else b.onclick=()=>pick(i,b);

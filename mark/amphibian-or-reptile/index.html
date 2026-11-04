@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
 <title>Amphibian or Reptile?</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -25,8 +26,8 @@ h1{font-size:1.7em;text-align:center;color:#6fe8a8;letter-spacing:.5px;text-shad
 .cardimg{width:100%;max-height:340px;object-fit:contain;border-radius:14px;background:#fff;
   box-shadow:0 4px 14px rgba(0,0,0,.15);display:block;margin:0 auto}
 .qq{font-size:1.15em;font-weight:900;text-align:center;margin:12px 0}
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.opt{border:3px solid rgba(0,0,0,.12);border-radius:14px;padding:14px 10px;cursor:pointer;
+.opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.opt{flex:0 1 var(--optw,225px);max-width:100%;border:3px solid rgba(0,0,0,.12);border-radius:14px;padding:14px 10px;cursor:pointer;
   background:#fff;font-size:1em;font-weight:800;color:#333;transition:all .12s;text-align:center;font-family:inherit}
 .opt:hover{border-color:#6fe8a8;transform:translateY(-2px)}
 .opt.right{background:#d8f5e2;border-color:#37c26a;animation:pop .3s}
@@ -90,7 +91,7 @@ h1{font-size:1.7em;text-align:center;color:#6fe8a8;letter-spacing:.5px;text-shad
 </div>
 
 <script>
-const ROUNDS=[{"img": "img/r01.jpg", "q": "Webbed toes like flippers — whose foot is this?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A common frog's foot. The webbed toes work like paddles so the frog can swim fast. Soft skin, no claws — classic amphibian!", "cheer": "Amphibian!"}, {"img": "img/r02.jpg", "q": "Thick, scaly legs with strong claws — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A snapping turtle's foot. Land turtles have thick clawed feet for digging and walking. (Sea turtles have flippers instead!)", "cheer": "Reptile!"}, {"img": "img/r03.jpg", "q": "Soft, moist feet with no claws — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A Japanese giant salamander — one of the biggest amphibians on Earth! Its soft feet are perfect for damp riverbeds.", "cheer": "Amphibian!"}, {"img": "img/r04.jpg", "q": "Webbed feet... wait, is this another frog?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [2], "fact": "NEITHER — it's a platypus! This trickster lays eggs like a reptile, has webbed feet like an amphibian, but produces milk — it's a MAMMAL!", "cheer": "Trickster!"}, {"img": "img/r05.jpg", "q": "Clawed toes made for gripping branches — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! An anolis lizard's foot. The clawed toes grip and climb, and the skin is dry and scaly — a true reptile.", "cheer": "Reptile!"}, {"img": "img/r06.jpg", "q": "This isn't a foot at all — it's a flipper! Whose?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A sea turtle's flipper. Sea turtles evolved flippers instead of feet to glide through the ocean — but they're still reptiles, with scaly skin.", "cheer": "Reptile!"}, {"img": "img/r07.jpg", "q": "Stubby webbed feet — whose?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A common toad's feet. Toads are amphibians with drier, bumpier skin than frogs — but no scales and no claws!", "cheer": "Amphibian!"}, {"img": "img/r08.jpg", "q": "Wait — snakes don't have feet! Whose claws are these?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A Burmese python's tiny claw remnants! Snakes evolved from reptiles that had legs, and some snakes still have little leftover claws.", "cheer": "Reptile!"}];
+const ROUNDS=[{"img": "img/r01.jpg", "q": "Webbed toes like flippers — whose foot is this?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A common frog's foot. The webbed toes work like paddles so the frog can swim fast. Soft skin, no claws — classic amphibian!", "cheer": "Amphibian!"}, {"img": "img/r02.jpg", "q": "Thick, scaly legs with strong claws — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A snapping turtle's foot. Land turtles have thick clawed feet for digging and walking. (Sea turtles have flippers instead!)", "cheer": "Reptile!"}, {"img": "img/r03.jpg", "q": "Soft, moist feet with no claws — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A Japanese giant salamander — one of the biggest amphibians on Earth! Its soft feet are perfect for damp riverbeds.", "cheer": "Amphibian!"}, {"img": "img/r04.jpg", "q": "Webbed feet... wait, is this another frog?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [2], "fact": "NEITHER — it's a platypus! This trickster lays eggs like a reptile, has webbed feet like an amphibian, but produces milk — it's a MAMMAL!", "cheer": "Trickster!"}, {"img": "img/r05.jpg", "q": "Clawed toes made for gripping branches — whose foot?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! An anolis lizard's foot. The clawed toes grip and climb, and the skin is dry and scaly — a true reptile.", "cheer": "Reptile!"}, {"img": "img/r06.jpg", "q": "This isn't a foot at all — it's a flipper! Whose?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A sea turtle's flipper. Sea turtles evolved flippers instead of feet to glide through the ocean — but they're still reptiles, with scaly skin.", "cheer": "Reptile!"}, {"img": "img/r07.jpg", "q": "Stubby webbed feet — whose?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [0], "fact": "Amphibian! A common toad's feet. Toads are amphibians with drier, bumpier skin than frogs — but no scales and no claws!", "cheer": "Amphibian!"}, {"img": "img/r08.jpg", "q": "Whose tiny claws are these?", "choices": ["🐸 Amphibian", "🦎 Reptile", "🙅 Neither!"], "ok": [1], "fact": "Reptile! A Burmese python's tiny claw remnants! Snakes evolved from reptiles that had legs, and some snakes still have little leftover claws near the tail.", "cheer": "Reptile!"}];
 let ri=0,total=0,attempts=0,done=false;
 const $=id=>document.getElementById(id);
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0)}
@@ -127,6 +128,9 @@ function loadRound(){attempts=0;done=false;renderDots();updateHUD();const r=ROUN
   h+='<div class="opts" id="opts"></div><div class="center" id="checkrow" style="margin-top:10px"></div><div class="fb" id="fb"></div>';
   $('card').innerHTML=h;$('nextrow').innerHTML='';
   const opts=$('opts');
+  const n=r.choices.length;
+  const cols=n<=3?n:n===4?2:n%3===0?3:n%2===0?2:3;
+  opts.style.setProperty('--optw',cols===1?'min(440px,92%)':cols===2?'min(330px,46%)':'225px');
   r.choices.forEach((c,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=c;
     if(r.multi){b.classList.add('multi');b.onclick=()=>{if(done)return;sndClick();b.classList.toggle('on');};}
     else b.onclick=()=>pick(i,b);
