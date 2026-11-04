@@ -118,7 +118,8 @@ function stars(){const s=attempts===0?3:attempts===1?2:1;total+=s;const d=$('dot
   d.className='dot '+(s===3?'good':s===2?'mid':'bad');return s;}
 function nextBtn(){$('nextrow').innerHTML=ri===ROUNDS.length-1
   ?'<button class="btn" onclick="endGame()">FINISH 🏁</button>'
-  :'<button class="btn" onclick="loadRound()">NEXT →</button>';}
+  :'<button class="btn" onclick="nextRound()">NEXT →</button>';}
+function nextRound(){ri++;loadRound();}
 function loadRound(){attempts=0;done=false;renderDots();updateHUD();const r=ROUNDS[ri];let h='';
   if(r.img)h+='<img class="cardimg" src="'+r.img+'" alt="round image">';
   h+='<div class="qq">'+r.q+'</div>';
