@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>THE RENAISSANCE DREAM TEAM</title>
+<style>
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Avenir Next","Segoe UI",Verdana,sans-serif; background:#f4ecd8; color:#2b2118; min-height:100vh;}
+  #app{max-width:1020px; margin:0 auto; padding:18px 16px 60px;}
+  h1{font-family:Georgia,"Times New Roman",serif; font-size:30px; letter-spacing:1px; color:#5c1f16; text-align:center;}
+  .sub{text-align:center; color:#6d5b3f; margin-top:6px; font-size:15px;}
+  .rule{height:2px; background:linear-gradient(90deg,transparent,#b98a2e,transparent); margin:14px 0 16px;}
+
+  /* talent web */
+  #web{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0 4px;}
+  .skill{background:#e9dec2; border:1px solid #c9b78e; border-radius:10px; padding:7px 10px; min-width:104px; text-align:center; transition:background .5s;}
+  .skill .nm{font-size:12px; font-weight:bold; letter-spacing:1px; color:#5c1f16;}
+  .skill .barwrap{height:8px; background:#d8cba6; border-radius:5px; margin-top:5px; overflow:hidden;}
+  .skill .bar{height:100%; width:0%; background:#8a2b20; border-radius:5px; transition:width .6s;}
+  .skill .cnt{font-size:11px; color:#6d5b3f; margin-top:2px;}
+  .skill.full{background:#f7e9b8; border-color:#b98a2e;}
+
+  /* tabs */
+  .tabs{display:flex; gap:8px; justify-content:center; margin:14px 0 6px; flex-wrap:wrap;}
+  .tab{background:#e9dec2; color:#5c1f16; border:1px solid #c9b78e; border-radius:9px; padding:9px 14px; cursor:pointer; font-size:14px; font-weight:bold;}
+  .tab.on{background:#8a2b20; color:#f4ecd8; border-color:#8a2b20;}
+  .tab.glow{box-shadow:0 0 0 3px #b98a2e;}
+
+  /* the wall */
+  #wall{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:14px; margin-top:12px;}
+  .card{background:#fffaf0; border:1px solid #c9b78e; border-radius:14px; padding:14px; cursor:pointer; position:relative; transition:transform .15s, box-shadow .15s;}
+  .card:hover{transform:translateY(-3px); box-shadow:0 6px 16px rgba(92,31,22,.18);}
+  .card.seen::after{content:"READ"; position:absolute; top:10px; right:12px; font-size:10px; font-weight:bold; color:#4a7a3a; border:1px solid #4a7a3a; border-radius:6px; padding:2px 6px;}
+  .card h3{padding-right:56px;}
+  .medal{width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+         font-family:Georgia,serif; font-size:20px; font-weight:bold; color:#f4ecd8; float:left; margin-right:12px; box-shadow:inset 0 0 0 3px rgba(244,236,216,.5);}
+  .card h3{font-family:Georgia,serif; font-size:18px; color:#5c1f16; line-height:1.15;}
+  .card .dates{font-size:12px; color:#6d5b3f;}
+  .card .phon{font-size:11px; color:#9a8a68; margin-top:1px;}
+  .card .tagline{font-size:13px; font-style:italic; color:#8a2b20; margin-top:3px;}
+  .chips{clear:both; margin-top:10px;}
+  .chip{display:inline-block; background:#e9dec2; border-radius:7px; padding:3px 8px; font-size:11px; margin:2px 3px 2px 0; color:#4a3a24;}
+  .opentip{clear:both; font-size:12px; color:#9a8a68; margin-top:8px;}
+
+  /* modal (dossier) */
+  #modal{display:none; position:fixed; inset:0; background:rgba(43,33,24,.72); z-index:40; overflow-y:auto; padding:20px 12px;}
+  #modal .sheet{background:#fffaf0; max-width:660px; margin:14px auto; border-radius:16px; padding:24px 26px; border:1px solid #b98a2e; position:relative;}
+  #modal h2{font-family:Georgia,serif; color:#5c1f16; font-size:24px;}
+  #modal .x{position:absolute; top:12px; right:16px; font-size:22px; cursor:pointer; color:#8a2b20; font-weight:bold;}
+  .dlabel{font-size:11px; font-weight:bold; letter-spacing:1.5px; color:#b98a2e; margin:16px 0 6px;}
+  .para{font-family:Georgia,serif; font-size:16px; line-height:1.65; margin:10px 0; color:#33271a;}
+  .gap{display:inline-block; min-width:96px; text-align:center; background:#f7e9b8; border:1.5px dashed #b98a2e; border-radius:7px;
+       padding:1px 10px; margin:0 2px; cursor:pointer; font-weight:bold; color:#8a2b20; user-select:none;}
+  .gap:hover{background:#f2dfa0;}
+  .gap.ok{background:#eef3e2; border:1.5px solid #4a7a3a; color:#2f5722; cursor:default;}
+  .opts{display:block; margin:4px 0 8px;}
+  .opt{display:inline-block; background:#fff; border:1.5px solid #c9b78e; border-radius:8px; padding:4px 12px; margin:3px 6px 3px 0; cursor:pointer; font-size:14px;}
+  .opt:hover{background:#f7e9b8;}
+  .opt.no{border-color:#8a2b20; background:#f6d5ce;}
+  .skpill{display:inline-block; border-radius:8px; padding:4px 10px; font-size:12px; font-weight:bold; margin:3px 4px 3px 0; background:#e9dec2; color:#8d7c58;}
+  .skpill.lit{background:#8a2b20; color:#f4ecd8;}
+  .funbox{background:#f7e9b8; border-left:4px solid #b98a2e; border-radius:6px; padding:9px 12px; margin-top:12px; font-size:14px; line-height:1.5;}
+  .funbox b{color:#5c1f16;}
+
+  /* method page */
+  #method{display:none; margin-top:12px;}
+  .mrow{background:#fffaf0; border:1px solid #c9b78e; border-radius:12px; padding:13px 16px; margin-bottom:10px; font-family:Georgia,serif; font-size:16px; line-height:1.6;}
+  .mrow .vopts{margin-top:8px;}
+  .vopt{display:inline-block; background:#e9dec2; border:1.5px solid #c9b78e; border-radius:8px; padding:4px 14px; margin:3px 8px 3px 0; cursor:pointer; font-size:14px; font-weight:bold; color:#5c1f16; user-select:none;}
+  .vopt:hover{background:#f7e9b8;}
+  .vopt.sel{background:#8a2b20; color:#f4ecd8; border-color:#5c1f16;}
+  .vopt.right{background:#4a7a3a; color:#fff; border-color:#4a7a3a;}
+  .vopt.wrongpick{background:#c9b78e; color:#8d7c58;}
+
+  /* step boxes */
+  .steps{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:10px 0;}
+  .stepbox{background:#8a2b20; color:#f7d794; border-radius:8px; padding:6px 12px; font-weight:bold; font-size:13px; letter-spacing:.5px;}
+  .stepbox small{display:block; font-weight:normal; font-size:10px; letter-spacing:0; color:#f4ecd8; opacity:.85;}
+  .steparrow{color:#b98a2e; font-weight:bold;}
+  .steps.modern .stepbox{background:#2e3a5c;}
+  .stepnote{font-size:13px; line-height:1.55; margin-top:6px;}
+  .diffbox{background:#f7e9b8; border-left:4px solid #b98a2e; border-radius:6px; padding:9px 12px; margin-top:10px; font-size:13.5px; line-height:1.55;}
+
+  /* commissions */
+  #comms{display:none; margin-top:12px;}
+  .comm{background:#fffaf0; border:1px solid #c9b78e; border-radius:14px; padding:14px 16px; margin-bottom:12px; cursor:pointer;}
+  .comm.done{opacity:.8; cursor:default;}
+  .comm h3{font-family:Georgia,serif; color:#5c1f16; font-size:17px;}
+  .letter{font-family:Georgia,serif; font-style:italic; font-size:15px; line-height:1.55; color:#4a3a24; margin:8px 0; white-space:pre-line;}
+  .comm .status{min-height:24px; font-size:14px; margin-top:6px;}
+  .comm .reveal{font-size:14px; line-height:1.55; background:#eef3e2; border:1px solid #9ab873; border-radius:8px; padding:10px 12px; margin-top:8px;}
+  .assignline{font-size:12px; color:#6d5b3f; margin-top:4px;}
+  #sealed{display:none; background:#5c1f16; color:#f4ecd8; border-radius:14px; padding:18px 22px; margin-top:14px; font-size:15px; line-height:1.6;}
+  #roster{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:14px 0; position:sticky; top:0; z-index:20;
+         background:rgba(244,236,216,.96); padding:10px 4px 8px; border-radius:0 0 12px 12px; box-shadow:0 4px 10px rgba(92,31,22,.08);}
+  .rchip{background:#e9dec2; border:2px solid #c9b78e; border-radius:10px; padding:7px 12px; cursor:pointer; font-size:13px; font-weight:bold; color:#5c1f16; user-select:none;}
+  .rchip:hover{background:#f7e9b8;}
+  .rchip.sel{background:#8a2b20; color:#f4ecd8; border-color:#5c1f16;}
+  .rchip.used{opacity:.45; text-decoration:line-through; cursor:not-allowed;}
+
+  .bigbtn{display:inline-block; background:#8a2b20; color:#f4ecd8; border:none; border-radius:10px; font-size:15px; padding:10px 20px; cursor:pointer; font-family:inherit; letter-spacing:.5px;}
+  .bigbtn:hover{background:#a03726;}
+  .bigbtn:disabled{background:#c9b78e; color:#8d7c58; cursor:not-allowed;}
+  .center{text-align:center; margin:14px 0;}
+
+  #finale{display:none; background:#5c1f16; color:#f4ecd8; border-radius:14px; padding:20px 24px; margin-top:16px; font-size:15px; line-height:1.65;}
+  #finale h2{font-family:Georgia,serif; color:#f7d794; margin-bottom:8px; font-size:21px;}
+  #finale b{color:#f7d794;}
+  #seals{text-align:center; font-size:20px; letter-spacing:6px; margin:6px 0;}
+  #confetti{position:fixed; inset:0; pointer-events:none; z-index:99;}
+  .foot{margin-top:26px; text-align:center; color:#9a8a68; font-size:12px;}
+  .shakex{animation:shakeX .4s;}
+  @keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}50%{transform:translateX(7px);}75%{transform:translateX(-4px);}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div id="app">
+  <h1>THE RENAISSANCE DREAM TEAM</h1>
+  <div class="sub">Europe, ~1420–1620. Seven people. Five skills. One method that invented the modern world.</div>
+  <div class="rule"></div>
+
+  <div id="web"></div>
+  <div class="center" style="margin:4px 0 0; font-size:12px; color:#6d5b3f;">Open every dossier and fill its gaps — each one feeds the meters. Then write the method. Then take the commissions.</div>
+
+  <div class="tabs">
+    <div class="tab on" id="tabWall" onclick="showTab('wall')">1 · THE WALL</div>
+    <div class="tab" id="tabMethod" onclick="showTab('method')">2 · THE METHOD</div>
+    <div class="tab" id="tabComms" onclick="showTab('comms')">3 · THE COMMISSIONS</div>
+  </div>
+
+  <div id="wall"></div>
+
+  <div id="method">
+    <div id="sealed" style="display:none;margin-bottom:12px;"><b>The letters are sealed.</b> Write the five steps of the method first — the workshop doesn't open until you can say how it's done.</div>
+    <div style="background:#fffaf0;border:1px solid #c9b78e;border-radius:12px;padding:14px 16px;margin-bottom:12px;font-size:15px;line-height:1.55;">
+      The seven dossiers kept quietly agreeing about <b>how</b> these people worked. Six of them lived it; the seventh
+      <a style="color:#8a2b20;text-decoration:underline;cursor:pointer" onclick="openDossier('bac')">named it</a>.
+      Fill in the five steps of the method — each row needs its verb.
+    </div>
+    <div id="mrows"></div>
+    <div class="center"><button class="bigbtn" id="btnMethod" onclick="checkMethod()">CHECK THE METHOD</button></div>
+    <div id="methodWin" style="display:none;background:#eef3e2;border:1px solid #9ab873;border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.6;">
+      <b style="color:#2f5722">The method, written out:</b>
+      <div class="steps">
+        <span class="stepbox">OBSERVED<small>LOOK</small></span><span class="steparrow">→</span>
+        <span class="stepbox">RECORDED<small>DRAW</small></span><span class="steparrow">→</span>
+        <span class="stepbox">QUANTIFIED<small>MEASURE</small></span><span class="steparrow">→</span>
+        <span class="stepbox">CONSTRUCTED<small>BUILD</small></span><span class="steparrow">→</span>
+        <span class="stepbox">DISSEMINATED<small>SHARE</small></span>
+      </div>
+      Leonardo's circle was already living this decades before anyone wrote it down. The commissions are now unsealed —
+      and notice: the last step, SHARE, is the one half these people skipped. See what it cost them.
+      <div class="dlabel" style="margin-top:14px;">MEET THE GRANDCHILD — THE MODERN SCIENTIFIC METHOD</div>
+      <div class="steps modern">
+        <span class="stepbox">ASK<small>question</small></span><span class="steparrow">→</span>
+        <span class="stepbox">HYPOTHESIZE<small>testable guess</small></span><span class="steparrow">→</span>
+        <span class="stepbox">EXPERIMENT<small>controlled test</small></span><span class="steparrow">→</span>
+        <span class="stepbox">ANALYZE<small>data &amp; stats</small></span><span class="steparrow">→</span>
+        <span class="stepbox">PUBLISH<small>peer review</small></span>
+      </div>
+      <div class="stepnote"><b>The family resemblance:</b> OBSERVED ≈ ASK · RECORDED ≈ data collection · QUANTIFIED ≈ ANALYZE · CONSTRUCTED ≈ EXPERIMENT · DISSEMINATED ≈ PUBLISH. Same skeleton, fancier words.</div>
+      <div class="diffbox"><b>Two real differences:</b> (1) The modern method makes <b>nature the judge</b> — a controlled experiment decides between hypotheses, so being wrong is cheap and fast. The Renaissance version trusted the eye and the workshop; it could observe beautifully but couldn't always *test*. (2) <b>Sharing stopped being optional.</b> Today a discovery isn't real until it survives peer review — journals, replication, public data. For the Dream Team, SHARE was a personal choice… and the smallest, most-skipped skill on the whole Wall decided who changed the world.</div>
+    </div>
+  </div>
+
+  <div id="comms">
+    <div id="seals"></div>
+    <div style="text-align:center;font-size:12px;color:#6d5b3f;margin-top:8px;">tap a name (the team stays on top), then tap a commission to send them</div>
+    <div id="roster"></div>
+    <div id="commList"></div>
+    <div id="finale">
+      <h2>All five commissions sealed.</h2>
+      <div class="steps">
+        <span class="stepbox">LOOK</span><span class="steparrow">→</span>
+        <span class="stepbox">DRAW</span><span class="steparrow">→</span>
+        <span class="stepbox">MEASURE</span><span class="steparrow">→</span>
+        <span class="stepbox">BUILD</span><span class="steparrow">→</span>
+        <span class="stepbox">SHARE</span>
+      </div>
+      Even the Dream Team failed sometimes — ask the river Arno. The method doesn't make you right;
+      it makes you <b>checkable</b>.<br><br>
+      And the smallest meter up top decided who changed the world. Leonardo filled thousands of pages and printed
+      none of them; Copernicus waited thirty-six years; the river lost its war. <b>SHARE</b> was the skill the
+      Renaissance was worst at — and the one that separated the names you know from the notebooks nobody read.
+    </div>
+  </div>
+
+  <div class="foot">THE RENAISSANCE DREAM TEAM · v2 · built for one student · the history is real, the saucing is light</div>
+</div>
+
+<div id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+/* =================== data =================== */
+var SKILLS=[
+ {k:'LOOK',    d:'observe nature'},
+ {k:'DRAW',    d:'draw what you see'},
+ {k:'MEASURE', d:'math & geometry'},
+ {k:'BUILD',   d:'machines & making'},
+ {k:'SHARE',   d:'print & publish'}
+];
+/* body paragraphs: strings, or gap objects {opts:[], correct:index} */
+function G(opts,correct){return {g:1,opts:opts,correct:correct};}
+var FIG=[
+ {id:'brun', init:'BR', col:'linear-gradient(135deg,#7a5c2e,#4a3a24)', name:'Filippo Brunelleschi', phon:'broo-nel-LES-kee', dates:'1377–1446', tag:'The Dome Solver',
+  chips:['Architecture','Engineering','Perspective'],
+  skills:[1,1,1,1,0],
+  body:[
+   ["Florence's cathedral needed a dome 45 meters wide — and no tree on Earth was tall enough to build a wooden ",G(['frame','dome','crane'],0)," under it."],
+   ["Brunelleschi won the job with a double-shell dome and building ",G(['machines','mirrors','theatres'],0)," of his own design — no centering at all. Sixteen years to raise it — and nearly six hundred years later it is still ",G(['standing','floating','painted'],0)," over Florence."],
+   ["He also ran the famous mirror ",G(['experiment','factory','funeral'],0)," that turned painting into mathematics: ",G(['perspective','photography','pottery'],0),"."]],
+  fun:"The first recorded patent in history was his — a boat hoist, Florence, 1421. The man invented proving you own an idea."},
+ {id:'gut', init:'JG', col:'linear-gradient(135deg,#5c1f16,#8a2b20)', name:'Johannes Gutenberg', phon:'GOO-ten-burg', dates:'c. 1400–1468', tag:'The Multiplier',
+  chips:['Metalwork','Engineering','Publishing'],
+  skills:[0,0,0,1,1],
+  body:[
+   ["Around ",G(['1450','1650','1250'],0),", in Mainz, he combined movable metal type, a screw press, and oil-based ink into the ",G(['printing press','guillotine','packaging apparatus'],0),". Books that took a copyist three years now took ",G(['weeks','seconds','centuries'],0),"."] ,
+   ["By ",G(['1500','1700','1300'],0)," — fifty years later — presses ran in 282 European cities and had printed around 28,000 ",G(['editions','loaves','statues'],0),"."]],
+  fun:"He printed his famous Bibles while deep in debt — and a creditor took over the press. The man who multiplied words died with very little."},
+ {id:'leo', init:'LDV', col:'linear-gradient(135deg,#3a5a40,#1f3a2a)', name:'Leonardo da Vinci', dates:'1452–1519', tag:'The Notebook Man',
+  chips:['Art','Anatomy','Engineering','Flight','Optics','Geology'],
+  skills:[1,1,1,1,0],
+  body:[
+   ["A painter who got himself permission to ",G(['dissect','paint','frame'],0)," corpses at hospitals, so he could draw organs nobody had drawn — muscles, tendons, even the heart's ",G(['valves','hats','maps'],0),"."] ,
+   ["He filled thousands of journal pages — written in ",G(['mirror','secret','invisible'],0)," script — with flying machines, a ",G(['tank','carriage','teapot'],0),", a parachute, and ideas centuries before the materials existed. He published ",G(['none','several','exactly seven'],0)," of it."]],
+  fun:"Only about 15 of his paintings survive. The most famous artist in history kept almost none of his fame-work — his real life's work was drawings nobody was allowed to read."},
+ {id:'cop', init:'NC', col:'linear-gradient(135deg,#2e3a5c,#1c2440)', name:'Nicolaus Copernicus', phon:'koh-PER-nih-kus', dates:'1473–1543', tag:'The Sky Fixer',
+  chips:['Astronomy','Math','Law','Medicine'],
+  skills:[1,0,1,0,1],
+  body:[
+   ["He studied astronomy, mathematics, law, and ",G(['medicine','cooking','fencing'],0)," — the full Renaissance education."] ,
+   ["And he found fatal flaws in Ptolemy's 1,500-year-old ",G(['model','recipe','map'],0)," of the heavens."] ,
+   ["His fix put the ",G(['Sun','Moon','Pope'],0)," at the center, not Earth. He finished the book around 1530… and ",G(['waited','celebrated','burned it'],0),". De revolutionibus was finally printed in 1543 — the year he ",G(['died','retired','graduated'],0),"."]],
+  fun:"Legend says he was shown the first printed copy on his deathbed. Thirty-six years of waiting, and the press still almost missed him."},
+ {id:'ves', init:'AV', col:'linear-gradient(135deg,#6b3a5c,#42223a)', name:'Andreas Vesalius', phon:'veh-SAY-lee-us', dates:'1514–1564', tag:'The Body Drawer',
+  chips:['Medicine','Anatomy','Illustration'],
+  skills:[1,1,0,0,1],
+  body:[
+   ["Before him, doctors learned the body from a 1,400-year-old book by Galen — who had almost certainly never ",G(['dissected','seen','drawn'],0)," a human body, and was wrong in ways that mattered: the liver, the blood vessels, the jaw."] ,
+   ["Vesalius cut open corpses with his own hands, drew what he actually saw, and published De Humani Corporis ",G(['Fabrica','Pandora','Britannica'],0)," in 1543 — the first accurate illustrated ",G(['anatomy','cookery','geography'],0)," book."] ,
+   ["He dissected in lecture halls while crowds of ",G(['students','tourists','pigeons'],0)," watched — anatomy as must-see entertainment."]],
+  fun:"His bodies came from executed criminals — legally. His dissection schedule depended on the local court's schedule."},
+ {id:'mic', init:'MM', col:'linear-gradient(135deg,#8a5a2e,#5c3a1c)', name:'Michelangelo', phon:'my-kuh-LAN-juh-loh', dates:'1475–1564', tag:'The Ceiling Painter',
+  chips:['Sculpture','Painting','Architecture','Poetry'],
+  skills:[1,1,1,0,0],
+  body:[
+   ["He was sculpting masterpieces in his ",G(['twenties','eighties','teens'],0),", and painted the Sistine Chapel ceiling (1508–1512) lying on a scaffold he designed himself."] ,
+   ["He also secretly ",G(['dissected','ignored','collected'],0)," corpses to learn how muscles sit under the skin — so his bodies would come out ",G(['right','blue','invisible'],0),"."] ,
+   ["At ",G(['71','26','45'],0)," they made him chief architect of St. Peter's Basilica in Rome."]],
+  fun:"He wrote a poem complaining about the Sistine job: paint dripping on his face, spine bent like a bow, neck stuffed like a violin. The great artist mostly remembered being uncomfortable."},
+ {id:'bac', init:'FB', col:'linear-gradient(135deg,#444c55,#23292f)', name:'Francis Bacon', dates:'1561–1626', tag:'The Man Who Named It',
+  chips:['Law','Philosophy','Experiment'],
+  skills:[1,0,1,0,1],
+  body:[
+   ["English lawyer and statesman who argued that knowledge must be built on ",G(['observation','tradition','luck'],0)," and testing, not on ancient books. He named the approach in Novum Organum, ",G(['1620','1520','1720'],0),"."] ,
+   ["Caveat one: he did not ",G(['invent','understand','like'],0)," the method — Leonardo's circle was already living it, and Galileo was running it like a machine across the mountains. Bacon ",G(['named','banned','buried'],0)," it and shouted about it until Europe listened — which is its own kind of contribution."] ,
+   ["Caveat two: he practiced what he preached, fatally. He caught a fatal ",G(['chill','penguin','bicycle'],0)," while stuffing a chicken with snow to study refrigeration. The method gained a martyr; the chicken gained nothing."]],
+  fun:"“Father of the scientific method” is a nickname, not a fact — the method has no birthday and no single dad. Historians argue about him; that arguing is the point."}
+];
+
+/* method page rows — scientific-vocab distractors, correct positions shuffled */
+var METHOD=[
+ {t:"First they ",G2:1,opts:["THEORIZED","OBSERVED","MEMORIZED","CONTEMPLATED"],correct:1,after:" — for hours, systematically, noting what everyone else skimmed past. Leonardo at birds, Vesalius at cuts."},
+ {t:"Then they ",G2:1,opts:["EMBELLISHED","RECALLED","RECORDED","INTUITED"],correct:2,after:" the findings — fixing each observation in lines and labels, so it could be checked tomorrow by someone else."},
+ {t:"Then they ",G2:1,opts:["QUANTIFIED","ADMIRED","POSTULATED","AGGRANDIZED"],correct:0,after:" — counts and geometry against the record, turning description into numbers that can be compared and contested."},
+ {t:"Then they ",G2:1,opts:["CONSTRUCTED","CONTEMPLATED","ATTESTED","INSURED"],correct:0,after:" — a model, a machine, a dome. An idea must survive contact with materials before anyone owes it belief."},
+ {t:"Finally they ",G2:1,opts:["CONCEALED","DECORATED","DISSEMINATED","DELAYED"],correct:2,after:" the results — print or perish. Knowledge locked in a drawer changes no one."}
+];
+
+var COMM=[
+ {fig:'mic', title:'COMMISSION I — THE BLOCK OF MARBLE',
+  letter:'Florence, 1501.\nA five-meter block of marble has stood in the cathedral yard for decades. TWO master sculptors have declared it flawed and walked away. The city wants something — anything — made of it.\nDo something with the block.',
+  reveal:'Michelangelo was 26. He took the block everyone else had rejected, and in 1504 Florence got David. The "flawed" marble became the most famous statue in the world. Some commissions are impossible only until the right person touches them.',
+  declines:{brun:'Brunelleschi works in stone — by the ton and the arch. He walks around the block asking where the load-bearing walls are. There are no walls.',
+            leo:'Leonardo sketches the block from twelve angles, fills four pages with ideas for it, and abandons the project for a better idea. The block remains a block.',
+            gut:'Gutenberg offers to print a pamphlet about the block. The block is unimpressed.',
+            cop:'Copernicus is a boy of 28 in Poland. Also: marble is not his orbit.',
+            ves:'Vesalius could name every muscle in the arms that might carve it. The carving itself: not his field.',
+            bac:'Bacon proposes giving the block to six sculptors and observing the results. The city asked for a statue, not a philosophy seminar.'}},
+ {fig:'leo', title:'COMMISSION II — THE RIVER THAT FEEDS THE ENEMY',
+  letter:'Florence, 1503.\nFlorence is losing its war with Pisa. Almost everything Pisa eats or earns comes up the river Arno — which flows, inconveniently, right past Florence.\nThe river does not care about your war.\nMove it.',
+  reveal:'Leonardo and the political thinker Machiavelli planned it for real: a new channel to cut Pisa off from the sea. Crews of laborers dug for months. Then the banks collapsed in a storm, the money ran out, and Florence lost the war anyway. The right man, a real plan, the wrong enemy: mud. Even the Dream Team lost — which is why the method needs all five steps, not four.',
+  declines:{brun:'Brunelleschi has moved earth and stone his whole life — but his genius is solid things. A living river bends around rain, mud, and bad luck.',
+            gut:'Gutenberg can print maps of the new river. He cannot persuade the river to read them.',
+            cop:'Copernicus computes the river\'s curve beautifully. The river declines to be computed.',
+            ves:'Vesalius offers to document the diggers\' muscles. Florence needs the digging first.',
+            mic:'Michelangelo looks at the river and sees a sculpture not yet carved. Florence needs it moved this year.',
+            bac:'Bacon recommends observing the river for a decade before acting. The war, sadly, continues on its own schedule.'}},
+ {fig:'gut', title:'COMMISSION III — HALF A MILLION FORMS',
+  letter:'Mainz, ~1454.\nThe Church needs an enormous number of identical printed forms distributed across Germany — indulgences, standardized, dated, numbered. Hand-copying cannot keep up, and your workshop badly needs the money.\nMultiply the forms.',
+  reveal:'Gutenberg really did it: his workshop printed indulgences — the Church\'s standardized forms — in bulk, and the income financed the project he actually cared about: the Bible. Even the printing press had a day job.',
+  declines:{brun:'Brunelleschi will happily build you the finest print shop in Europe. He cannot make the words multiply.',
+            leo:'Leonardo designs a self-writing machine. It would take twenty years and several impossible parts. The forms are due this month.',
+            cop:'Copernicus writes everything by hand and publishes thirty-six years late. Wonderful content. Terrible multiplier.',
+            ves:'Vesalius will tell you exactly which vein to open. Multiplication is not medicine.',
+            mic:'Michelangelo writes an excellent poem about the forms. The stack of forms is unchanged.',
+            bac:'Bacon suggests testing three copying methods and observing the results. The Church would like the forms this century.'}},
+ {fig:'cop', title:'COMMISSION IV — THE DRIFTING YEAR',
+  letter:'A letter out of Rome, ~1514.\nEaster keeps landing on the wrong day. The calendar drifts, and the Church has asked a quiet Polish astronomer the obvious question:\ncan the calendar be reformed?',
+  reveal:'Copernicus worked on it and reached the most honest answer in science: not yet. Nobody knew the year\'s true length precisely enough to fix it. He was right — the reformed Gregorian calendar only arrived in 1582, built on decades of new measurements and a Sun-centered sky. Knowing a problem is not yet solvable IS a scientific result.',
+  declines:{brun:'Brunelleschi can build an observatory of unparalleled beauty. He cannot make the year the right length.',
+            leo:'Leonardo\'s notebooks hold the right astronomy — unpublished, as usual. The Church cannot consult a drawer in Milan.',
+            gut:'Gutenberg can print ten thousand new calendars — all of them equally wrong. Printing multiplies whatever it receives; it cannot repair what it receives.',
+            ves:'Vesalius points out that calendars contain no anatomy. He is correct.',
+            mic:'Michelangelo paints the calendar across a ceiling. It is magnificent. The dates still drift.',
+            bac:'Bacon says: measure the year for thirty more years, then decide. This is actually what had to happen — which is small comfort to the Church in 1515.'}},
+ {fig:'ves', title:'COMMISSION V — THE BLEEDING CHAIRS',
+  letter:'Padua, 1530s.\nDoctors open veins at points taken from a 1,400-year-old book by a man who had almost certainly never dissected a human body. The patients keep fainting. The medical faculty refuses to listen.\nYou have the body of an executed criminal and a lecture hall full of students taught from that book.\nSet it straight.',
+  reveal:'Vesalius did it in the open, for years: he dissected corpses with his own hands while lecturing, pointed at the real veins and muscles, and corrected Galen piece by piece — anatomy as public, checkable demonstration, not private opinion. Then he published the evidence as the Fabrica in 1543. The 1,400-year-old textbook did not fall in one afternoon. It fell to decades of looking — and was sealed by one printed book. Corrections only count when they\'re shared.',
+  declines:{brun:'Brunelleschi offers his finest hoist to move the body. He declines to argue with the professors.',
+            leo:'Leonardo could correct the vein map from memory — he had seen it all decades before, in his journals, where no doctor would ever read it.',
+            gut:'Gutenberg will print Galen\'s book beautifully. Beautiful-and-wrong is still wrong.',
+            cop:'Copernicus suggests the doctors recalculate. The patients, meanwhile, keep fainting.',
+            mic:'Michelangelo knows where every muscle is — from the outside. The inside is a different country.',
+            bac:'Bacon offers to design the experiment and supervise. Progress, in this case, requires the knife.'}}
+];
+
+/* =================== helpers =================== */
+var sndCtx=null;
+function beep(f,d,type){try{if(!sndCtx){sndCtx=new (window.AudioContext||window.webkitAudioContext)();}
+  var o=sndCtx.createOscillator(),g=sndCtx.createGain();o.type=type||'sine';o.frequency.value=f;
+  g.gain.setValueAtTime(.10,sndCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,sndCtx.currentTime+(d||.15));
+  o.connect(g);g.connect(sndCtx.destination);o.start();o.stop(sndCtx.currentTime+(d||.15));}catch(e){}}
+function okSnd(){beep(660,.12);setTimeout(function(){beep(880,.15);},110);}
+function badSnd(){beep(170,.22,'sawtooth');}
+function confetti(){var cv=document.getElementById('confetti');var x=cv.getContext('2d');
+  cv.width=innerWidth;cv.height=innerHeight;var ps=[],cols=['#b98a2e','#8a2b20','#3a5a40','#2e3a5c','#f7d794'];
+  for(var i=0;i<80;i++){ps.push({x:innerWidth/2+(Math.random()-.5)*240,y:innerHeight*.35,vx:(Math.random()-.5)*6,vy:-Math.random()*7-2,s:4+Math.random()*5,c:cols[i%5],r:Math.random()*6.3,vr:(Math.random()-.5)*.3});}
+  var t=0;(function anim(){x.clearRect(0,0,cv.width,cv.height);t++;
+    for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.r+=p.vr;
+      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore();}
+    if(t<105){requestAnimationFrame(anim);}else{x.clearRect(0,0,cv.width,cv.height);}})();}
+function byId(id){for(var i=0;i<FIG.length;i++){if(FIG[i].id===id)return FIG[i];}return null;}
+
+/* =================== state =================== */
+var SEEN={};
+var SEL=null;
+var DONE={};
+var MSEL=[-1,-1,-1,-1,-1];
+var MDONE=false;
+
+/* =================== talent web (fills only with SEEN dossiers) =================== */
+function buildWeb(){var h='';
+  for(var i=0;i<SKILLS.length;i++){h+='<div class="skill" id="sk'+i+'"><div class="nm">'+SKILLS[i].k+'</div>'+
+    '<div class="barwrap"><div class="bar" id="skbar'+i+'"></div></div>'+
+    '<div class="cnt" id="skcnt'+i+'">0 of '+FIG.length+'</div></div>';}
+  document.getElementById('web').innerHTML=h;}
+function refreshWeb(){var lit=[0,0,0,0,0];
+  for(var f=0;f<FIG.length;f++){if(!SEEN[FIG[f].id])continue;
+    for(var s=0;s<5;s++){if(FIG[f].skills[s])lit[s]++;}}
+  for(var s2=0;s2<5;s2++){
+    document.getElementById('skbar'+s2).style.width=(lit[s2]/FIG.length*100)+'%';
+    document.getElementById('skcnt'+s2).textContent=lit[s2]+' of '+FIG.length;
+    document.getElementById('sk'+s2).title=SKILLS[s2].d;
+    if(lit[s2]===FIG.length){document.getElementById('sk'+s2).classList.add('full');}
+    else{document.getElementById('sk'+s2).classList.remove('full');}}
+  var n=0;for(var j=0;j<FIG.length;j++){if(SEEN[FIG[j].id])n++;}
+  if(n===FIG.length){document.getElementById('tabMethod').classList.add('glow');}}
+
+/* =================== wall + dossiers =================== */
+function buildWall(){var h='';
+  for(var i=0;i<FIG.length;i++){var f=FIG[i];
+    h+='<div class="card" id="card_'+f.id+'" onclick="openDossier(\''+f.id+'\')">'+
+       '<div class="medal" style="background:'+f.col+'">'+f.init+'</div>'+
+       '<h3>'+f.name+'</h3>'+(f.phon?'<div class="phon">say it: '+f.phon+'</div>':'')+'<div class="dates">'+f.dates+'</div>'+
+       '<div class="tagline">'+f.tag+'</div>'+
+       '<div class="chips">'+f.chips.map(function(c){return '<span class="chip">'+c+'</span>';}).join('')+'</div>'+
+       '<div class="opentip">tap to open the dossier — and fill its gaps</div></div>';}
+  document.getElementById('wall').innerHTML=h;}
+
+function renderPara(p){var h='';
+  for(var i=0;i<p.length;i++){var seg=p[i];
+    if(typeof seg==='string'){h+=seg;}
+    else{h+='<span class="gap" data-k="'+i+'">···</span>';}}
+  return h;}
+
+function openDossier(id){var f=byId(id);if(!f)return;
+  var body='';
+  for(var p=0;p<f.body.length;p++){
+    body+='<div class="para" id="para_'+p+'">'+renderPara(f.body[p])+'</div>';}
+  var pills='';for(var s=0;s<5;s++){pills+='<span class="skpill'+(f.skills[s]?' lit':'')+'">'+SKILLS[s].k+'</span>';}
+  document.getElementById('sheet').innerHTML=
+    '<div class="x" onclick="closeDossier()">×</div>'+
+    '<h2>'+f.name+'</h2><div style="color:#6d5b3f;font-size:13px">'+(f.phon?'say it: <i>'+f.phon+'</i> · ':'')+f.dates+' · '+f.tag+'</div>'+
+    '<div class="dlabel">THE DOSSIER — tap the ··· gaps and choose the right word. The sentence around each gap is your hint.</div>'+
+    body+
+    '<div class="dlabel">SKILLS ON THIS CARD</div><div>'+pills+'</div>'+
+    '<div class="funbox"><b>FUN FACT:</b> '+f.fun+'</div>'+
+    '<div class="center"><button class="bigbtn" onclick="closeDossier()">BACK TO THE WALL</button></div>';
+  document.getElementById('modal').style.display='block';
+  /* wire the gaps */
+  for(var p2=0;p2<f.body.length;p2++){
+    (function(pi){var el=document.getElementById('para_'+pi);
+      if(!el)return;
+      var gaps=el.querySelectorAll('.gap');
+      for(var g=0;g<gaps.length;g++){
+        (function(gi){gaps[gi].addEventListener('click',function(){showOpts(f,pi,gi,this);});})(g);
+      }})(p2);}
+  if(!SEEN[id]){SEEN[id]=true;document.getElementById('card_'+id).classList.add('seen');okSnd();refreshWeb();}}
+
+function showOpts(f,pi,gi,gapEl){
+  /* already solved? */
+  if(gapEl.className.indexOf('ok')>-1)return;
+  /* find the gap object: count gap spans in this paragraph */
+  var para=f.body[pi];var n=0;var gapObj=null;
+  for(var i=0;i<para.length;i++){if(typeof para[i]!=='string'){if(n===gi){gapObj=para[i];break;}n++;}}
+  if(!gapObj)return;
+  /* remove any existing options row in this paragraph */
+  var pel=gapEl.parentNode;var old=pel.parentNode.querySelector('.opts');if(old)old.parentNode.removeChild(old);
+  var row=document.createElement('div');row.className='opts';
+  for(var o=0;o<gapObj.opts.length;o++){
+    (function(oi){var b=document.createElement('span');b.className='opt';b.textContent=gapObj.opts[oi];
+      b.addEventListener('click',function(ev){
+        if(oi===gapObj.correct){gapEl.textContent=gapObj.opts[oi];gapEl.classList.add('ok');
+          row.parentNode.removeChild(row);okSnd();}
+        else{b.classList.add('no');b.classList.remove('shakex');void b.offsetWidth;b.classList.add('shakex');badSnd();}});
+      row.appendChild(b);})(o);}
+  pel.insertAdjacentElement('afterend',row);}
+function closeDossier(){document.getElementById('modal').style.display='none';}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeDossier();});
+
+/* =================== method page =================== */
+function buildMethod(){var h='';
+  for(var i=0;i<METHOD.length;i++){var m=METHOD[i];
+    h+='<div class="mrow" id="mrow'+i+'"><div>'+m.t+'<b id="mblank'+i+'" style="color:#8a2b20">…?</b>'+m.after+'</div>'+
+       '<div class="vopts">'+m.opts.map(function(o,oi){return '<span class="vopt" id="v'+i+'_'+oi+'" onclick="pickVerb('+i+','+oi+')">'+o+'</span>';}).join('')+'</div></div>';}
+  document.getElementById('mrows').innerHTML=h;}
+function pickVerb(i,oi){if(MDONE)return;
+  MSEL[i]=oi;
+  for(var j=0;j<METHOD[i].opts.length;j++){document.getElementById('v'+i+'_'+j).classList.remove('sel');}
+  document.getElementById('v'+i+'_'+oi).classList.add('sel');}
+function checkMethod(){
+  if(MDONE)return;
+  var all=true;
+  for(var i=0;i<METHOD.length;i++){
+    if(MSEL[i]===METHOD[i].correct){document.getElementById('v'+i+'_'+MSEL[i]).classList.add('right');
+      document.getElementById('mblank'+i).textContent=METHOD[i].opts[METHOD[i].correct];
+      document.getElementById('mblank'+i).style.color='#2f5722';}
+    else{all=false;
+      var wrongEl=document.getElementById('v'+i+'_'+MSEL[i]);
+      if(wrongEl){wrongEl.classList.add('shakex');void wrongEl.offsetWidth;}
+      badSnd();}}
+  if(!all){document.getElementById('methodWin').style.display='none';return;}
+  MDONE=true;okSnd();confetti();
+  document.getElementById('methodWin').style.display='block';
+  document.getElementById('btnMethod').disabled=true;
+  document.getElementById('sealed').style.display='none';
+  document.getElementById('tabComms').classList.add('glow');
+  document.getElementById('methodWin').scrollIntoView({behavior:'smooth',block:'center'});}
+
+/* =================== tabs =================== */
+function showTab(which){
+  if(which==='comms'&&!MDONE){which='method';
+    document.getElementById('sealed').style.display='block';}
+  document.getElementById('tabWall').className='tab'+(which==='wall'?' on':'');
+  document.getElementById('tabMethod').className='tab'+(which==='method'?' on':'');
+  document.getElementById('tabComms').className='tab'+(which==='comms'?' on':'');
+  document.getElementById('wall').style.display=(which==='wall'?'grid':'none');
+  document.getElementById('method').style.display=(which==='method'?'block':'none');
+  document.getElementById('comms').style.display=(which==='comms'?'block':'none');
+  if(MDONE){document.getElementById('tabComms').classList.add('glow');}
+  var seenN=0;for(var j=0;j<FIG.length;j++){if(SEEN[FIG[j].id])seenN++;}
+  if(seenN===FIG.length){document.getElementById('tabMethod').classList.add('glow');}
+  window.scrollTo(0,0);}
+
+/* =================== commissions =================== */
+function buildRoster(){var h='';
+  for(var i=0;i<FIG.length;i++){var f=FIG[i];
+    h+='<div class="rchip" id="rc_'+f.id+'" onclick="pick(\''+f.id+'\')">'+f.name+'</div>';}
+  document.getElementById('roster').innerHTML=h;}
+function pick(id){
+  if(Object.keys(DONE).map(function(k){return DONE[k];}).indexOf(id)>-1)return;
+  SEL=id;
+  for(var i=0;i<FIG.length;i++){var el=document.getElementById('rc_'+FIG[i].id);
+    el.className='rchip'+(FIG[i].id===id?' sel':'')+(Object.keys(DONE).map(function(k){return DONE[k];}).indexOf(FIG[i].id)>-1?' used':'');}}
+function buildComms(){var h='';
+  for(var i=0;i<COMM.length;i++){var c=COMM[i];
+    h+='<div class="comm" id="comm'+i+'"><h3>'+c.title+'</h3>'+
+       '<div class="letter">'+c.letter+'</div>'+
+       '<div class="status" id="st'+i+'"></div>'+
+       '<div class="assignline" id="al'+i+'"></div></div>';}
+  document.getElementById('commList').innerHTML=h;
+  for(var j=0;j<COMM.length;j++){
+    (function(idx){document.getElementById('comm'+idx).addEventListener('click',function(){assign(idx);});})(j);}}
+function assign(i){if(DONE[i]!==undefined)return;
+  if(!MDONE){document.getElementById('sealed').style.display='block';showTab('method');badSnd();return;}
+  if(!SEL){document.getElementById('st'+i).innerHTML='<span style="color:#8a2b20">Choose a team member first — tap a name above.</span>';badSnd();return;}
+  var c=COMM[i];
+  if(SEL===c.fig){DONE[i]=SEL;
+    document.getElementById('st'+i).innerHTML='<b style="color:#4a7a3a">ACCEPTED.</b>';
+    document.getElementById('al'+i).innerHTML='<div class="reveal">'+c.reveal+'</div>';
+    document.getElementById('comm'+i).classList.add('done');
+    markUsed(SEL);okSnd();confetti();updateSeals();
+    if(Object.keys(DONE).length===COMM.length){document.getElementById('finale').style.display='block';
+      document.getElementById('finale').scrollIntoView({behavior:'smooth',block:'center'});}}
+  else{var who=byId(SEL);
+    var line=(c.declines&&c.declines[SEL])?c.declines[SEL]:(who.name+' declines, politely but firmly.');
+    document.getElementById('st'+i).innerHTML='<b style="color:#8a2b20">'+who.name.split(' ')[0]+' declines.</b> '+line;
+    badSnd();}}
+function markUsed(id){var el=document.getElementById('rc_'+id);if(el)el.classList.add('used');
+  if(SEL===id)SEL=null;
+  for(var i=0;i<FIG.length;i++){document.getElementById('rc_'+FIG[i].id).classList.remove('sel');}}
+function updateSeals(){var n=Object.keys(DONE).length;
+  document.getElementById('seals').innerHTML='<span style="color:#8a2b20">'+new Array(n+1).join('✉ ')+'</span><span style="color:#c9b78e">'+new Array(COMM.length-n+1).join('✉ ')+'</span>';}
+
+/* =================== boot =================== */
+buildWeb();buildWall();buildMethod();buildRoster();buildComms();refreshWeb();updateSeals();
+</script>
+</body>
+</html>
